@@ -3,17 +3,28 @@ import { StyleSheet } from "react-native";
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
 import ThemedView from "../../components/ThemedView";
+import ThemedButton from "../../components/ThemedButton";
+
+import { requestBluetoothPermissions } from "../../lib/utils/bluetoothPermissions";
 
 const Device = () => {
+    const handlePairing = async () => {
+        const result = await requestBluetoothPermissions();
+        if (result) {
+            alert("Uprawnienia przyznane! Rozpoczynam parowanie...");
+            console.log("Uprawnienia przyznane!");
+        }
+    };
     return (
         <ThemedView style={styles.container} safe>
             <ThemedText title={true} style={styles.heading}>
                 Device
             </ThemedText>
             <Spacer />
-
-            <ThemedText>Paring devices in future</ThemedText>
             <Spacer />
+            <ThemedButton onPress={handlePairing}>
+                <ThemedText>Scan for device</ThemedText>
+            </ThemedButton>
         </ThemedView>
     );
 };
