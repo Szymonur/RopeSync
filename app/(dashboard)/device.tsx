@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-    StyleSheet,
-    Alert,
-    FlatList,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { StyleSheet, Alert, View } from "react-native";
 import { BleManager, Device } from "react-native-ble-plx";
 
 import Spacer from "../../components/Spacer";
@@ -15,13 +9,32 @@ import ThemedButton from "../../components/ThemedButton";
 
 import { requestAndroid31Permissions } from "../../lib/utils/bluetoothPermissions";
 
+// Funkcja pomocnicza kodująca tekst do formatu Base64 (wymagane przez BLE-PLX)
+const encodeToBase64 = (text: string) => {
+    const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let str = text;
+    let output = "";
+    for (
+        let block = 0, charCode, i = 0, map = chars;
+        str.charAt(i | 0) || ((map = "="), i % 1);
+        output += map.charAt(63 & (block >> (8 - (i % 1) * 8)))
+    ) {
+        charCode = str.charCodeAt((i += 3 / 4));
+        block = (block << 8) | charCode;
+    }
+    return output;
+};
+
 const DeviceScreen = () => {
     const [manager] = useState(() => new BleManager());
     const [isScanning, setIsScanning] = useState(false);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
-    // NOWY STAN: Tablica przechowująca znalezione urządzenia
-    const [scannedDevices, setScannedDevices] = useState<Device[]>([]);
+    // Twoje UUID skopiowane z ESP32
+    const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+    const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+    const TARGET_DEVICE_NAME = "RopeSync"; // Czego dokładnie szukamy
 
     useEffect(() => {
         return () => {
@@ -29,7 +42,7 @@ const DeviceScreen = () => {
         };
     }, []);
 
-    const handleScan = async () => {
+    const handleAutoConnect = async () => {
         const hasPermissions = await requestAndroid31Permissions();
         if (!hasPermissions) {
             Alert.alert("Błąd", "Brak uprawnień!");
@@ -42,10 +55,8 @@ const DeviceScreen = () => {
             return;
         }
 
-        // Czyścimy starą listę przed nowym skanowaniem
-        setScannedDevices([]);
         setIsScanning(true);
-        console.log("Rozpoczynam szerokie skanowanie...");
+        console.log(`Szukam urządzenia: ${TARGET_DEVICE_NAME}...`);
 
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
@@ -54,34 +65,33 @@ const DeviceScreen = () => {
                 return;
             }
 
-            if (device) {
-                // Dodajemy urządzenie do listy, omijając duplikaty (sprawdzamy po MAC adresie / ID)
-                setScannedDevices((prevDevices) => {
-                    const isDuplicate = prevDevices.some(
-                        (d) => d.id === device.id
-                    );
-                    if (!isDuplicate) {
-                        return [...prevDevices, device];
-                    }
-                    return prevDevices;
-                });
+            // Jeśli nazwa urządzenia zgadza się z naszym celem
+            if (device && device.name === TARGET_DEVICE_NAME) {
+                console.log(
+                    "Znaleziono RopeSync! Przerywam skanowanie i łączę..."
+                );
+                manager.stopDeviceScan();
+                setIsScanning(false);
+                connectToDevice(device);
             }
         });
 
+        // Timeout, jeśli nie znajdzie po 10 sekundach
         setTimeout(() => {
-            manager.stopDeviceScan();
-            setIsScanning(false);
-            console.log("Koniec czasu skanowania.");
+            if (isScanning) {
+                manager.stopDeviceScan();
+                setIsScanning(false);
+                Alert.alert(
+                    "Niepowodzenie",
+                    "Nie znaleziono RopeSync w pobliżu."
+                );
+            }
         }, 10000);
     };
 
     const connectToDevice = async (device: Device) => {
         try {
-            // Zatrzymujemy skanowanie przed próbą połączenia!
-            manager.stopDeviceScan();
-            setIsScanning(false);
-
-            console.log(`Łączenie z ${device.name || device.id}...`);
+            console.log("Nawiązywanie połączenia...");
             const connected = await device.connect();
             console.log("Połączono! Odkrywanie serwisów...");
 
@@ -89,33 +99,37 @@ const DeviceScreen = () => {
                 await connected.discoverAllServicesAndCharacteristics();
             setConnectedDevice(discovered);
 
-            Alert.alert(
-                "Sukces",
-                `Połączono z ${device.name || "nieznanym urządzeniem"}!`
-            );
+            Alert.alert("Połączono!", "RopeSync jest gotowe do pracy.");
         } catch (e) {
             console.error("Błąd połączenia:", e);
             Alert.alert("Błąd", "Nie udało się połączyć.");
         }
     };
 
-    // Funkcja rysująca pojedynczy element na liście
-    const renderDeviceItem = ({ item }: { item: Device }) => {
-        return (
-            <TouchableOpacity
-                style={styles.deviceItem}
-                onPress={() => connectToDevice(item)}
-            >
-                <ThemedText style={styles.deviceName}>
-                    {item.name || "Nieznane urządzenie"}
-                </ThemedText>
-                <ThemedText style={styles.deviceId}>{item.id}</ThemedText>
-                {/* Pokazujemy siłę sygnału jeśli jest dostępna */}
-                <ThemedText style={styles.deviceRssi}>
-                    RSSI: {item.rssi}
-                </ThemedText>
-            </TouchableOpacity>
-        );
+    // NOWA FUNKCJA: Wysyłanie danych do ESP32
+    const handleSendData = async () => {
+        if (!connectedDevice) {
+            Alert.alert("Błąd", "Najpierw połącz się z urządzeniem!");
+            return;
+        }
+
+        try {
+            // Kodujemy naszą wiadomość do Base64
+            const message = "Siema ESP, tutaj aplikacja!";
+            const base64Data = encodeToBase64(message);
+
+            console.log("Wysyłam dane...");
+            await connectedDevice.writeCharacteristicWithResponseForService(
+                SERVICE_UUID,
+                CHARACTERISTIC_UUID,
+                base64Data
+            );
+
+            console.log("Wysłano pomyślnie!");
+        } catch (error) {
+            console.error("Błąd wysyłania:", error);
+            Alert.alert("Błąd", "Nie udało się wysłać danych.");
+        }
     };
 
     return (
@@ -123,37 +137,31 @@ const DeviceScreen = () => {
             <View style={styles.header}>
                 <ThemedText title={true} style={styles.heading}>
                     Status:{" "}
-                    {connectedDevice ? `Połączono 🟢` : "Brak połączenia 🔴"}
+                    {connectedDevice
+                        ? `Połączono z RopeSync 🟢`
+                        : "Brak połączenia 🔴"}
                 </ThemedText>
-                {connectedDevice && (
-                    <ThemedText style={{ textAlign: "center" }}>
-                        ({connectedDevice.name || connectedDevice.id})
-                    </ThemedText>
-                )}
             </View>
 
-            <ThemedButton onPress={handleScan} disabled={isScanning}>
+            <Spacer />
+
+            <ThemedButton
+                onPress={handleAutoConnect}
+                disabled={isScanning || !!connectedDevice}
+            >
                 <ThemedText>
-                    {isScanning ? "Szukam urządzeń..." : "Skanuj okolicę"}
+                    {isScanning ? "Szukam RopeSync..." : "Połącz z urządzeniem"}
                 </ThemedText>
             </ThemedButton>
 
             <Spacer />
 
-            <FlatList
-                data={scannedDevices}
-                keyExtractor={(item) => item.id}
-                renderItem={renderDeviceItem}
-                style={styles.list}
-                contentContainerStyle={{ paddingBottom: 20 }}
-                ListEmptyComponent={
-                    !isScanning ? (
-                        <ThemedText style={styles.emptyText}>
-                            Brak urządzeń do wyświetlenia.
-                        </ThemedText>
-                    ) : null
-                }
-            />
+            {/* Ten przycisk pojawi się tylko, jeśli jesteś połączony z urządzeniem */}
+            {connectedDevice && (
+                <ThemedButton onPress={handleSendData}>
+                    <ThemedText>Wyślij testowe dane</ThemedText>
+                </ThemedButton>
+            )}
         </ThemedView>
     );
 };
@@ -163,46 +171,16 @@ export default DeviceScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
     },
     header: {
-        marginBottom: 20,
+        marginBottom: 40,
     },
     heading: {
         fontWeight: "bold",
-        fontSize: 18,
+        fontSize: 20,
         textAlign: "center",
-    },
-    list: {
-        flex: 1,
-        width: "100%",
-        paddingHorizontal: 20,
-    },
-    deviceItem: {
-        backgroundColor: "rgba(150, 150, 150, 0.1)",
-        padding: 15,
-        borderRadius: 10,
-        marginBottom: 10,
-        borderWidth: 1,
-        borderColor: "rgba(150, 150, 150, 0.3)",
-    },
-    deviceName: {
-        fontWeight: "bold",
-        fontSize: 16,
-    },
-    deviceId: {
-        fontSize: 12,
-        opacity: 0.7,
-        marginTop: 4,
-    },
-    deviceRssi: {
-        fontSize: 12,
-        opacity: 0.5,
-        marginTop: 2,
-    },
-    emptyText: {
-        textAlign: "center",
-        opacity: 0.5,
-        marginTop: 20,
     },
 });

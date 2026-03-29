@@ -1,4 +1,4 @@
-import { Platform, PermissionsAndroid, Permission } from "react-native";
+import { Platform, PermissionsAndroid} from "react-native";
 
 /**
  * Request runtime permission.
