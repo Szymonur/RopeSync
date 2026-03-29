@@ -4,27 +4,58 @@ import { Platform, PermissionsAndroid, Permission } from "react-native";
  * Request runtime permission.
  * @returns {boolean}
  */
-export async function requestBluetoothPermissions() {
-    if (Platform.OS === "android") {
-        const permissions: Permission[] = [];
-        if (Platform.Version >= 23 && Platform.Version <= 30) {
-            permissions.push(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-            );
-        } else if (Platform.Version >= 31) {
-            permissions.push(
-                PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-                PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
-            );
+export const requestAndroid31Permissions = async () => {
+    const bluetoothScanPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        {
+            title: "Location Permission",
+            message: "Bluetooth Low Energy requires Location",
+            buttonPositive: "OK",
         }
+    );
+    const bluetoothConnectPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        {
+            title: "Location Permission",
+            message: "Bluetooth Low Energy requires Location",
+            buttonPositive: "OK",
+        }
+    );
+    const fineLocationPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+            title: "Location Permission",
+            message: "Bluetooth Low Energy requires Location",
+            buttonPositive: "OK",
+        }
+    );
 
-        if (permissions.length === 0) {
-            return true;
+    return (
+        bluetoothScanPermission === "granted" &&
+        bluetoothConnectPermission === "granted" &&
+        fineLocationPermission === "granted"
+    );
+};
+
+const requestPermissions = async () => {
+    if (Platform.OS === "android") {
+        if ((Platform.Version ?? -1) < 31) {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    title: "Location Permission",
+                    message: "Bluetooth Low Energy requires Location",
+                    buttonPositive: "OK",
+                }
+            );
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } else {
+            const isAndroid31PermissionsGranted =
+                await requestAndroid31Permissions();
+
+            return isAndroid31PermissionsGranted;
         }
-        const granted = await PermissionsAndroid.requestMultiple(permissions);
-        return Object.values(granted).every(
-            (result) => result === PermissionsAndroid.RESULTS.GRANTED
-        );
+    } else {
+        return true;
     }
-    return true;
-}
+};
