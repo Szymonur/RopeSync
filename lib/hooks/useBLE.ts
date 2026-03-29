@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Alert } from "react-native";
 import { BleManager, Device } from "react-native-ble-plx";
 import { requestAndroid31Permissions } from "../utils/bluetoothPermissions";
@@ -28,6 +28,27 @@ export const useBLE = () => {
         qZ: 0,
         qW: 0,
     });
+    const packetCountRef = useRef(0); // Cichy licznik pakietów
+    const [updateRate, setUpdateRate] = useState(0); // Stan wyświetlany na ekranie (Hz)
+    // Timer (Interwał), który co sekundę sprawdza licznik i go resetuje
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        // Uruchamiamy timer tylko, gdy jesteśmy połączeni
+        if (connectedDevice) {
+            interval = setInterval(() => {
+                // Zapisujemy, ile pakietów przyszło przez ostatnią sekundę
+                setUpdateRate(packetCountRef.current);
+                // Resetujemy cichy licznik na start nowej sekundy
+                packetCountRef.current = 0;
+            }, 1000);
+        }
+
+        // Sprzątanie timera przy odłączeniu
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [connectedDevice]);
 
     useEffect(() => {
         return () => {
@@ -51,6 +72,9 @@ export const useBLE = () => {
                 }
 
                 if (characteristic?.value) {
+                    // większenie licznika do śledzenia przychodzących pakietów
+                    packetCountRef.current += 1;
+
                     // 1. Dekodujemy Base64 na surowe bajty
                     const buffer = base64ToArrayBuffer(characteristic.value);
                     const dataView = new DataView(buffer);
@@ -77,6 +101,10 @@ export const useBLE = () => {
                 await connected.discoverAllServicesAndCharacteristics();
             setConnectedDevice(discovered);
             Alert.alert("Connected!", `${BLE_TARGET_NAME} is ready.`);
+
+            packetCountRef.current = 0;
+            setUpdateRate(0);
+
             startStreamingData(discovered);
         } catch (e) {
             console.error("Connection error:", e);
@@ -152,6 +180,8 @@ export const useBLE = () => {
                         "Urządzenie było już rozłączone."
                     );
                 }
+                setConnectedDevice(null);
+                setUpdateRate(0); // Zerujemy wynik na ekranie
 
                 // clean
                 setConnectedDevice(null);
@@ -159,6 +189,8 @@ export const useBLE = () => {
             } catch (error) {
                 console.error("Błąd podczas rozłączania:", error);
                 Alert.alert("Błąd", "Wystąpił problem przy rozłączaniu.");
+                setConnectedDevice(null);
+                setUpdateRate(0);
             }
         }
     };
@@ -170,6 +202,7 @@ export const useBLE = () => {
         disconnectFromDevice,
         sensorData,
         isScanning,
+        updateRate,
         connectedDevice,
     };
 };

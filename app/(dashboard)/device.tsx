@@ -17,6 +17,7 @@ const DeviceScreen = () => {
         connectedDevice,
         disconnectFromDevice,
         sensorData,
+        updateRate,
     } = useBLE();
 
     return (
@@ -63,7 +64,7 @@ const DeviceScreen = () => {
             {connectedDevice && (
                 <View style={styles.dataContainer}>
                     <ThemedText style={styles.dataTitle}>
-                        Dane na żywo (20Hz):
+                        Dane na żywo ( {updateRate} Hz )
                     </ThemedText>
 
                     <View style={styles.dataBox}>
