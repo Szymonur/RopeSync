@@ -1,12 +1,11 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
 import ThemedView from "../../components/ThemedView";
 import ThemedButton from "../../components/ThemedButton";
 
-// Importujemy nasz nowy Hook!
 import { useBLE } from "../../lib/hooks/useBLE";
 
 const DeviceScreen = () => {
@@ -18,10 +17,11 @@ const DeviceScreen = () => {
         disconnectFromDevice,
         sensorData,
         updateRate,
+        resetAltitude,
     } = useBLE();
 
     return (
-        <ThemedView style={styles.container} safe>
+        <ThemedView style={styles.container} safe scroll>
             <View style={styles.header}>
                 <ThemedText title={true} style={styles.heading}>
                     Status:{" "}
@@ -30,8 +30,6 @@ const DeviceScreen = () => {
                         : "Brak połączenia 🔴"}
                 </ThemedText>
             </View>
-
-            <Spacer />
 
             {!connectedDevice && (
                 <ThemedButton
@@ -46,8 +44,6 @@ const DeviceScreen = () => {
                 </ThemedButton>
             )}
 
-            <Spacer />
-
             {connectedDevice && (
                 <>
                     <ThemedButton
@@ -60,12 +56,44 @@ const DeviceScreen = () => {
                     </ThemedButton>
                 </>
             )}
+
             <Spacer />
+
             {connectedDevice && (
                 <View style={styles.dataContainer}>
                     <ThemedText style={styles.dataTitle}>
                         Dane na żywo ( {updateRate} Hz )
                     </ThemedText>
+
+                    <View style={styles.dataBox}>
+                        <ThemedText style={styles.dataLabel}>
+                            Wysokość względem startu:
+                        </ThemedText>
+                        {/* Pokazujemy metry z centymetrową dokładnością */}
+                        <ThemedText
+                            style={[
+                                styles.dataValue,
+                                { color: "#E91E63", fontSize: 32 },
+                            ]}
+                        >
+                            {sensorData.altitude.toFixed(2)} m
+                        </ThemedText>
+                        <ThemedText style={styles.dataSubText}>
+                            Ciśnienie: {sensorData.pressure.toFixed(2)} hPa
+                        </ThemedText>
+
+                        <ThemedButton
+                            onPress={resetAltitude}
+                            style={{
+                                marginTop: 10,
+                                backgroundColor: "#555",
+                            }}
+                        >
+                            <ThemedText style={{ fontSize: 12 }}>
+                                Wyzeruj Wysokość (TARA)
+                            </ThemedText>
+                        </ThemedButton>
+                    </View>
 
                     <View style={styles.dataBox}>
                         <ThemedText style={styles.dataLabel}>
@@ -104,7 +132,6 @@ export default DeviceScreen;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         padding: 20,

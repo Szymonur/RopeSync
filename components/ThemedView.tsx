@@ -1,42 +1,63 @@
-import { StyleProp, View, ViewStyle, useColorScheme } from "react-native";
+import {
+    StyleProp,
+    View,
+    ViewStyle,
+    useColorScheme,
+    ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../constants/Colors";
 
 interface ThemedViewProps {
     style?: StyleProp<ViewStyle>;
-    safe?: Boolean;
+    safe?: boolean;
+    scroll?: boolean;
     children: React.ReactNode;
 }
 
-const ThemedView = ({ style, safe = false, children }: ThemedViewProps) => {
+const ThemedView = ({
+    style,
+    safe = false,
+    scroll = false,
+    children,
+}: ThemedViewProps) => {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme || "light"];
 
-    if (!safe)
-        return (
-            <View
-                style={[
-                    {
-                        backgroundColor: theme.background,
-                    },
-                    style,
-                ]}
-                {...{ children }}
-            />
-        );
-
-    return (
-        <SafeAreaView
+    const content = scroll ? (
+        <ScrollView
+            contentContainerStyle={style}
+            showsVerticalScrollIndicator={false}
+            style={
+                safe
+                    ? undefined
+                    : { flex: 1, backgroundColor: theme.background }
+            }
+        >
+            {children}
+        </ScrollView>
+    ) : (
+        <View
             style={[
-                {
-                    backgroundColor: theme.background,
-                    flex: 1,
-                },
+                !safe && { backgroundColor: theme.background, flex: 1 },
                 style,
             ]}
-            {...{ children }}
-        />
+        >
+            {children}
+        </View>
     );
+
+    if (safe) {
+        return (
+            <SafeAreaView
+                style={{ flex: 1, backgroundColor: theme.background }}
+            >
+                {content}
+            </SafeAreaView>
+        );
+    }
+
+    return content;
 };
 
 export default ThemedView;

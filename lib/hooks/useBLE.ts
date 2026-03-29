@@ -15,6 +15,8 @@ export interface SensorData {
     qY: number;
     qZ: number;
     qW: number;
+    pressure: number;
+    altitude: number;
 }
 
 export const useBLE = () => {
@@ -27,24 +29,25 @@ export const useBLE = () => {
         qY: 0,
         qZ: 0,
         qW: 0,
+        pressure: 0,
+        altitude: 0,
     });
-    const packetCountRef = useRef(0); // Cichy licznik pakietów
-    const [updateRate, setUpdateRate] = useState(0); // Stan wyświetlany na ekranie (Hz)
-    // Timer (Interwał), który co sekundę sprawdza licznik i go resetuje
+    const packetCountRef = useRef(0);
+    const [updateRate, setUpdateRate] = useState(0);
+
+    const baselinePressureRef = useRef<number | null>(null);
+
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
         // Uruchamiamy timer tylko, gdy jesteśmy połączeni
         if (connectedDevice) {
             interval = setInterval(() => {
-                // Zapisujemy, ile pakietów przyszło przez ostatnią sekundę
                 setUpdateRate(packetCountRef.current);
-                // Resetujemy cichy licznik na start nowej sekundy
                 packetCountRef.current = 0;
             }, 1000);
         }
 
-        // Sprzątanie timera przy odłączeniu
         return () => {
             if (interval) clearInterval(interval);
         };
@@ -65,30 +68,51 @@ export const useBLE = () => {
             BLE_CHARACTERISTIC_UUID,
             (error, characteristic) => {
                 if (error) {
-                    // Ignorujemy błędy po rozłączeniu
                     if (error.errorCode !== 2)
                         console.error("Błąd monitorowania:", error);
                     return;
                 }
 
                 if (characteristic?.value) {
-                    // większenie licznika do śledzenia przychodzących pakietów
                     packetCountRef.current += 1;
 
-                    // 1. Dekodujemy Base64 na surowe bajty
+                    // Base64 transfrom
                     const buffer = base64ToArrayBuffer(characteristic.value);
                     const dataView = new DataView(buffer);
 
-                    // 2. Czytamy kolejne liczby Float (po 4 bajty każda)
-                    // Pamiętaj! ESP32 jest "Little Endian" (odwrotna kolejność bajtów), dlatego drugi parametr to "true"
                     const force = dataView.getFloat32(0, true);
                     const qX = dataView.getFloat32(4, true);
                     const qY = dataView.getFloat32(8, true);
                     const qZ = dataView.getFloat32(12, true);
                     const qW = dataView.getFloat32(16, true);
 
-                    // 3. Zapisujemy do stanu (UI się odświeży)
-                    setSensorData({ force, qX, qY, qZ, qW });
+                    // Czytamy 6-tą zmienną (bajt 20) z naszej struktury
+                    const pressure = dataView.getFloat32(20, true);
+
+                    // LOGIKA BAROMETRII RÓŻNICOWEJ
+                    let altitude = 0;
+                    if (pressure > 0) {
+                        // Zapisujemy pierwsze ciśnienie jako naszą "podłogę"
+                        if (baselinePressureRef.current === null) {
+                            baselinePressureRef.current = pressure;
+                        }
+
+                        // Międzynarodowy Wzór Barometryczny (zwraca metry względem ciśnienia bazowego)
+                        // h = 44330 * (1 - (P / P0)^(1/5.255))
+                        const p0 = baselinePressureRef.current;
+                        altitude =
+                            44330 * (1 - Math.pow(pressure / p0, 1 / 5.255));
+                    }
+
+                    setSensorData({
+                        force,
+                        qX,
+                        qY,
+                        qZ,
+                        qW,
+                        pressure,
+                        altitude,
+                    });
                 }
             }
         );
@@ -97,6 +121,10 @@ export const useBLE = () => {
     const connectToDevice = async (device: Device) => {
         try {
             const connected = await device.connect();
+
+            console.log("Negocjowanie MTU...");
+            await manager.requestMTUForDevice(device.id, 128);
+
             const discovered =
                 await connected.discoverAllServicesAndCharacteristics();
             setConnectedDevice(discovered);
@@ -105,11 +133,17 @@ export const useBLE = () => {
             packetCountRef.current = 0;
             setUpdateRate(0);
 
+            baselinePressureRef.current = null;
+
             startStreamingData(discovered);
         } catch (e) {
             console.error("Connection error:", e);
             Alert.alert("Error", "Unable to connect.");
         }
+    };
+
+    const resetAltitude = () => {
+        baselinePressureRef.current = null;
     };
 
     const scanForPeripherals = async () => {
@@ -161,6 +195,7 @@ export const useBLE = () => {
             Alert.alert("Error", "The data could not be sent.");
         }
     };
+
     const disconnectFromDevice = async () => {
         if (connectedDevice) {
             try {
@@ -181,7 +216,7 @@ export const useBLE = () => {
                     );
                 }
                 setConnectedDevice(null);
-                setUpdateRate(0); // Zerujemy wynik na ekranie
+                setUpdateRate(0);
 
                 // clean
                 setConnectedDevice(null);
@@ -195,11 +230,11 @@ export const useBLE = () => {
         }
     };
 
-    // To jest to, co nasz Hook "oddaje" do interfejsu
     return {
         scanForPeripherals,
         sendData,
         disconnectFromDevice,
+        resetAltitude,
         sensorData,
         isScanning,
         updateRate,
