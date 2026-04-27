@@ -1,7 +1,12 @@
 import { Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
 import { Colors } from "../../constants/Colors";
-import { Ionicons, Foundation, FontAwesome5 } from "@expo/vector-icons";
+import {
+    Ionicons,
+    Foundation,
+    FontAwesome5,
+    FontAwesome6,
+} from "@expo/vector-icons";
 
 const DashboardLayout = () => {
     const colorScheme = useColorScheme();
@@ -20,6 +25,23 @@ const DashboardLayout = () => {
                 tabBarInactiveTintColor: theme.iconColour,
             }}
         >
+            <Tabs.Screen
+                name="index"
+                options={{
+                    title: "Home",
+                    tabBarIcon: ({ focused }) => (
+                        <FontAwesome6
+                            size={24}
+                            name="house"
+                            color={
+                                focused
+                                    ? theme.iconColourFocused
+                                    : theme.iconColour
+                            }
+                        />
+                    ),
+                }}
+            />
             <Tabs.Screen
                 name="profile"
                 options={{
