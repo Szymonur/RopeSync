@@ -17,27 +17,35 @@ import { Stack } from "expo-router";
 import { Colors } from "../constants/Colors";
 import { StatusBar } from "expo-status-bar";
 
+import { SQLiteProvider } from "expo-sqlite";
+import { initializeDatabase } from "../database/db";
+
 const RootLayout = () => {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme || "light"];
 
     return (
         <>
-            <StatusBar style="auto" />
-            <Stack
-                // Options to all screens in the stack
-                screenOptions={{
-                    headerStyle: { backgroundColor: theme.navBackground },
-                    headerTintColor: theme.title,
-                    headerTitleStyle: { fontWeight: "bold" },
-                }}
+            <SQLiteProvider
+                databaseName="ropesync.db"
+                onInit={initializeDatabase}
             >
-                {/* <Stack.Screen name="(auth)" options={{ headerShown: false }} /> */}
-                <Stack.Screen
-                    name="(dashboard)"
-                    options={{ headerShown: false }}
-                />
-            </Stack>
+                <StatusBar style="auto" />
+                <Stack
+                    // Options to all screens in the stack
+                    screenOptions={{
+                        headerStyle: { backgroundColor: theme.navBackground },
+                        headerTintColor: theme.title,
+                        headerTitleStyle: { fontWeight: "bold" },
+                    }}
+                >
+                    {/* <Stack.Screen name="(auth)" options={{ headerShown: false }} /> */}
+                    <Stack.Screen
+                        name="(dashboard)"
+                        options={{ headerShown: false }}
+                    />
+                </Stack>
+            </SQLiteProvider>
         </>
     );
 };

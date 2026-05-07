@@ -38,7 +38,7 @@ export const useBLE = () => {
     const baselinePressureRef = useRef<number | null>(null);
 
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: any;
 
         // Uruchamiamy timer tylko, gdy jesteśmy połączeni
         if (connectedDevice) {
@@ -114,12 +114,14 @@ export const useBLE = () => {
                         altitude,
                     });
                 }
-            }
+            },
         );
     };
 
     const connectToDevice = async (device: Device) => {
         try {
+            console.log("start");
+
             const connected = await device.connect();
 
             console.log("Negocjowanie MTU...");
@@ -128,7 +130,6 @@ export const useBLE = () => {
             const discovered =
                 await connected.discoverAllServicesAndCharacteristics();
             setConnectedDevice(discovered);
-            Alert.alert("Connected!", `${BLE_TARGET_NAME} is ready.`);
 
             packetCountRef.current = 0;
             setUpdateRate(0);
@@ -136,6 +137,7 @@ export const useBLE = () => {
             baselinePressureRef.current = null;
 
             startStreamingData(discovered);
+            console.log("end");
         } catch (e) {
             console.error("Connection error:", e);
             Alert.alert("Error", "Unable to connect.");
@@ -147,6 +149,8 @@ export const useBLE = () => {
     };
 
     const scanForPeripherals = async () => {
+        console.log("scanForPeripherals");
+
         const hasPermissions = await requestAndroid31Permissions();
         if (!hasPermissions) {
             Alert.alert("Error", "Insufficient permissions");
@@ -188,7 +192,7 @@ export const useBLE = () => {
             await connectedDevice.writeCharacteristicWithResponseForService(
                 BLE_SERVICE_UUID,
                 BLE_CHARACTERISTIC_UUID,
-                base64Data
+                base64Data,
             );
         } catch (error) {
             console.error("Send error:", error);
@@ -200,7 +204,7 @@ export const useBLE = () => {
         if (connectedDevice) {
             try {
                 const isConnected = await manager.isDeviceConnected(
-                    connectedDevice.id
+                    connectedDevice.id,
                 );
                 if (isConnected) {
                     console.log("Rozłączanie z urządzeniem...");
@@ -208,11 +212,11 @@ export const useBLE = () => {
                     console.log("Rozłączono");
                 } else {
                     console.log(
-                        "Urządzenie rozłączyło się samo w tle (np. utrata zasięgu)."
+                        "Urządzenie rozłączyło się samo w tle (np. utrata zasięgu).",
                     );
                     Alert.alert(
                         "Informacja",
-                        "Urządzenie było już rozłączone."
+                        "Urządzenie było już rozłączone.",
                     );
                 }
                 setConnectedDevice(null);

@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
@@ -11,7 +11,6 @@ import { useBLE } from "../../lib/hooks/useBLE";
 const DeviceScreen = () => {
     const {
         scanForPeripherals,
-        sendData,
         isScanning,
         connectedDevice,
         disconnectFromDevice,
@@ -20,20 +19,30 @@ const DeviceScreen = () => {
         resetAltitude,
     } = useBLE();
 
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (isLoading) {
+            setIsLoading(false);
+        }
+    }, [connectedDevice]);
+
     return (
         <ThemedView style={styles.container} safe scroll>
             <View style={styles.header}>
                 <ThemedText title={true} style={styles.heading}>
-                    Status:{" "}
                     {connectedDevice
                         ? `Połączono z RopeSync 🟢`
                         : "Brak połączenia 🔴"}
                 </ThemedText>
             </View>
-
-            {!connectedDevice && (
+            {isLoading && <ActivityIndicator size="large" color="#FFF" />}
+            {!connectedDevice && !isLoading && (
                 <ThemedButton
-                    onPress={scanForPeripherals}
+                    onPress={() => {
+                        scanForPeripherals();
+                        setIsLoading(true);
+                    }}
                     disabled={isScanning || !!connectedDevice}
                 >
                     <ThemedText>
@@ -43,22 +52,7 @@ const DeviceScreen = () => {
                     </ThemedText>
                 </ThemedButton>
             )}
-
-            {connectedDevice && (
-                <>
-                    <ThemedButton
-                        onPress={() => sendData("Siema ESP, tutaj aplikacja!")}
-                    >
-                        <ThemedText>Wyślij testowe dane</ThemedText>
-                    </ThemedButton>
-                    <ThemedButton onPress={() => disconnectFromDevice()}>
-                        <ThemedText>Rozłącz</ThemedText>
-                    </ThemedButton>
-                </>
-            )}
-
             <Spacer />
-
             {connectedDevice && (
                 <View style={styles.dataContainer}>
                     <ThemedText style={styles.dataTitle}>
@@ -122,6 +116,9 @@ const DeviceScreen = () => {
                             W: {sensorData.qW.toFixed(3)}
                         </ThemedText>
                     </View>
+                    <ThemedButton onPress={() => disconnectFromDevice()}>
+                        <ThemedText>Rozłącz</ThemedText>
+                    </ThemedButton>
                 </View>
             )}
         </ThemedView>
