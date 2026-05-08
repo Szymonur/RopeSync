@@ -1,0 +1,66 @@
+{
+    "date": "2025-03-16",
+    "user": "user1",
+    "startTime": "2025-03-16T11:26:55Z",
+    "routeLenght": 20.8,
+    "timeline": [
+        {
+            "timestamp": 40,
+            "height": 1.8,
+            "events": [
+                {
+                    "type": "clip",
+                    "clipingTime": 1.3,
+                    "force": 0.04,
+                    "belayRate": 9
+                }
+            ]
+        },
+        {
+            "timestamp": 120,
+            "height": 6.3,
+            "events": [
+                {
+                    "type": "clip",
+                    "clipingTime": 2,
+                    "force": 0.12,
+                    "belayRate": 7
+                }
+            ]
+        },
+
+        {
+            "timestamp": 450,
+            "height": 10.3,
+            "events": [
+                {
+                    "type": "fall",
+                    "force": 1.3,
+                    "duration": 2.5,
+                    "fallenDisnace": 4.1
+                }
+            ]
+        },
+        {
+            "timestamp": 600,
+            "height": 16.3,
+            "events": [
+                {
+                    "type": "clip",
+                    "clipingTime": 2,
+                    "force": 0.4,
+                    "belayRate": 2
+                }
+            ]
+        },
+        {
+            "timestamp": 980,
+            "height": 20.8,
+            "events": [
+                {
+                    "type": "anchor"
+                }
+            ]
+        }
+    ]
+}

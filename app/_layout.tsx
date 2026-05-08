@@ -37,9 +37,6 @@ const InitialLayout = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
 
-        console.log("Current segments:", segments);
-        console.log("Token state:", userToken ? "Exists" : "Null");
-
         if (!userToken && !inAuthGroup) {
             // Brak tokena i nie jesteśmy w logowaniu -> przekieruj do /login
             router.replace("/(auth)/login");

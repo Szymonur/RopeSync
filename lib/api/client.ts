@@ -14,12 +14,28 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         const token = await authStorage.getToken();
-        if (token) {
+        if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
     (error) => {
+        return Promise.reject(error);
+    },
+);
+
+// Interceptor reagujący na błędy (np. wygasły token)
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (
+            error.response &&
+            (error.response.status === 401 || error.response.status === 403)
+        ) {
+            await authStorage.removeToken(); // TODO - jakoś lepiej zarządzić wygasłymi kluczami, co z offline first? 
+            // To nie zaktualizuje stanu w AuthContext automatycznie,
+            // ale spowoduje, że kolejne przeładowanie aplikacji przekieruje do logowania.
+        }
         return Promise.reject(error);
     },
 );

@@ -4,12 +4,17 @@ import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
 import ThemedView from "../../components/ThemedView";
 
+import ThemedTimeline from "../../components/ThemedTimeline";
+
 const Index = () => {
     return (
         <ThemedView safe>
             <ThemedText title={true} style={styles.heading}>
                 Home
             </ThemedText>
+            <Spacer />
+            <ThemedTimeline userId={3} />
+            <Spacer />
         </ThemedView>
     );
 };

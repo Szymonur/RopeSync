@@ -42,11 +42,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     useEffect(() => {
         const bootstrapAsync = async () => {
-            const token = await authStorage.getToken();
-            if (token) {
-                setUserToken(token);
+            try {
+                const token = await authStorage.getToken();
+                if (token) {
+                    // W idealnym świecie tutaj wywołujemy np. UserService.getCurrentUser()
+                    // aby sprawdzić czy token jest nadal ważny.
+                    setUserToken(token);
+                }
+            } catch (e) {
+                console.error("Błąd inicjalizacji tokena:", e);
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
 
         bootstrapAsync();

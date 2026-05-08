@@ -22,7 +22,15 @@ the array of quantiroins fowm IMU andcoresponging height from barometer for each
 ## optymalizacja danych na esp
 
 
-duy trickrate ale esp zapisuje do pliku z przejscia dane zoptymalizwoane 
+duzy trickrate ale esp zapisuje do pliku z przejscia dane zoptymalizwoane 
 
 jeśli odchylenie standardowe < progu to zapsiujemy jedne pomiar który będzie średnią z danycn pomiarów 
 np raz na sekundę 
+
+## timeline
+
+timeline w pionie - od dołu zaczynając i scroll w górę 
+
+po lewej stonie wysokość 
+
+po prawej stronie wydazenia takie jak: odpadnięcie z wraz z siłą udezenia - oraz długość lotu - czas lotu?
