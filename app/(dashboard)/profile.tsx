@@ -43,6 +43,9 @@ const Profile = () => {
                 <Spacer />
 
                 <ThemedText>Welcome {profile?.username}</ThemedText>
+                <ThemedText>role: {profile?.role}</ThemedText>
+                <ThemedText>id: {profile?.id}</ThemedText>
+
                 <ThemedButton onPress={logout}>
                     <ThemedText style={{ textAlign: "center" }}>
                         Wyloguj
