@@ -17,10 +17,13 @@ import { StyleSheet, useColorScheme } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Colors } from "../constants/Colors";
 import { initializeDatabase } from "../database/db";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+
+const queryClient = new QueryClient();
 
 const InitialLayout = () => {
     const { userToken, isLoading } = useAuth();
@@ -64,15 +67,17 @@ const InitialLayout = () => {
 
 const RootLayout = () => {
     return (
-        <AuthProvider>
-            <SQLiteProvider
-                databaseName="ropesync.db"
-                onInit={initializeDatabase}
-            >
-                <StatusBar style="auto" />
-                <InitialLayout />
-            </SQLiteProvider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+                <SQLiteProvider
+                    databaseName="ropesync.db"
+                    onInit={initializeDatabase}
+                >
+                    <StatusBar style="auto" />
+                    <InitialLayout />
+                </SQLiteProvider>
+            </AuthProvider>
+        </QueryClientProvider>
     );
 };
 

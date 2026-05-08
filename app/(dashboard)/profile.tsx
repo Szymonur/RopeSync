@@ -6,22 +6,51 @@ import ThemedView from "../../components/ThemedView";
 import ThemedButton from "../../components/ThemedButton";
 import { useAuth } from "../../contexts/AuthContext";
 
+import { useMe } from "../../lib/hooks/useProfile";
+
 const Profile = () => {
     const { logout } = useAuth();
+    const { data: profile, isLoading, error } = useMe();
+
+    if (isLoading)
+        // TODO - komponent do ładowania
+        return (
+            <ThemedView style={styles.container} safe>
+                <ThemedText>Ładowanie...</ThemedText>
+            </ThemedView>
+        );
+    if (error)
+        return (
+            <ThemedView style={styles.container} safe>
+                <ThemedText title={true} style={styles.heading}>
+                    Coś poszło nie tak!
+                </ThemedText>
+                <Spacer />
+                <ThemedButton onPress={logout}>
+                    <ThemedText style={{ textAlign: "center" }}>
+                        Wyloguj
+                    </ThemedText>
+                </ThemedButton>
+            </ThemedView>
+        );
 
     return (
-        <ThemedView style={styles.container} safe>
-            <ThemedText title={true} style={styles.heading}>
-                Profile
-            </ThemedText>
-            <Spacer />
+        <>
+            <ThemedView style={styles.container} safe>
+                <ThemedText title={true} style={styles.heading}>
+                    Profile
+                </ThemedText>
+                <Spacer />
 
-            <ThemedText>you</ThemedText>
-            <ThemedButton onPress={logout}>
-                <ThemedText style={{ textAlign: "center" }}>Wyloguj</ThemedText>
-            </ThemedButton>
-            <Spacer />
-        </ThemedView>
+                <ThemedText>Welcome {profile?.username}</ThemedText>
+                <ThemedButton onPress={logout}>
+                    <ThemedText style={{ textAlign: "center" }}>
+                        Wyloguj
+                    </ThemedText>
+                </ThemedButton>
+                <Spacer />
+            </ThemedView>
+        </>
     );
 };
 
@@ -30,7 +59,6 @@ export default Profile;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // justifyContent: "center",
         alignItems: "center",
     },
     heading: {

@@ -5,6 +5,7 @@ import React, {
     ReactNode,
     useContext,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import * as authStorage from "../lib/utils/authStorage";
 
 // 1. Definiujemy kształt danych w naszym kontekście
@@ -37,6 +38,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [userToken, setUserToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         const bootstrapAsync = async () => {
@@ -58,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = async () => {
         await authStorage.removeToken();
         setUserToken(null);
-        const token = await authStorage.getToken();
+        queryClient.clear();
     };
 
     return (
