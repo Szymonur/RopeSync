@@ -18,7 +18,6 @@ const Login = () => {
     const [userPassword, setUserPassword] = useState("");
 
     const handleSubmit = async () => {
-        console.log(userLogin, userPassword);
         try {
             const response = await fetch("http://192.168.18.2:8443/login", {
                 method: "POST",
@@ -32,7 +31,6 @@ const Login = () => {
                 }),
             });
             const json = await response.json();
-            console.log(json);
             if (json.token) {
                 await login(json.token);
             } else {
@@ -51,7 +49,7 @@ const Login = () => {
         <ThemedView style={styles.container} safe>
             <Spacer />
             <ThemedText title={true} style={styles.title}>
-                Login To Tour Account
+                Login
             </ThemedText>
 
             <ThemedTextInput

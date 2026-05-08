@@ -1,23 +1,74 @@
-import { StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { StyleSheet, Alert } from "react-native";
+import { Link, useRouter } from "expo-router";
 
 import ThemedView from "../../components/ThemedView";
 import ThemedText from "../../components/ThemedText";
 import ThemedButton from "../../components/ThemedButton";
-
+import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
 
+import { useAuth } from "../../contexts/AuthContext";
+import { useState } from "react";
+
 const Register = () => {
-    const handleSubmit = () => {
-        console.log("Handle register");
+    const [userLogin, setUserLogin] = useState("");
+    const [userPassword, setUserPassword] = useState("");
+
+    const router = useRouter();
+
+    const handleSubmit = async () => {
+        const response = await fetch("http://192.168.18.2:8443/register", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                username: userLogin,
+                password: userPassword,
+            }),
+        });
+        if (response.status === 400) {
+            Alert.alert("Registration failed", "Enter credentials.", [
+                { text: "OK" },
+            ]);
+        }
+        if (response.status === 409) {
+            Alert.alert(
+                "Registration failed",
+                "A user with that username already exists! Please choose a different username.",
+                [{ text: "OK" }],
+            );
+        }
+
+        if (response.status === 201) {
+            Alert.alert("Registration succeed", "Now login to yout acount.", [
+                { text: "OK", onPress: () => router.replace("/(auth)/login") },
+            ]);
+        }
     };
 
     return (
         <ThemedView style={styles.container} safe>
             <Spacer />
             <ThemedText title={true} style={styles.title}>
-                Register For an Account
+                Register
             </ThemedText>
+
+            <ThemedTextInput
+                placeholder="Login"
+                style={{ width: "80%", marginBottom: 20 }}
+                onChangeText={setUserLogin}
+                value={userLogin}
+            ></ThemedTextInput>
+            <ThemedTextInput
+                placeholder="Password"
+                style={{ width: "80%", marginBottom: 20 }}
+                keyboardType="visible-password"
+                onChangeText={setUserPassword}
+                value={userPassword}
+            ></ThemedTextInput>
+
             <ThemedButton onPress={handleSubmit}>
                 <ThemedText style={{ textAlign: "center" }}>
                     Register
