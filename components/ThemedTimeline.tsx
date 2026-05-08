@@ -105,24 +105,6 @@ const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
                                         },
                                     ]}
                                 >
-                                    <Ionicons
-                                        name="timer-outline"
-                                        size={12}
-                                        color="white"
-                                    />{" "}
-                                    {Math.floor(item.timestamp / 60)}:
-                                    {(item.timestamp % 60)
-                                        .toString()
-                                        .padStart(2, "0")}
-                                </ThemedText>
-                                <ThemedText
-                                    style={[
-                                        {
-                                            fontSize: 12,
-                                            textAlign: "right",
-                                        },
-                                    ]}
-                                >
                                     {item.height} m
                                 </ThemedText>
                             </View>
@@ -146,9 +128,37 @@ const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
                                     },
                                 ]}
                             >
-                                <ThemedText style={styles.eventType}>
-                                    {event.type.toUpperCase()}
-                                </ThemedText>
+                                <View
+                                    style={[
+                                        {
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            flexDirection: "row",
+                                            height: 20,
+                                        },
+                                    ]}
+                                >
+                                    <ThemedText style={styles.eventType}>
+                                        {event.type.toUpperCase()}
+                                    </ThemedText>
+                                    <ThemedText
+                                        style={[
+                                            {
+                                                fontSize: 12,
+                                            },
+                                        ]}
+                                    >
+                                        <Ionicons
+                                            name="timer-outline"
+                                            size={12}
+                                            color="white"
+                                        />{" "}
+                                        {Math.floor(item.timestamp / 60)}:
+                                        {(item.timestamp % 60)
+                                            .toString()
+                                            .padStart(2, "0")}
+                                    </ThemedText>
+                                </View>
 
                                 {event.type === "fall" &&
                                     "fallenDisnace" in event &&
