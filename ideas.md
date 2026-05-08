@@ -17,3 +17,12 @@ array of fals: the falls with timestamp and the moment of pich and the number of
 start height: start height witch metests above sea level - maybe aray of pitches with those two for each?
 end height: start height witch metests above sea level
 the array of quantiroins fowm IMU andcoresponging height from barometer for each pitch to "draw" the route
+
+
+## optymalizacja danych na esp
+
+
+duy trickrate ale esp zapisuje do pliku z przejscia dane zoptymalizwoane 
+
+jeśli odchylenie standardowe < progu to zapsiujemy jedne pomiar który będzie średnią z danycn pomiarów 
+np raz na sekundę 
