@@ -14,8 +14,6 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         const token = await authStorage.getAccessToken();
-        console.log("token in api.interceptors.request:", token);
-
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -34,9 +32,30 @@ api.interceptors.response.use(
             error.response &&
             (error.response.status === 401 || error.response.status === 403)
         ) {
-            await authStorage.removeAccessToken(); // TODO - jakoś lepiej zarządzić wygasłymi kluczami, co z offline first?
-            // To nie zaktualizuje stanu w AuthContext automatycznie,
-            // ale spowoduje, że kolejne przeładowanie aplikacji przekieruje do logowania.
+            try {
+                const refreshToken = await authStorage.getRefreshToken();
+                const response = await fetch(
+                    "http://192.168.18.2:8443/refresh",
+                    {
+                        method: "POST",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            refreshToken: refreshToken,
+                        }),
+                    },
+                );
+                if (response.status === 200) {
+                    console.log("SUCCESFULY REFRESHED ACCES ROCTEN");
+
+                    const json = await response.json();
+                    await authStorage.saveRefreshToken(json.accessToken);
+                }
+            } catch (error) {
+                console.error("Error durig refresh acces tocken", error);
+            }
         }
         return Promise.reject(error);
     },

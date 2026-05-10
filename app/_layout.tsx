@@ -26,7 +26,7 @@ import { AuthProvider, useAuth } from "../contexts/AuthContext";
 const queryClient = new QueryClient();
 
 const InitialLayout = () => {
-    const { userToken, isLoading } = useAuth();
+    const { accessToken, isLoading } = useAuth();
     const segments = useSegments();
     const router = useRouter();
     const colorScheme = useColorScheme();
@@ -37,14 +37,14 @@ const InitialLayout = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
 
-        if (!userToken && !inAuthGroup) {
+        if (!accessToken && !inAuthGroup) {
             // Brak tokena i nie jesteśmy w logowaniu -> przekieruj do /login
             router.replace("/(auth)/login");
-        } else if (userToken && inAuthGroup) {
+        } else if (accessToken && inAuthGroup) {
             // Jest token i jesteśmy w logowaniu -> przekieruj do dashboardu
             router.replace("/(dashboard)");
         }
-    }, [userToken, isLoading, segments]);
+    }, [accessToken, isLoading, segments]);
 
     return (
         <Stack

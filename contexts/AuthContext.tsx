@@ -11,7 +11,8 @@ import { UserService } from "../services/api/UserService";
 
 // 1. Definiujemy kształt danych w naszym kontekście
 interface AuthContextData {
-    userToken: string | null;
+    accessToken: string | null;
+    refreshToken: string | null;
     isLoading: boolean;
     login: (accessToken: string, refreshToken: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -37,29 +38,27 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [userToken, setUserToken] = useState<string | null>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [refreshToken, setRefreshToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const queryClient = useQueryClient();
 
     useEffect(() => {
         const bootstrapAsync = async () => {
             try {
-                const token = await authStorage.getAccessToken();
-                if (token) {
+                const accessToken = await authStorage.getAccessToken();
+                const refreshToken = await authStorage.getRefreshToken();
+
+                if (accessToken) {
+                    console.log("accessToken in auth context: ", accessToken);
                     // W idealnym świecie tutaj wywołujemy np. UserService.getCurrentUser()
                     // aby sprawdzić czy token jest nadal ważny.
-                    setUserToken(token);
+                    setAccessToken(accessToken);
                 }
-                // if (token) {
-                //     console.log(token);
-                //     const user = await UserService.getCurrentUser();
-                //     if (user) {
-                //         console.log("authContext-user", user);
-                //         setUserToken(token);
-                //     } else {
-                //         logout();
-                //     }
-                // }
+                if (refreshToken) {
+                    console.log("refreshToken in auth context: ", refreshToken);
+                    setRefreshToken(refreshToken);
+                }
             } catch (e) {
                 console.error("Błąd inicjalizacji tokena:", e);
             } finally {
@@ -74,18 +73,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await authStorage.saveAccessToken(accesToken);
         console.log(refreshToken);
 
-        setUserToken(accesToken);
+        setAccessToken(accesToken);
     };
 
     const logout = async () => {
         await authStorage.removeAccessToken();
         await authStorage.removeRefreshToken();
-        setUserToken(null);
+        setAccessToken(null);
+        setRefreshToken(null);
         queryClient.clear();
     };
 
     return (
-        <AuthContext.Provider value={{ userToken, isLoading, login, logout }}>
+        <AuthContext.Provider
+            value={{ accessToken, refreshToken, isLoading, login, logout }}
+        >
             {children}
         </AuthContext.Provider>
     );
