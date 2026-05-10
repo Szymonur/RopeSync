@@ -7,17 +7,32 @@ import ThemedView from "../../components/ThemedView";
 import ThemedText from "../../components/ThemedText";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
+import NetInfo from "@react-native-community/netinfo";
 
 import { useAuth } from "../../contexts/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Login = () => {
     const { login } = useAuth();
-
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
+    const [internetConnection, setInternetConnection] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener((state) => {
+            setInternetConnection(state.isConnected ?? false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const handleSubmit = async () => {
+        if (!internetConnection) {
+            // TODO - dodać logowanie lokalne
+            Alert.alert("No internet", "... ", [{ text: "OK" }]);
+            return;
+        }
+
         try {
             const response = await fetch("http://192.168.18.2:8443/login", {
                 method: "POST",
@@ -31,8 +46,8 @@ const Login = () => {
                 }),
             });
             const json = await response.json();
-            if (json.token) {
-                await login(json.token);
+            if (json.accesToken && json.refreshToken) {
+                await login(json.accesToken, json.refreshToken);
             } else {
                 Alert.alert(
                     "Login failed",

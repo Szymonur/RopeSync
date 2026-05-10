@@ -7,12 +7,13 @@ import React, {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as authStorage from "../lib/utils/authStorage";
+import { UserService } from "../services/api/UserService";
 
 // 1. Definiujemy kształt danych w naszym kontekście
 interface AuthContextData {
     userToken: string | null;
     isLoading: boolean;
-    login: (token: string) => Promise<void>;
+    login: (accessToken: string, refreshToken: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -43,12 +44,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const bootstrapAsync = async () => {
             try {
-                const token = await authStorage.getToken();
+                const token = await authStorage.getAccessToken();
                 if (token) {
                     // W idealnym świecie tutaj wywołujemy np. UserService.getCurrentUser()
                     // aby sprawdzić czy token jest nadal ważny.
                     setUserToken(token);
                 }
+                // if (token) {
+                //     console.log(token);
+                //     const user = await UserService.getCurrentUser();
+                //     if (user) {
+                //         console.log("authContext-user", user);
+                //         setUserToken(token);
+                //     } else {
+                //         logout();
+                //     }
+                // }
             } catch (e) {
                 console.error("Błąd inicjalizacji tokena:", e);
             } finally {
@@ -59,13 +70,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         bootstrapAsync();
     }, []);
 
-    const login = async (token: string) => {
-        await authStorage.saveToken(token);
-        setUserToken(token);
+    const login = async (accesToken: string, refreshToken: string) => {
+        await authStorage.saveAccessToken(accesToken);
+        console.log(refreshToken);
+
+        setUserToken(accesToken);
     };
 
     const logout = async () => {
-        await authStorage.removeToken();
+        await authStorage.removeAccessToken();
+        await authStorage.removeRefreshToken();
         setUserToken(null);
         queryClient.clear();
     };
