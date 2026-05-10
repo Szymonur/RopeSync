@@ -48,7 +48,7 @@ CREATE TABLE Skale_boulderowe (
 );
 
 CREATE TABLE Drogi (
-    id_drogi INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_drogi TEXT PRIMARY KEY,
     typ_drogi TEXT NOT NULL CHECK (typ_drogi IN ('sportowa', 'trad', 'boulder')),
     nazwa_drogi TEXT NOT NULL,
     id_skaly INTEGER NOT NULL,  
@@ -59,7 +59,7 @@ CREATE TABLE Drogi (
 );
 
 CREATE TABLE Drogi_sportowe_szczegoly (
-    id_drogi INTEGER PRIMARY KEY,
+    id_drogi TEXT PRIMARY KEY,
     dlugosc_drogi INTEGER NOT NULL,
     liczba_ringow INTEGER NOT NULL,
     stanowisko TEXT,
@@ -69,7 +69,7 @@ CREATE TABLE Drogi_sportowe_szczegoly (
 );
 
 CREATE TABLE Trady_szczegoly (
-    id_drogi INTEGER PRIMARY KEY,
+    id_drogi TEXT PRIMARY KEY,
     dlugosc_drogi INTEGER NOT NULL,
     czy_stanowiska INTEGER NOT NULL CHECK (czy_stanowiska IN (0, 1)),
     potrzebny_sprzet TEXT NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE Trady_szczegoly (
 );
 
 CREATE TABLE Bouldery_szczegoly (
-    id_drogi INTEGER PRIMARY KEY,
+    id_drogi TEXT PRIMARY KEY,
     wysokosc REAL NOT NULL,
     liczba_potrzebnych_crashpadow INTEGER,
     skala_boulderowa TEXT NOT NULL,
@@ -118,35 +118,35 @@ CREATE TABLE Style_przejscia (
 );
 
 CREATE TABLE Przejscia (
-    id_przejscia INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_przejscia TEXT PRIMARY KEY,
     data TEXT DEFAULT CURRENT_DATE,
     uri_timeline TEXT,
     notatka TEXT,
     id_uzytkownika INTEGER NOT NULL,
     nazwa_stylu TEXT NOT NULL,
-    id_drogi INTEGER NOT NULL,
+    id_drogi TEXT NOT NULL,
     FOREIGN KEY (id_uzytkownika) REFERENCES Uzytkownicy(id_uzytkownika) ON DELETE CASCADE,
     FOREIGN KEY (nazwa_stylu) REFERENCES Style_przejscia(nazwa_stylu) ON UPDATE CASCADE ON DELETE RESTRICT,
     FOREIGN KEY (id_drogi) REFERENCES Drogi(id_drogi) ON DELETE CASCADE
 );
 
 CREATE TABLE Reakcje (
-    id_uzytkownika INTEGER NOT NULL,
-    id_przejscia INTEGER NOT NULL,
+    id_uzytkownika TEXT NOT NULL,
+    id_przejscia TEXT NOT NULL,
     PRIMARY KEY (id_uzytkownika, id_przejscia),
     FOREIGN KEY (id_uzytkownika) REFERENCES Uzytkownicy(id_uzytkownika) ON DELETE CASCADE,
     FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
 );
 
 CREATE TABLE Pomiary_wyciagow (
-    id_sesji INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_sesji TEXT PRIMARY KEY,
     id_urzadzenia TEXT,
     start_pomiaru TEXT NOT NULL,
     koniec_pomiaru TEXT NOT NULL,
     max_wysokosc REAL NOT NULL,
     min_wysokosc REAL NOT NULL,
     max_sila REAL NOT NULL,
-    id_przejscia INTEGER NOT NULL,
+    id_przejscia TEXT NOT NULL,
 	CHECK (koniec_pomiaru >= start_pomiaru),
 	CHECK (max_wysokosc >= min_wysokosc),
     FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
