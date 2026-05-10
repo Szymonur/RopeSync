@@ -22,11 +22,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Colors } from "../constants/Colors";
 import { initializeDatabase } from "../database/db";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { NetworkProvider } from "../contexts/NetworkContext";
 
 const queryClient = new QueryClient();
 
 const InitialLayout = () => {
-    const { accessToken, isLoading } = useAuth();
+    const { accessToken, refreshToken, isLoading } = useAuth();
     const segments = useSegments();
     const router = useRouter();
     const colorScheme = useColorScheme();
@@ -37,14 +38,14 @@ const InitialLayout = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
 
-        if (!accessToken && !inAuthGroup) {
+        if (!refreshToken && !inAuthGroup) {
             // Brak tokena i nie jesteśmy w logowaniu -> przekieruj do /login
             router.replace("/(auth)/login");
-        } else if (accessToken && inAuthGroup) {
+        } else if (refreshToken && inAuthGroup) {
             // Jest token i jesteśmy w logowaniu -> przekieruj do dashboardu
             router.replace("/(dashboard)");
         }
-    }, [accessToken, isLoading, segments]);
+    }, [accessToken, refreshToken, isLoading, segments]);
 
     return (
         <Stack
@@ -65,15 +66,17 @@ const InitialLayout = () => {
 const RootLayout = () => {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-                <SQLiteProvider
-                    databaseName="ropesync.db"
-                    onInit={initializeDatabase}
-                >
-                    <StatusBar style="auto" />
-                    <InitialLayout />
-                </SQLiteProvider>
-            </AuthProvider>
+            <NetworkProvider>
+                <AuthProvider>
+                    <SQLiteProvider
+                        databaseName="ropesync.db"
+                        onInit={initializeDatabase}
+                    >
+                        <StatusBar style="auto" />
+                        <InitialLayout />
+                    </SQLiteProvider>
+                </AuthProvider>
+            </NetworkProvider>
         </QueryClientProvider>
     );
 };

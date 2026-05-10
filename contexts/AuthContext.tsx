@@ -71,9 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = async (accesToken: string, refreshToken: string) => {
         await authStorage.saveAccessToken(accesToken);
-        console.log(refreshToken);
-
+        await authStorage.saveRefreshToken(refreshToken);
         setAccessToken(accesToken);
+        setRefreshToken(refreshToken);
     };
 
     const logout = async () => {

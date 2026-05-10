@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Alert } from "react-native";
 
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
@@ -14,7 +14,6 @@ const Profile = () => {
     const { data: profile, isLoading, error } = useMe();
 
     if (isLoading)
-        // TODO - komponent do ładowania
         return (
             <ThemedView style={styles.container} safe>
                 <ThemedText>Ładowanie...</ThemedText>
@@ -36,25 +35,21 @@ const Profile = () => {
         );
 
     return (
-        <>
-            <ThemedView style={styles.container} safe>
-                <ThemedText title={true} style={styles.heading}>
-                    Profile
-                </ThemedText>
-                <Spacer />
+        <ThemedView style={styles.container} safe>
+            <ThemedText title={true} style={styles.heading}>
+                Profile
+            </ThemedText>
+            <Spacer />
 
-                <ThemedText>Welcome {profile?.username}</ThemedText>
-                <ThemedText>role: {profile?.role}</ThemedText>
-                <ThemedText>id: {profile?.id}</ThemedText>
+            <ThemedText>Welcome {profile?.username}</ThemedText>
+            <ThemedText>role: {profile?.role}</ThemedText>
+            <ThemedText>id: {profile?.id}</ThemedText>
 
-                <ThemedButton onPress={logout}>
-                    <ThemedText style={{ textAlign: "center" }}>
-                        Wyloguj
-                    </ThemedText>
-                </ThemedButton>
-                <Spacer />
-            </ThemedView>
-        </>
+            <ThemedButton onPress={logout}>
+                <ThemedText style={{ textAlign: "center" }}>Wyloguj</ThemedText>
+            </ThemedButton>
+            <Spacer />
+        </ThemedView>
     );
 };
 

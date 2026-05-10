@@ -28,33 +28,41 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
+        const originalRequest = error.config;
+
         if (
             error.response &&
-            (error.response.status === 401 || error.response.status === 403)
+            (error.response.status === 401 || error.response.status === 403) &&
+            !originalRequest._retry
         ) {
+            originalRequest._retry = true;
             try {
                 const refreshToken = await authStorage.getRefreshToken();
-                const response = await fetch(
-                    "http://192.168.18.2:8443/refresh",
-                    {
-                        method: "POST",
-                        headers: {
-                            Accept: "application/json",
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            refreshToken: refreshToken,
-                        }),
-                    },
-                );
-                if (response.status === 200) {
-                    console.log("SUCCESFULY REFRESHED ACCES ROCTEN");
+                if (!refreshToken) return;
 
+                const response = await fetch(`${API_URL}/refresh`, {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        refreshToken: refreshToken,
+                    }),
+                });
+
+                if (response.status === 200) {
                     const json = await response.json();
-                    await authStorage.saveRefreshToken(json.accessToken);
+                    await authStorage.saveAccessToken(json.accessToken);
+
+                    originalRequest.headers.Authorization = `Bearer ${json.accessToken}`;
+                    return api(originalRequest);
                 }
-            } catch (error) {
-                console.error("Error durig refresh acces tocken", error);
+            } catch (refreshError) {
+                console.error(
+                    "Error during refresh access token",
+                    refreshError,
+                );
             }
         }
         return Promise.reject(error);

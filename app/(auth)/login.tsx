@@ -7,29 +7,20 @@ import ThemedView from "../../components/ThemedView";
 import ThemedText from "../../components/ThemedText";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
-import NetInfo from "@react-native-community/netinfo";
 
 import { useAuth } from "../../contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useNetwork } from "../../contexts/NetworkContext";
+import { useState } from "react";
 
 const Login = () => {
     const { login } = useAuth();
+    const { isConnected } = useNetwork();
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
-    const [internetConnection, setInternetConnection] = useState(false);
-
-    useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener((state) => {
-            setInternetConnection(state.isConnected ?? false);
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     const handleSubmit = async () => {
-        if (!internetConnection) {
-            // TODO - dodać logowanie lokalne
-            Alert.alert("No internet", "... ", [{ text: "OK" }]);
+        if (!isConnected) {
+            Alert.alert("No internet", "You are currently offline. Please check your connection.", [{ text: "OK" }]);
             return;
         }
 
