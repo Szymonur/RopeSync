@@ -3,7 +3,9 @@ import api from "../../lib/api/client";
 export interface UserProfile {
     id: string;
     username: string;
-    email?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
     role: string;
 }
 
