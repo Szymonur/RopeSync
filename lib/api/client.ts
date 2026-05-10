@@ -13,7 +13,9 @@ const api = axios.create({
 // Interceptor dodający token Authorization do każdego zapytania
 api.interceptors.request.use(
     async (config) => {
-        const token = await authStorage.getToken();
+        const token = await authStorage.getAccessToken();
+        console.log("token in api.interceptors.request:", token);
+
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,7 +34,7 @@ api.interceptors.response.use(
             error.response &&
             (error.response.status === 401 || error.response.status === 403)
         ) {
-            await authStorage.removeToken(); // TODO - jakoś lepiej zarządzić wygasłymi kluczami, co z offline first? 
+            await authStorage.removeAccessToken(); // TODO - jakoś lepiej zarządzić wygasłymi kluczami, co z offline first?
             // To nie zaktualizuje stanu w AuthContext automatycznie,
             // ale spowoduje, że kolejne przeładowanie aplikacji przekieruje do logowania.
         }

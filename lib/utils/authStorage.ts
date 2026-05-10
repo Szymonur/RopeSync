@@ -1,28 +1,58 @@
 import * as SecureStore from "expo-secure-store";
 
-const TOKEN_KEY = "jwt_auth_token";
+const ACCESS_TOKEN_KEY = "jwt_access_token";
+const REFRESH_TOKEN_KEY = "jwt_refresh_token";
 
-export const saveToken = async (token: string): Promise<void> => {
+// ACCESS TOKEN
+
+export const saveAccessToken = async (token: string): Promise<void> => {
     try {
-        await SecureStore.setItemAsync(TOKEN_KEY, token);
+        await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
     } catch (error) {
-        console.error("Błąd podczas zapisywania tokenu", error);
+        console.error("Błąd podczas zapisywania Access Tokenu", error);
     }
 };
 
-export const getToken = async (): Promise<string | null> => {
+export const getAccessToken = async (): Promise<string | null> => {
     try {
-        return await SecureStore.getItemAsync(TOKEN_KEY);
+        return await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     } catch (error) {
-        console.error("Błąd podczas pobierania tokenu", error);
+        console.error("Błąd podczas pobierania Access Tokenu", error);
         return null;
     }
 };
 
-export const removeToken = async (): Promise<void> => {
+export const removeAccessToken = async (): Promise<void> => {
     try {
-        await SecureStore.deleteItemAsync(TOKEN_KEY);
+        await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
     } catch (error) {
-        console.error("Błąd podczas usuwania tokenu", error);
+        console.error("Błąd podczas usuwania Access Tokenu", error);
+    }
+};
+
+// REFRESH TOKEN
+
+export const saveRefreshToken = async (token: string): Promise<void> => {
+    try {
+        await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
+    } catch (error) {
+        console.error("Błąd podczas zapisywania Refresh Tokenu", error);
+    }
+};
+
+export const getRefreshToken = async (): Promise<string | null> => {
+    try {
+        return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    } catch (error) {
+        console.error("Błąd podczas pobierania Refresh Tokenu", error);
+        return null;
+    }
+};
+
+export const removeRefreshToken = async (): Promise<void> => {
+    try {
+        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    } catch (error) {
+        console.error("Błąd podczas usuwania Refresh Tokenu", error);
     }
 };
