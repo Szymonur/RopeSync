@@ -13,6 +13,9 @@ import { useState } from "react";
 const Register = () => {
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
 
     const router = useRouter();
 
@@ -26,6 +29,9 @@ const Register = () => {
             body: JSON.stringify({
                 username: userLogin,
                 password: userPassword,
+                firstName,
+                lastName,
+                email,
             }),
         });
         if (response.status === 400) {
@@ -55,6 +61,25 @@ const Register = () => {
                 Register
             </ThemedText>
 
+            <ThemedTextInput
+                placeholder="First Name"
+                style={{ width: "80%", marginBottom: 20 }}
+                onChangeText={setFirstName}
+                value={firstName}
+            ></ThemedTextInput>
+            <ThemedTextInput
+                placeholder="Last Name"
+                style={{ width: "80%", marginBottom: 20 }}
+                onChangeText={setLastName}
+                value={lastName}
+            ></ThemedTextInput>
+            <ThemedTextInput
+                placeholder="Email"
+                style={{ width: "80%", marginBottom: 20 }}
+                keyboardType="email-address"
+                onChangeText={setEmail}
+                value={email}
+            ></ThemedTextInput>
             <ThemedTextInput
                 placeholder="Login"
                 style={{ width: "80%", marginBottom: 20 }}
