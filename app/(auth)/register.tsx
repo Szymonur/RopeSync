@@ -45,7 +45,7 @@ const Register = () => {
                 "A user with that username already exists! Please choose a different username.",
                 [{ text: "OK" }],
             );
-        }
+        } 
 
         if (response.status === 201) {
             Alert.alert("Registration succeed", "Now login to yout acount.", [

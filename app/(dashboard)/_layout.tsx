@@ -93,6 +93,23 @@ const DashboardLayout = () => {
                     ),
                 }}
             />
+            <Tabs.Screen
+                name="ascents"
+                options={{
+                    title: "Ascents",
+                    tabBarIcon: ({ focused }) => (
+                        <FontAwesome5
+                            size={24}
+                            name="route"
+                            color={
+                                focused
+                                    ? theme.iconColourFocused
+                                    : theme.iconColour
+                            }
+                        />
+                    ),
+                }}
+            />
         </Tabs>
     );
 };

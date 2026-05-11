@@ -1,6 +1,8 @@
-import { StyleSheet, FlatList, Alert } from "react-native";
+import { StyleSheet, FlatList, View } from "react-native";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
@@ -9,103 +11,51 @@ import ThemedButton from "../../components/ThemedButton";
 import ThemedCard from "../../components/ThemedCard";
 
 import {
-    AscentRepository,
-    Ascent,
-} from "../../database/repositories/AscentRepository";
-import { useMe } from "../../lib/hooks/useProfile";
+    RegionRepository,
+    Region,
+} from "../../database/repositories/RegionRepository";
 
 const Routes = () => {
     const db = useSQLiteContext();
-    const { data: user } = useMe();
-    const [ascents, setAscents] = useState<Ascent[]>([]);
+    const [regions, setRegions] = useState<Region[]>([]);
 
     // Inicjalizacja repozytorium
-    const repository = useMemo(() => new AscentRepository(db), [db]);
+    const repository = useMemo(() => new RegionRepository(db), [db]);
 
-    const loadAscents = async () => {
-        if (!user?.id) return;
+    const loadRegions = async () => {
         try {
-            const data = await repository.getAscentsForUser(Number(user.id));
-            setAscents(data);
+            const data = await repository.getAllRegions();
+            setRegions(data);
         } catch (error) {
-            console.error("Błąd podczas ładowania przejść:", error);
+            console.error("Błąd podczas ładowania regionów:", error);
         }
     };
 
     useEffect(() => {
-        loadAscents();
-    }, [user?.id]);
-
-    const handleAddSampleAscent = async () => {
-        if (!user?.id || !user?.username || !user?.email) {
-            Alert.alert("Błąd", "Niepełne dane użytkownika.");
-            return;
-        }
-
-        try {
-            // 1. Upewnij się, że użytkownik istnieje lokalnie (klucz obcy!)
-            await db.runAsync(
-                `INSERT OR IGNORE INTO Uzytkownicy (id_uzytkownika, login, email, imie, nazwisko) 
-                 VALUES (?, ?, ?, ?, ?)`,
-                [
-                    Number(user.id),
-                    user.username,
-                    user.email,
-                    user.firstName || "User",
-                    user.lastName || "Test",
-                ],
-            );
-
-            // 2. Dodaj przejście
-            const newAscent = {
-                id_przejscia: Math.random().toString(36).substring(7),
-                data: new Date().toISOString().split("T")[0],
-                notatka:
-                    "Przejście testowe: " + new Date().toLocaleTimeString(),
-                id_uzytkownika: Number(user.id),
-                nazwa_stylu: "OS",
-                id_drogi: "droga_123", // Ta droga została dodana do SEED_DATA
-            };
-
-            await repository.addAscent(newAscent);
-            Alert.alert("Sukces", "Dodano nowe przejście!");
-            loadAscents();
-        } catch (error) {
-            console.error("Błąd podczas dodawania:", error);
-            Alert.alert(
-                "Błąd SQL",
-                "Upewnij się, że zrestartowałeś aplikację po zmianie SEED_DATA.\n\n" +
-                    error,
-            );
-        }
-    };
+        loadRegions();
+    }, []);
 
     return (
         <ThemedView style={styles.container} safe>
             <ThemedText title={true} style={styles.heading}>
-                Moje Przejścia
+                Regiony
             </ThemedText>
             <Spacer />
 
-            <ThemedButton onPress={handleAddSampleAscent}>
-                <ThemedText>Dodaj testowe przejście</ThemedText>
-            </ThemedButton>
-
             <Spacer height={20} />
-
+            {/* <View style={styles.mapContainer}>
+                <MapView provider={PROVIDER_GOOGLE} style={styles.map} />
+            </View> */}
             <FlatList
-                data={ascents}
-                keyExtractor={(item) => item.id_przejscia}
+                data={regions}
                 style={{ width: "100%" }}
                 renderItem={({ item }) => (
                     <ThemedCard style={styles.card}>
                         <ThemedText style={styles.bold}>
-                            {item.nazwa_stylu} - {item.id_drogi}
+                            {item?.kraj} - {item.nazwa_rejonu}
                         </ThemedText>
-                        <ThemedText>{item.data}</ThemedText>
-                        <ThemedText style={styles.note}>
-                            {item.notatka}
-                        </ThemedText>
+                        <ThemedText>{item.dlugosc_geograficzna}</ThemedText>
+                        <ThemedText>{item.szerokosc_geograficzna}</ThemedText>
                     </ThemedCard>
                 )}
                 ListEmptyComponent={
@@ -122,6 +72,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+    },
+    mapContainer: {
+        width: "100%",
+        height: 300,
+        marginBottom: 20,
+        borderRadius: 15,
+        overflow: "hidden",
+    },
+    map: {
+        width: "100%",
+        height: "100%",
     },
     heading: {
         fontWeight: "bold",
