@@ -22,9 +22,9 @@ const ThemedText = ({
     return (
         <Text
             style={[
-                style,
                 { color: textColor },
                 bold && { fontWeight: "bold" },
+                style,
             ]}
             {...{ children }}
         />

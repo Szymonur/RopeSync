@@ -1,7 +1,8 @@
 import axios from "axios";
 import * as authStorage from "../utils/authStorage";
 
-const API_URL = "http://192.168.18.2:8443";
+// const API_URL = "http://192.168.18.2:8443";
+const API_URL = "http://localhost:8443";
 
 const api = axios.create({
     baseURL: API_URL,

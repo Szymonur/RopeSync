@@ -100,7 +100,7 @@ const DashboardLayout = () => {
                     tabBarIcon: ({ focused }) => (
                         <FontAwesome5
                             size={24}
-                            name="route"
+                            name="mountain"
                             color={
                                 focused
                                     ? theme.iconColourFocused

@@ -19,8 +19,10 @@ const Register = () => {
 
     const router = useRouter();
 
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
     const handleSubmit = async () => {
-        const response = await fetch("http://192.168.18.2:8443/register", {
+        const response = await fetch(`${API_URL}/register`, {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -45,7 +47,7 @@ const Register = () => {
                 "A user with that username already exists! Please choose a different username.",
                 [{ text: "OK" }],
             );
-        } 
+        }
 
         if (response.status === 201) {
             Alert.alert("Registration succeed", "Now login to yout acount.", [

@@ -19,14 +19,6 @@ const DeviceScreen = () => {
         resetAltitude,
     } = useBLE();
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        if (isLoading) {
-            setIsLoading(false);
-        }
-    }, [connectedDevice]);
-
     return (
         <ThemedView style={styles.container} safe scroll>
             <View style={styles.header}>
@@ -36,12 +28,11 @@ const DeviceScreen = () => {
                         : "Brak połączenia 🔴"}
                 </ThemedText>
             </View>
-            {isLoading && <ActivityIndicator size="large" color="#FFF" />}
-            {!connectedDevice && !isLoading && (
+            {isScanning && <ActivityIndicator size="large" color="#FFF" />}
+            {!connectedDevice && !isScanning && (
                 <ThemedButton
                     onPress={() => {
                         scanForPeripherals();
-                        setIsLoading(true);
                     }}
                     disabled={isScanning || !!connectedDevice}
                 >

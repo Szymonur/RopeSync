@@ -18,14 +18,20 @@ const Login = () => {
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
 
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
     const handleSubmit = async () => {
         if (!isConnected) {
-            Alert.alert("No internet", "You are currently offline. Please check your connection.", [{ text: "OK" }]);
+            Alert.alert(
+                "No internet",
+                "You are currently offline. Please check your connection.",
+                [{ text: "OK" }],
+            );
             return;
         }
 
         try {
-            const response = await fetch("http://192.168.18.2:8443/login", {
+            const response = await fetch(`${API_URL}/login`, {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
