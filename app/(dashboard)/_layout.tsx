@@ -1,6 +1,7 @@
 import { Tabs, Stack } from "expo-router";
-import { useColorScheme } from "react-native";
 import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../contexts/ThemeContext";
+
 import {
     Ionicons,
     Foundation,
@@ -9,8 +10,8 @@ import {
 } from "@expo/vector-icons";
 
 const DashboardLayout = () => {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme || "light"];
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     return (
         <Tabs
@@ -116,6 +117,13 @@ const DashboardLayout = () => {
                             }
                         />
                     ),
+                }}
+            />
+            <Tabs.Screen
+                name="settings"
+                options={{
+                    title: "Settings",
+                    href: null,
                 }}
             />
         </Tabs>

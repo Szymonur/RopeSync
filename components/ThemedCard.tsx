@@ -3,9 +3,9 @@ import {
     StyleProp,
     View,
     ViewStyle,
-    useColorScheme,
 } from "react-native";
 import { Colors } from "../constants/Colors";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface ThemedCardProps {
     style?: StyleProp<ViewStyle>;
@@ -13,8 +13,8 @@ interface ThemedCardProps {
 }
 
 const ThemedCard = ({ style, children }: ThemedCardProps) => {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme || "light"];
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     return (
         <View

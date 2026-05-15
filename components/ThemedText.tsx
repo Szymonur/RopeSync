@@ -1,5 +1,6 @@
-import { StyleProp, useColorScheme, Text, TextStyle } from "react-native";
+import { StyleProp, Text, TextStyle } from "react-native";
 import { Colors } from "../constants/Colors";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface ThemedViewProps {
     style?: StyleProp<TextStyle>;
@@ -14,8 +15,8 @@ const ThemedText = ({
     title = false,
     bold = false,
 }: ThemedViewProps) => {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme || "light"];
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     const textColor = title ? theme.title : theme.text;
 

@@ -83,7 +83,9 @@ const Asce = () => {
     return (
         <ThemedView style={styles.container}>
             <ThemedButton onPress={handleAddSampleAscent}>
-                <ThemedText>Dodaj testowe przejście</ThemedText>
+                <ThemedText style={{ textAlign: "center", color: "white" }}>
+                    Dodaj testowe przejście
+                </ThemedText>
             </ThemedButton>
 
             <Spacer height={20} />

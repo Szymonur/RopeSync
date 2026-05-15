@@ -1,11 +1,12 @@
 import React from "react";
-import { StyleSheet, View, ScrollView, useColorScheme } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedText from "./ThemedText";
 import timelineData from "../database/timelines/timeline-user1-1.json";
 import Spacer from "../components/Spacer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Colors } from "../constants/Colors";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Maksymalna wysokość ściany w metrach
 const SCALE_FACTOR = 40; // Ile pikseli przypada na 1 metr
@@ -16,8 +17,8 @@ interface ThemedTimelineProps {
 }
 
 const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme || "light"];
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     const { timeline } = timelineData;
 

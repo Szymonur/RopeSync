@@ -2,11 +2,11 @@ import {
     StyleProp,
     View,
     ViewStyle,
-    useColorScheme,
     ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../constants/Colors";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface ThemedViewProps {
     style?: StyleProp<ViewStyle>;
@@ -21,8 +21,8 @@ const ThemedView = ({
     scroll = false,
     children,
 }: ThemedViewProps) => {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme || "light"];
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     const content = scroll ? (
         <ScrollView

@@ -1,10 +1,12 @@
 import { StyleSheet, Alert, TouchableOpacity } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
 import ThemedView from "../../components/ThemedView";
 import ThemedButton from "../../components/ThemedButton";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Colors } from "../../constants/Colors";
 
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -13,6 +15,9 @@ import { useMe } from "../../lib/hooks/useProfile";
 const Profile = () => {
     const { logout } = useAuth();
     const { data: profile, isLoading, error } = useMe();
+    const router = useRouter();
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     if (isLoading)
         return (
@@ -42,16 +47,21 @@ const Profile = () => {
                     title: `${profile?.firstName} ${profile?.lastName}`,
                     headerRight: () => (
                         <TouchableOpacity
-                            onPress={logout}
+                            onPress={() => router.push("/(dashboard)/settings")}
                             style={{ marginRight: 15 }}
                         >
-                            <Ionicons name="log-out-outline" size={24} />
+                            <Ionicons
+                                name="settings-outline"
+                                color={theme.iconColour}
+                                size={24}
+                            />
                         </TouchableOpacity>
                     ),
                 }}
             />
 
             <Spacer />
+            {/* Tutaj możesz dodać resztę zawartości profilu */}
         </ThemedView>
     );
 };

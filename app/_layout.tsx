@@ -13,7 +13,7 @@ if (typeof WeakRef === "undefined") {
 }
 
 import { useEffect } from "react";
-import { StyleSheet, useColorScheme } from "react-native";
+import { StyleSheet } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
@@ -23,6 +23,7 @@ import { Colors } from "../constants/Colors";
 import { initializeDatabase } from "../database/db";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { NetworkProvider } from "../contexts/NetworkContext";
+import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
 
 const queryClient = new QueryClient();
 
@@ -30,8 +31,8 @@ const InitialLayout = () => {
     const { accessToken, refreshToken, isLoading } = useAuth();
     const segments = useSegments();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme || "light"];
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
 
     useEffect(() => {
         if (isLoading) return;
@@ -39,44 +40,46 @@ const InitialLayout = () => {
         const inAuthGroup = segments[0] === "(auth)";
 
         if (!refreshToken && !inAuthGroup) {
-            // Brak tokena i nie jesteśmy w logowaniu -> przekieruj do /login
             router.replace("/(auth)/login");
         } else if (refreshToken && inAuthGroup) {
-            // Jest token i jesteśmy w logowaniu -> przekieruj do dashboardu
             router.replace("/(dashboard)");
         }
     }, [accessToken, refreshToken, isLoading, segments]);
 
     return (
-        <Stack
-            screenOptions={{
-                headerStyle: {
-                    backgroundColor: theme.navBackground,
-                },
-                headerTintColor: theme.title,
-                headerTitleStyle: { fontWeight: "bold" },
-            }}
-        >
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-        </Stack>
+        <>
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+            <Stack
+                screenOptions={{
+                    headerStyle: {
+                        backgroundColor: theme.navBackground,
+                    },
+                    headerTintColor: theme.title,
+                    headerTitleStyle: { fontWeight: "bold" },
+                }}
+            >
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+            </Stack>
+        </>
     );
 };
 
 const RootLayout = () => {
     return (
         <QueryClientProvider client={queryClient}>
-            <NetworkProvider>
-                <AuthProvider>
-                    <SQLiteProvider
-                        databaseName="ropesync.db"
-                        onInit={initializeDatabase}
-                    >
-                        <StatusBar style="auto" />
-                        <InitialLayout />
-                    </SQLiteProvider>
-                </AuthProvider>
-            </NetworkProvider>
+            <ThemeProvider>
+                <NetworkProvider>
+                    <AuthProvider>
+                        <SQLiteProvider
+                            databaseName="ropesync.db"
+                            onInit={initializeDatabase}
+                        >
+                            <InitialLayout />
+                        </SQLiteProvider>
+                    </AuthProvider>
+                </NetworkProvider>
+            </ThemeProvider>
         </QueryClientProvider>
     );
 };

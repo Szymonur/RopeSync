@@ -36,7 +36,7 @@ const DeviceScreen = () => {
                     }}
                     disabled={isScanning || !!connectedDevice}
                 >
-                    <ThemedText>
+                    <ThemedText style={{ textAlign: "center", color: "white" }}>
                         {isScanning
                             ? "Szukam RopeSync..."
                             : "Połącz z urządzeniem"}
