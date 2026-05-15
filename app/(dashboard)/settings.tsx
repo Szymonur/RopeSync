@@ -1,5 +1,5 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { useRouter, Tabs } from "expo-router";
+import { StyleSheet, TouchableOpacity, View, Alert } from "react-native";
+import { Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ThemedView from "../../components/ThemedView";
 import ThemedText from "../../components/ThemedText";
@@ -11,9 +11,24 @@ import { Colors } from "../../constants/Colors";
 
 const Settings = () => {
     const { logout } = useAuth();
-    const router = useRouter();
     const { themeMode, setThemeMode, colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+
+    const handleLogout = () => {
+        Alert.alert(
+            "Czy na pewno chcesz się wylogować?",
+            "UWAGA: aby zalogować się ponownie musisz być podłączony do internetu!",
+            [
+                {
+                    text: "Cofnij",
+                },
+                {
+                    text: "Wyloguj",
+                    onPress: logout,
+                },
+            ],
+        );
+    };
 
     const modes = [
         { id: "system", label: "System", icon: "settings-outline" },
@@ -23,22 +38,8 @@ const Settings = () => {
 
     return (
         <ThemedView style={styles.container} safe scroll>
-            <Tabs.Screen
-                options={{
-                    headerLeft: () => (
-                        <TouchableOpacity
-                            onPress={() => router.back()}
-                            style={{ marginLeft: 15 }}
-                        >
-                            <Ionicons
-                                name="arrow-back"
-                                size={24}
-                                color={theme.title}
-                            />
-                        </TouchableOpacity>
-                    ),
-                }}
-            />
+            <Stack.Screen options={{ title: "Settings" }} />
+
             <Spacer />
             <ThemedText title style={styles.title}>
                 Settings
@@ -54,6 +55,7 @@ const Settings = () => {
                     { backgroundColor: theme.uiBackground },
                 ]}
             >
+                {/* ... reszta kodu bez zmian ... */}
                 {modes.map((mode) => (
                     <TouchableOpacity
                         key={mode.id}
@@ -81,6 +83,7 @@ const Settings = () => {
                                 },
                             ]}
                         >
+                            {" "}
                             {mode.label}
                         </ThemedText>
                     </TouchableOpacity>
@@ -89,7 +92,7 @@ const Settings = () => {
 
             <Spacer height={40} />
 
-            <ThemedButton onPress={logout}>
+            <ThemedButton onPress={handleLogout}>
                 <ThemedText style={{ textAlign: "center", color: "white" }}>
                     Logout
                 </ThemedText>
@@ -121,7 +124,7 @@ const styles = StyleSheet.create({
     modeContainer: {
         flexDirection: "row",
         borderRadius: 12,
-        padding: 5,
+        paddingVertical: 5,
         justifyContent: "space-between",
     },
     modeButton: {
@@ -131,7 +134,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         paddingVertical: 10,
         borderRadius: 8,
-        gap: 8,
+        marginHorizontal: 5,
     },
     modeLabel: {
         fontSize: 14,

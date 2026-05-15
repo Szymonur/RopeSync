@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import Spacer from "../../components/Spacer";
-import ThemedText from "../../components/ThemedText";
-import ThemedView from "../../components/ThemedView";
-import ThemedButton from "../../components/ThemedButton";
+import Spacer from "../../../components/Spacer";
+import ThemedText from "../../../components/ThemedText";
+import ThemedView from "../../../components/ThemedView";
+import ThemedButton from "../../../components/ThemedButton";
 
-import { useBLE } from "../../lib/hooks/useBLE";
+import { useBLE } from "../../../lib/hooks/useBLE";
 
 const DeviceScreen = () => {
     const {

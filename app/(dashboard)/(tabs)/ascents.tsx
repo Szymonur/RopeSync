@@ -1,23 +1,31 @@
-import { StyleSheet, FlatList, Alert } from "react-native";
+import {
+    StyleSheet,
+    FlatList,
+    Alert,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+import { useRouter } from "expo-router";
 
-import Spacer from "../../components/Spacer";
-import ThemedText from "../../components/ThemedText";
-import ThemedView from "../../components/ThemedView";
-import ThemedButton from "../../components/ThemedButton";
-import ThemedCard from "../../components/ThemedCard";
+import Spacer from "../../../components/Spacer";
+import ThemedText from "../../../components/ThemedText";
+import ThemedView from "../../../components/ThemedView";
+import ThemedButton from "../../../components/ThemedButton";
+import ThemedCard from "../../../components/ThemedCard";
 
 import {
     AscentRepository,
     Ascent,
-} from "../../database/repositories/AscentRepository";
-import { useMe } from "../../lib/hooks/useProfile";
+} from "../../../database/repositories/AscentRepository";
+import { useMe } from "../../../lib/hooks/useProfile";
 
 const Asce = () => {
     const db = useSQLiteContext();
     const { data: user } = useMe();
     const [ascents, setAscents] = useState<Ascent[]>([]);
+    const router = useRouter();
 
     // Inicjalizacja repozytorium
     const repository = useMemo(() => new AscentRepository(db), [db]);
@@ -95,15 +103,32 @@ const Asce = () => {
                 keyExtractor={(item) => item.id_przejscia}
                 style={{ width: "100%" }}
                 renderItem={({ item }) => (
-                    <ThemedCard style={styles.card}>
-                        <ThemedText style={styles.bold}>
-                            {item.nazwa_stylu} - {item.id_drogi}
-                        </ThemedText>
-                        <ThemedText>{item.data}</ThemedText>
-                        <ThemedText style={styles.note}>
-                            {item.notatka}
-                        </ThemedText>
-                    </ThemedCard>
+                    <TouchableOpacity
+                        onPress={() =>
+                            router.push(
+                                `/(dashboard)/ascent/${item.id_przejscia}`,
+                            )
+                        }
+                    >
+                        <ThemedCard style={styles.card}>
+                            <View
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <ThemedText style={styles.bold}>
+                                    {item.nazwa_stylu} - {item.id_drogi}
+                                </ThemedText>
+                                <ThemedText>{item.data}</ThemedText>
+                            </View>
+
+                            <ThemedText style={styles.note}>
+                                {item.notatka}
+                            </ThemedText>
+                        </ThemedCard>
+                    </TouchableOpacity>
                 )}
                 ListEmptyComponent={
                     <ThemedText>Brak zarejestrowanych przejść.</ThemedText>

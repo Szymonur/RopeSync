@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedText from "./ThemedText";
-import timelineData from "../database/timelines/timeline-user1-1.json";
+import timelineData from "../database/timelines/timeline-2-przejscie_3.json";
 import Spacer from "../components/Spacer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -37,11 +37,18 @@ const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+            style={{ transform: [{ scaleY: -1 }] }}
+        >
             <View
                 style={[
                     styles.container,
-                    { height: MAX_HEIGHT * SCALE_FACTOR + 14 },
+                    {
+                        height: MAX_HEIGHT * SCALE_FACTOR + 14,
+                        transform: [{ scaleY: -1 }],
+                    },
                 ]}
             >
                 {/* 1. Pionowa Linia (Oś) */}
@@ -204,7 +211,6 @@ const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
                     );
                 })}
             </View>
-            <Spacer />
         </ScrollView>
     );
 };

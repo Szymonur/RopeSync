@@ -10,6 +10,11 @@ export interface Ascent {
     id_drogi: string;
 }
 
+export interface AscentWithRouteDetails extends Ascent {
+    nazwa_drogi: string;
+    typ_drogi: string;
+}
+
 export class AscentRepository {
     private db: SQLiteDatabase;
 
@@ -23,6 +28,20 @@ export class AscentRepository {
             "SELECT * FROM Przejscia WHERE id_uzytkownika = ? ORDER BY data DESC",
             [userId],
         );
+    }
+
+    // Pobierz szczegóły konkretnego przejścia wraz z nazwą drogi
+    async getAscentDetails(
+        ascentId: string,
+    ): Promise<AscentWithRouteDetails | null> {
+        const result = await this.db.getFirstAsync<AscentWithRouteDetails>(
+            `SELECT p.*, d.nazwa_drogi, d.typ_drogi 
+             FROM Przejscia p 
+             JOIN Drogi d ON p.id_drogi = d.id_drogi 
+             WHERE p.id_przejscia = ?`,
+            [ascentId],
+        );
+        return result;
     }
 
     // Dodaj nowe przejście (automatycznie przypisane do usera)

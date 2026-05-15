@@ -1,16 +1,16 @@
 import { StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Spacer from "../../components/Spacer";
-import ThemedText from "../../components/ThemedText";
-import ThemedView from "../../components/ThemedView";
-import ThemedButton from "../../components/ThemedButton";
-import { useTheme } from "../../contexts/ThemeContext";
-import { Colors } from "../../constants/Colors";
+import Spacer from "../../../components/Spacer";
+import ThemedText from "../../../components/ThemedText";
+import ThemedView from "../../../components/ThemedView";
+import ThemedButton from "../../../components/ThemedButton";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { Colors } from "../../../constants/Colors";
 
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
-import { useMe } from "../../lib/hooks/useProfile";
+import { useMe } from "../../../lib/hooks/useProfile";
 
 const Profile = () => {
     const { logout } = useAuth();

@@ -4,16 +4,16 @@ import { useSQLiteContext } from "expo-sqlite";
 
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
-import Spacer from "../../components/Spacer";
-import ThemedText from "../../components/ThemedText";
-import ThemedView from "../../components/ThemedView";
-import ThemedButton from "../../components/ThemedButton";
-import ThemedCard from "../../components/ThemedCard";
+import Spacer from "../../../components/Spacer";
+import ThemedText from "../../../components/ThemedText";
+import ThemedView from "../../../components/ThemedView";
+import ThemedButton from "../../../components/ThemedButton";
+import ThemedCard from "../../../components/ThemedCard";
 
 import {
     RegionRepository,
     Region,
-} from "../../database/repositories/RegionRepository";
+} from "../../../database/repositories/RegionRepository";
 
 const Routes = () => {
     const db = useSQLiteContext();
