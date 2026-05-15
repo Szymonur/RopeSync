@@ -1,7 +1,7 @@
-import React from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, ScrollView, ActivityIndicator } from "react-native";
+import * as FileSystem from "expo-file-system/legacy";
 import ThemedText from "./ThemedText";
-import timelineData from "../database/timelines/timeline-2-przejscie_3.json";
 import Spacer from "../components/Spacer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -13,12 +13,177 @@ const SCALE_FACTOR = 40; // Ile pikseli przypada na 1 metr
 const MAX_HEIGHT = 25;
 
 interface ThemedTimelineProps {
-    userId: number;
+    uriTimeline: string;
 }
 
-const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
+const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+
+    const [timelineData, setTimelineData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadTimeline = async () => {
+            if (!uriTimeline) {
+                setError("Brak ścieżki do danych timeline.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError(null);
+
+                // Używamy stabilnego API z /legacy, co rozwiązuje błędy TypeScript
+                const fileUri = `${FileSystem.documentDirectory}${uriTimeline}`;
+                const fileInfo = await FileSystem.getInfoAsync(fileUri);
+
+                if (!fileInfo.exists) {
+                    console.warn(
+                        "Plik nie istnieje. Uruchamiam proces tworzenia danych testowych...",
+                    );
+
+                    // // 1. Wyciągnij ścieżkę do folderu (np. database/timelines/)
+                    // const pathParts = uriTimeline.split("/");
+                    // if (pathParts.length > 1) {
+                    //     const folderPath = pathParts.slice(0, -1).join("/");
+                    //     const fullFolderPath = `${FileSystem.documentDirectory}${folderPath}/`;
+
+                    //     // 2. Upewnij się, że foldery istnieją (recursive: true)
+                    //     await FileSystem.makeDirectoryAsync(fullFolderPath, {
+                    //         intermediates: true,
+                    //     });
+                    //     console.log("Utworzono foldery:", fullFolderPath);
+                    // }
+
+                    // // 3. Zapisz przykładowe dane (tylko do testów!)
+                    // const mockData = {
+                    //     timeline: [
+                    //         {
+                    //             timestamp: 40,
+                    //             height: 1.8,
+                    //             events: [
+                    //                 {
+                    //                     type: "clip",
+                    //                     clipingTime: 1.3,
+                    //                     force: 0.04,
+                    //                     belayRate: 9,
+                    //                 },
+                    //             ],
+                    //         },
+                    //         {
+                    //             timestamp: 120,
+                    //             height: 6.3,
+                    //             events: [
+                    //                 {
+                    //                     type: "clip",
+                    //                     clipingTime: 2,
+                    //                     force: 0.12,
+                    //                     belayRate: 7,
+                    //                 },
+                    //             ],
+                    //         },
+
+                    //         {
+                    //             timestamp: 420,
+                    //             height: 11.3,
+                    //             events: [
+                    //                 {
+                    //                     type: "fall",
+                    //                     force: 1.3,
+                    //                     duration: 2.5,
+                    //                     fallenDisnace: 4.1,
+                    //                 },
+                    //             ],
+                    //         },
+                    //         {
+                    //             timestamp: 600,
+                    //             height: 8.3,
+                    //             events: [
+                    //                 {
+                    //                     type: "clip",
+                    //                     clipingTime: 2,
+                    //                     force: 0.4,
+                    //                     belayRate: 2,
+                    //                 },
+                    //             ],
+                    //         },
+                    //         {
+                    //             timestamp: 600,
+                    //             height: 16.3,
+                    //             events: [
+                    //                 {
+                    //                     type: "clip",
+                    //                     clipingTime: 2,
+                    //                     force: 0.4,
+                    //                     belayRate: 2,
+                    //                 },
+                    //             ],
+                    //         },
+                    //         {
+                    //             timestamp: 980,
+                    //             height: 23.8,
+                    //             events: [
+                    //                 {
+                    //                     type: "anchor",
+                    //                 },
+                    //             ],
+                    //         },
+                    //     ],
+                    // };
+                    // await FileSystem.writeAsStringAsync(
+                    //     fileUri,
+                    //     JSON.stringify(mockData),
+                    // );
+                    // console.log("Zapisano plik testowy pod:", fileUri);
+                }
+
+                const content = await FileSystem.readAsStringAsync(fileUri);
+                setTimelineData(JSON.parse(content));
+            } catch (err: any) {
+                console.error("Błąd ładowania timeline:", err);
+                setError(`Błąd: ${err.message}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadTimeline();
+    }, [uriTimeline]);
+
+    if (loading) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <ActivityIndicator size="large" color={theme.text} />
+                <ThemedText style={{ marginTop: 10 }}>
+                    Ładowanie danych wspinaczki...
+                </ThemedText>
+            </View>
+        );
+    }
+
+    if (error || !timelineData) {
+        return (
+            <View style={{ padding: 20, alignItems: "center" }}>
+                <Ionicons
+                    name="alert-circle-outline"
+                    size={40}
+                    color={Colors.warning}
+                />
+                <ThemedText
+                    style={{
+                        color: Colors.warning,
+                        textAlign: "center",
+                        marginTop: 10,
+                    }}
+                >
+                    {error || "Nie udało się załadować danych."}
+                </ThemedText>
+            </View>
+        );
+    }
 
     const { timeline } = timelineData;
 
@@ -81,8 +246,8 @@ const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
                     ),
                 )}
 
-                {/* 3. Eventy z JSONa */}
-                {timeline.map((item, index) => {
+                {/* 3. Eventy z JSONA */}
+                {timeline.map((item: any, index: number) => {
                     const event = item.events[0];
                     const eventColor = getEventColor(event.type);
 
@@ -159,7 +324,7 @@ const ThemedTimeline = ({ userId }: ThemedTimelineProps) => {
                                         <Ionicons
                                             name="timer-outline"
                                             size={12}
-                                            color="white"
+                                            color={theme.text}
                                         />{" "}
                                         {Math.floor(item.timestamp / 60)}:
                                         {(item.timestamp % 60)
