@@ -20,7 +20,7 @@ const DeviceScreen = () => {
     } = useBLE();
 
     return (
-        <ThemedView style={styles.container} safe scroll>
+        <ThemedView style={styles.container} scroll>
             <View style={styles.header}>
                 <ThemedText title={true} style={styles.heading}>
                     {connectedDevice

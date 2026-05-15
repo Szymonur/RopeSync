@@ -36,13 +36,7 @@ const Routes = () => {
     }, []);
 
     return (
-        <ThemedView style={styles.container} safe>
-            <ThemedText title={true} style={styles.heading}>
-                Regiony
-            </ThemedText>
-            <Spacer />
-
-            <Spacer height={20} />
+        <ThemedView style={styles.container}>
             {/* <View style={styles.mapContainer}>
                 <MapView provider={PROVIDER_GOOGLE} style={styles.map} />
             </View> */}

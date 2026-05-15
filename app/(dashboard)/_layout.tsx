@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs, Stack } from "expo-router";
 import { useColorScheme } from "react-native";
 import { Colors } from "../../constants/Colors";
 import {
@@ -15,7 +15,15 @@ const DashboardLayout = () => {
     return (
         <Tabs
             screenOptions={{
-                headerShown: false,
+                headerShown: true,
+                headerStyle: {
+                    backgroundColor: theme.navBackground,
+                },
+                headerTintColor: theme.title,
+                headerTitleStyle: {
+                    fontWeight: "bold",
+                },
+                headerShadowVisible: false,
                 tabBarStyle: {
                     backgroundColor: theme.navBackground,
                     paddingTop: 10,

@@ -1,4 +1,9 @@
-import { StyleSheet, Alert } from "react-native";
+import {
+    StyleSheet,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+} from "react-native";
 import { Link, useRouter } from "expo-router";
 
 import ThemedView from "../../components/ThemedView";
@@ -57,57 +62,63 @@ const Register = () => {
     };
 
     return (
-        <ThemedView style={styles.container} safe>
-            <Spacer />
-            <ThemedText title={true} style={styles.title}>
-                Register
-            </ThemedText>
-
-            <ThemedTextInput
-                placeholder="First Name"
-                style={{ width: "80%", marginBottom: 20 }}
-                onChangeText={setFirstName}
-                value={firstName}
-            ></ThemedTextInput>
-            <ThemedTextInput
-                placeholder="Last Name"
-                style={{ width: "80%", marginBottom: 20 }}
-                onChangeText={setLastName}
-                value={lastName}
-            ></ThemedTextInput>
-            <ThemedTextInput
-                placeholder="Email"
-                style={{ width: "80%", marginBottom: 20 }}
-                keyboardType="email-address"
-                onChangeText={setEmail}
-                value={email}
-            ></ThemedTextInput>
-            <ThemedTextInput
-                placeholder="Login"
-                style={{ width: "80%", marginBottom: 20 }}
-                onChangeText={setUserLogin}
-                value={userLogin}
-            ></ThemedTextInput>
-            <ThemedTextInput
-                placeholder="Password"
-                style={{ width: "80%", marginBottom: 20 }}
-                keyboardType="visible-password"
-                onChangeText={setUserPassword}
-                value={userPassword}
-            ></ThemedTextInput>
-
-            <ThemedButton onPress={handleSubmit}>
-                <ThemedText style={{ textAlign: "center" }}>
+        <ThemedView style={styles.container} safe scroll>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={styles.keyboardView}
+            >
+                <Spacer />
+                <ThemedText title={true} style={styles.title}>
                     Register
                 </ThemedText>
-            </ThemedButton>
-            <Spacer height={100} />
 
-            <Link href="/login">
-                <ThemedText style={{ textAlign: "center" }}>
-                    Login instead
-                </ThemedText>
-            </Link>
+                <ThemedTextInput
+                    placeholder="First Name"
+                    style={styles.input}
+                    onChangeText={setFirstName}
+                    value={firstName}
+                ></ThemedTextInput>
+                <ThemedTextInput
+                    placeholder="Last Name"
+                    style={styles.input}
+                    onChangeText={setLastName}
+                    value={lastName}
+                ></ThemedTextInput>
+                <ThemedTextInput
+                    placeholder="Email"
+                    style={styles.input}
+                    keyboardType="email-address"
+                    onChangeText={setEmail}
+                    value={email}
+                ></ThemedTextInput>
+                <ThemedTextInput
+                    placeholder="Login"
+                    style={styles.input}
+                    onChangeText={setUserLogin}
+                    value={userLogin}
+                ></ThemedTextInput>
+                <ThemedTextInput
+                    placeholder="Password"
+                    style={styles.input}
+                    secureTextEntry={true}
+                    onChangeText={setUserPassword}
+                    value={userPassword}
+                ></ThemedTextInput>
+
+                <ThemedButton onPress={handleSubmit}>
+                    <ThemedText style={{ textAlign: "center" }}>
+                        Register
+                    </ThemedText>
+                </ThemedButton>
+                <Spacer height={50} />
+
+                <Link href="/login">
+                    <ThemedText style={{ textAlign: "center" }}>
+                        Login instead
+                    </ThemedText>
+                </Link>
+                <Spacer height={50} />
+            </KeyboardAvoidingView>
         </ThemedView>
     );
 };
@@ -117,12 +128,20 @@ export default Register;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
+    },
+    keyboardView: {
+        flex: 1,
+        width: "100%",
         alignItems: "center",
+        justifyContent: "center",
     },
     title: {
         textAlign: "center",
         fontSize: 18,
         marginBottom: 30,
+    },
+    input: {
+        width: "80%",
+        marginBottom: 20,
     },
 });

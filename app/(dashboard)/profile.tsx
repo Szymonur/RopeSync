@@ -1,5 +1,6 @@
-import { StyleSheet, Alert } from "react-native";
-
+import { StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { Tabs } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import Spacer from "../../components/Spacer";
 import ThemedText from "../../components/ThemedText";
 import ThemedView from "../../components/ThemedView";
@@ -35,19 +36,21 @@ const Profile = () => {
         );
 
     return (
-        <ThemedView style={styles.container} safe>
-            <ThemedText title={true} style={styles.heading}>
-                Profile
-            </ThemedText>
-            <Spacer />
+        <ThemedView style={styles.container}>
+            <Tabs.Screen
+                options={{
+                    title: `${profile?.firstName} ${profile?.lastName}`,
+                    headerRight: () => (
+                        <TouchableOpacity
+                            onPress={logout}
+                            style={{ marginRight: 15 }}
+                        >
+                            <Ionicons name="log-out-outline" size={24} />
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
 
-            <ThemedText>Welcome {profile?.username}</ThemedText>
-            <ThemedText>role: {profile?.role}</ThemedText>
-            <ThemedText>id: {profile?.id}</ThemedText>
-
-            <ThemedButton onPress={logout}>
-                <ThemedText style={{ textAlign: "center" }}>Wyloguj</ThemedText>
-            </ThemedButton>
             <Spacer />
         </ThemedView>
     );
@@ -62,7 +65,10 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontWeight: "bold",
-        fontSize: 18,
-        textAlign: "center",
+        fontSize: 24,
+        textAlign: "right",
+        width: "100%",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
     },
 });

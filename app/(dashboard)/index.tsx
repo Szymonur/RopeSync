@@ -9,10 +9,6 @@ import ThemedTimeline from "../../components/ThemedTimeline";
 const Index = () => {
     return (
         <ThemedView safe>
-            <ThemedText title={true} style={styles.heading}>
-                Home
-            </ThemedText>
-            <Spacer />
             <ThemedTimeline userId={3} />
             <Spacer />
         </ThemedView>

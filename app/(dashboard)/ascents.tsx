@@ -81,12 +81,7 @@ const Asce = () => {
     };
 
     return (
-        <ThemedView style={styles.container} safe>
-            <ThemedText title={true} style={styles.heading}>
-                Moje Przejścia
-            </ThemedText>
-            <Spacer />
-
+        <ThemedView style={styles.container}>
             <ThemedButton onPress={handleAddSampleAscent}>
                 <ThemedText>Dodaj testowe przejście</ThemedText>
             </ThemedButton>
