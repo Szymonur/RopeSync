@@ -44,7 +44,8 @@ const Profile = () => {
         <ThemedView style={styles.container}>
             <Tabs.Screen
                 options={{
-                    title: `${profile?.firstName} ${profile?.lastName}`,
+                    headerTitle: `${profile?.firstName} ${profile?.lastName}`,
+                    tabBarLabel: "Profile",
                     headerRight: () => (
                         <TouchableOpacity
                             onPress={() => router.push("/(dashboard)/settings")}
