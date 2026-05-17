@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, ScrollView, ActivityIndicator } from "react-native";
-import * as FileSystem from "expo-file-system/legacy";
+import { File, Directory, Paths } from "expo-file-system";
 import ThemedText from "./ThemedText";
 import Spacer from "../components/Spacer";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -36,111 +36,18 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                 setLoading(true);
                 setError(null);
 
-                // Używamy stabilnego API z /legacy, co rozwiązuje błędy TypeScript
-                const fileUri = `${FileSystem.documentDirectory}${uriTimeline}`;
-                const fileInfo = await FileSystem.getInfoAsync(fileUri);
+                // Nowe API: Tworzymy instancję pliku relatywnie do Paths.document
+                const file = new File(Paths.document, uriTimeline);
 
-                if (!fileInfo.exists) {
-                    console.warn(
-                        "Plik nie istnieje. Uruchamiam proces tworzenia danych testowych...",
+                if (!file.exists) {
+                    console.error("Plik nie istnieje pod ścieżką:");
+                    throw new Error(
+                        `Plik wspinaczki nie istnieje (${uriTimeline})`,
                     );
-
-                    // // 1. Wyciągnij ścieżkę do folderu (np. database/timelines/)
-                    // const pathParts = uriTimeline.split("/");
-                    // if (pathParts.length > 1) {
-                    //     const folderPath = pathParts.slice(0, -1).join("/");
-                    //     const fullFolderPath = `${FileSystem.documentDirectory}${folderPath}/`;
-
-                    //     // 2. Upewnij się, że foldery istnieją (recursive: true)
-                    //     await FileSystem.makeDirectoryAsync(fullFolderPath, {
-                    //         intermediates: true,
-                    //     });
-                    //     console.log("Utworzono foldery:", fullFolderPath);
-                    // }
-
-                    // // 3. Zapisz przykładowe dane (tylko do testów!)
-                    // const mockData = {
-                    //     timeline: [
-                    //         {
-                    //             timestamp: 40,
-                    //             height: 1.8,
-                    //             events: [
-                    //                 {
-                    //                     type: "clip",
-                    //                     clipingTime: 1.3,
-                    //                     force: 0.04,
-                    //                     belayRate: 9,
-                    //                 },
-                    //             ],
-                    //         },
-                    //         {
-                    //             timestamp: 120,
-                    //             height: 6.3,
-                    //             events: [
-                    //                 {
-                    //                     type: "clip",
-                    //                     clipingTime: 2,
-                    //                     force: 0.12,
-                    //                     belayRate: 7,
-                    //                 },
-                    //             ],
-                    //         },
-
-                    //         {
-                    //             timestamp: 420,
-                    //             height: 11.3,
-                    //             events: [
-                    //                 {
-                    //                     type: "fall",
-                    //                     force: 1.3,
-                    //                     duration: 2.5,
-                    //                     fallenDisnace: 4.1,
-                    //                 },
-                    //             ],
-                    //         },
-                    //         {
-                    //             timestamp: 600,
-                    //             height: 8.3,
-                    //             events: [
-                    //                 {
-                    //                     type: "clip",
-                    //                     clipingTime: 2,
-                    //                     force: 0.4,
-                    //                     belayRate: 2,
-                    //                 },
-                    //             ],
-                    //         },
-                    //         {
-                    //             timestamp: 600,
-                    //             height: 16.3,
-                    //             events: [
-                    //                 {
-                    //                     type: "clip",
-                    //                     clipingTime: 2,
-                    //                     force: 0.4,
-                    //                     belayRate: 2,
-                    //                 },
-                    //             ],
-                    //         },
-                    //         {
-                    //             timestamp: 980,
-                    //             height: 23.8,
-                    //             events: [
-                    //                 {
-                    //                     type: "anchor",
-                    //                 },
-                    //             ],
-                    //         },
-                    //     ],
-                    // };
-                    // await FileSystem.writeAsStringAsync(
-                    //     fileUri,
-                    //     JSON.stringify(mockData),
-                    // );
-                    // console.log("Zapisano plik testowy pod:", fileUri);
                 }
 
-                const content = await FileSystem.readAsStringAsync(fileUri);
+                // Używamy wersji asynchronicznej
+                const content = await file.textSync();
                 setTimelineData(JSON.parse(content));
             } catch (err: any) {
                 console.error("Błąd ładowania timeline:", err);
@@ -382,8 +289,8 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
 
 const styles = StyleSheet.create({
     scrollContainer: {
-        paddingVertical: 40,
-        paddingHorizontal: 20,
+        paddingVertical: 5,
+        paddingHorizontal: 5,
     },
     container: {
         width: "100%",

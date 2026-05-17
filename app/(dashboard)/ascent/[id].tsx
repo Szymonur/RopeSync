@@ -49,7 +49,7 @@ const AscentDetails = () => {
 
     if (!ascent) {
         return (
-            <ThemedView style={styles.container} safe>
+            <ThemedView style={styles.container}>
                 <Stack.Screen options={{ title: "Nie znaleziono" }} />
                 <Spacer />
                 <ThemedText title style={styles.title}>
@@ -60,11 +60,9 @@ const AscentDetails = () => {
     }
 
     return (
-        <ThemedView style={styles.container} safe scroll>
-            <Stack.Screen
-                options={{ title: `${ascent.nazwa_drogi} - ${ascent.data}` }}
-            />
-            <Spacer />
+        <ThemedView style={styles.container} scroll>
+            <Stack.Screen options={{ title: "" }} />
+            <Spacer height={16} />
             <ThemedText title style={styles.title}>
                 {ascent.nazwa_drogi}
             </ThemedText>
@@ -72,14 +70,16 @@ const AscentDetails = () => {
                 {ascent.typ_drogi.toUpperCase()} • {ascent.nazwa_stylu} •{" "}
                 {ascent.data}
             </ThemedText>
-            <Spacer height={20} />
+            <Spacer height={28} />
             <ThemedText style={styles.noteLabel}>Notatka:</ThemedText>
             <ThemedText style={styles.note}>
                 {ascent.notatka || "Brak notatki"}
             </ThemedText>
-            <ThemedText> uri_timeline: {ascent?.uri_timeline}</ThemedText>
             {ascent.uri_timeline && (
-                <ThemedTimeline uriTimeline={ascent.uri_timeline} />
+                <>
+                    <Spacer height={8} />
+                    <ThemedTimeline uriTimeline={ascent.uri_timeline} />
+                </>
             )}
 
             <Spacer height={20} />

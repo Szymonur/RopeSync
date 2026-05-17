@@ -4,7 +4,7 @@ export interface Ascent {
     id_przejscia: string;
     data: string;
     notatka: string;
-    uri_timeline?: string;
+    uri_timeline: string;
     id_uzytkownika: number;
     nazwa_stylu: string;
     id_drogi: string;
@@ -49,11 +49,12 @@ export class AscentRepository {
         ascent: Omit<Ascent, "id_przejscia"> & { id_przejscia: string },
     ) {
         await this.db.runAsync(
-            "INSERT INTO Przejscia (id_przejscia, data, notatka, id_uzytkownika, nazwa_stylu, id_drogi) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO Przejscia (id_przejscia, data, notatka, uri_timeline, id_uzytkownika, nazwa_stylu, id_drogi) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [
                 ascent.id_przejscia,
                 ascent.data,
                 ascent.notatka,
+                ascent.uri_timeline,
                 ascent.id_uzytkownika,
                 ascent.nazwa_stylu,
                 ascent.id_drogi,

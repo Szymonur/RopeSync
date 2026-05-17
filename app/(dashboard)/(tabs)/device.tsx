@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useEffect, useState, useMemo } from "react";
+import { ActivityIndicator, StyleSheet, View, Alert } from "react-native";
+import { File, Directory, Paths } from "expo-file-system";
+import { useSQLiteContext } from "expo-sqlite";
 
 import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedButton from "../../../components/ThemedButton";
+import { useMe } from "../../../lib/hooks/useProfile";
 
 import { useBLE } from "../../../lib/hooks/useBLE";
+import { AscentRepository } from "../../../database/repositories/AscentRepository";
 
 const DeviceScreen = () => {
+    const db = useSQLiteContext();
+    const repository = useMemo(() => new AscentRepository(db), [db]);
+    const { data: user } = useMe();
+
     const {
         scanForPeripherals,
         isScanning,
@@ -19,6 +27,104 @@ const DeviceScreen = () => {
         resetAltitude,
     } = useBLE();
 
+    const createMockTimeline = async () => {
+        try {
+            // 1. Przygotowanie danych mock
+            const mockId = `mock_${Date.now()}`;
+            const fileName = `timeline_${mockId}.json`;
+            const relativePath = `timelines/${fileName}`;
+
+            const mockData = {
+                date: new Date().toISOString().split("T")[0],
+                user: "mock_user",
+                startTime: new Date().toISOString(),
+                routeLenght: 15.5,
+                timeline: [
+                    {
+                        timestamp: 10,
+                        height: 2.5,
+                        events: [
+                            {
+                                type: "clip",
+                                clipingTime: 1.5,
+                                force: 0.1,
+                                belayRate: 8,
+                            },
+                        ],
+                    },
+                    {
+                        timestamp: 25,
+                        height: 6.5,
+                        events: [
+                            {
+                                type: "clip",
+                                clipingTime: 1.5,
+                                force: 0.1,
+                                belayRate: 8,
+                            },
+                        ],
+                    },
+                    {
+                        timestamp: 45,
+                        height: 8.2,
+                        events: [
+                            {
+                                type: "fall",
+                                force: 2.1,
+                                duration: 1.2,
+                                fallenDisnace: 3.5,
+                            },
+                        ],
+                    },
+                    {
+                        timestamp: 70,
+                        height: 12.5,
+                        events: [
+                            {
+                                type: "clip",
+                                clipingTime: 1.5,
+                                force: 0.1,
+                                belayRate: 8,
+                            },
+                        ],
+                    },
+                    {
+                        timestamp: 90,
+                        height: 17.5,
+                        events: [{ type: "anchor" }],
+                    },
+                ],
+            };
+
+            const timelinesDir = new Directory(Paths.document, "timelines");
+
+            if (!timelinesDir.exists) {
+                timelinesDir.create();
+            }
+
+            const file = new File(Paths.document, relativePath);
+            await file.write(JSON.stringify(mockData, null, 2));
+
+            await repository.addAscent({
+                id_przejscia: mockId,
+                data: new Date().toISOString().split("T")[0],
+                notatka: "Automatycznie wygenerowany mock timeline",
+                uri_timeline: relativePath, // Zapisujemy ścieżkę RELATYWNĄ
+                id_uzytkownika: Number(user?.id),
+                nazwa_stylu: "RP",
+                id_drogi: "d_s1", // Istniejąca droga w SEED_DATA
+            });
+
+            Alert.alert(
+                "Sukces",
+                `Utworzono mockowe przejście i plik: ${relativePath}`,
+            );
+        } catch (error: any) {
+            console.error("Błąd tworzenia mocka:", error);
+            Alert.alert("Błąd", error.message);
+        }
+    };
+
     return (
         <ThemedView style={styles.container} scroll>
             <View style={styles.header}>
@@ -28,6 +134,29 @@ const DeviceScreen = () => {
                         : "Brak połączenia 🔴"}
                 </ThemedText>
             </View>
+
+            <View style={styles.mockSection}>
+                <ThemedText
+                    style={{
+                        marginBottom: 10,
+                        textAlign: "center",
+                        opacity: 0.7,
+                    }}
+                >
+                    Tryb deweloperski (Symulacja urządzenia)
+                </ThemedText>
+                <ThemedButton
+                    onPress={createMockTimeline}
+                    style={{ backgroundColor: "#6200ee" }}
+                >
+                    <ThemedText style={{ color: "white" }}>
+                        Generuj Mock Timeline
+                    </ThemedText>
+                </ThemedButton>
+            </View>
+
+            <Spacer />
+
             {isScanning && <ActivityIndicator size="large" color="#FFF" />}
             {!connectedDevice && !isScanning && (
                 <ThemedButton
@@ -124,8 +253,17 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 20,
     },
-    header: { marginBottom: 40 },
+    header: { marginBottom: 20 },
     heading: { fontWeight: "bold", fontSize: 20, textAlign: "center" },
+    mockSection: {
+        width: "100%",
+        padding: 15,
+        backgroundColor: "rgba(98, 0, 238, 0.1)",
+        borderRadius: 15,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "rgba(98, 0, 238, 0.3)",
+    },
     dataContainer: {
         width: "100%",
         padding: 15,
