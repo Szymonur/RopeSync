@@ -65,6 +65,7 @@ const Asce = () => {
             <FlatList
                 data={ascents}
                 keyExtractor={(item) => item.id_przejscia}
+                showsVerticalScrollIndicator={false}
                 style={{ width: "100%" }}
                 refreshControl={
                     <RefreshControl

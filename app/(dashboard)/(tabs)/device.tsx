@@ -53,6 +53,19 @@ const DeviceScreen = () => {
                         ],
                     },
                     {
+                        timestamp: 15,
+                        height: 3,
+                        events: [
+                            {
+                                type: "clip",
+                                clipingTime: 1.5,
+                                force: 0.1,
+                                belayRate: 8,
+                            },
+                        ],
+                    },
+
+                    {
                         timestamp: 25,
                         height: 6.5,
                         events: [
@@ -79,6 +92,18 @@ const DeviceScreen = () => {
                     {
                         timestamp: 70,
                         height: 12.5,
+                        events: [
+                            {
+                                type: "clip",
+                                clipingTime: 1.5,
+                                force: 0.1,
+                                belayRate: 8,
+                            },
+                        ],
+                    },
+                    {
+                        timestamp: 80,
+                        height: 12.6,
                         events: [
                             {
                                 type: "clip",

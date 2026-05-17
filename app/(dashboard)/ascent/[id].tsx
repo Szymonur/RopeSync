@@ -61,7 +61,7 @@ const AscentDetails = () => {
 
     return (
         <ThemedView style={styles.container} scroll>
-            <Stack.Screen options={{ title: "" }} />
+            <Stack.Screen />
             <Spacer height={16} />
             <ThemedText title style={styles.title}>
                 {ascent.nazwa_drogi}
