@@ -60,8 +60,6 @@ const Asce = () => {
 
     return (
         <ThemedView style={styles.container}>
-            <Spacer height={20} />
-
             <FlatList
                 data={ascents}
                 keyExtractor={(item) => item.id_przejscia}
@@ -116,7 +114,7 @@ export default Asce;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        paddingHorizontal: 20,
     },
     heading: {
         fontWeight: "bold",
@@ -125,7 +123,7 @@ const styles = StyleSheet.create({
     },
     card: {
         padding: 15,
-        marginBottom: 10,
+        marginVertical: 5,
     },
     bold: {
         fontWeight: "bold",

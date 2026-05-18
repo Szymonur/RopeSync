@@ -1,5 +1,12 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { StyleSheet, View, ScrollView, ActivityIndicator } from "react-native";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import {
+    StyleSheet,
+    View,
+    ScrollView,
+    ActivityIndicator,
+    PanResponder,
+    Animated,
+} from "react-native";
 import { File, Directory, Paths } from "expo-file-system";
 import ThemedText from "./ThemedText";
 import Spacer from "../components/Spacer";
@@ -28,6 +35,8 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [scaleFactor, setScaleFactor] = useState<number>(45);
+    const [initialZoomDistance, setInitialZoomDistance] = useState<number>(0);
+    const [prevZoomDistance, setPrevZoomDistance] = useState<number>(0);
 
     useEffect(() => {
         const loadTimeline = async () => {
@@ -143,8 +152,60 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         }
     };
 
+    const getDistance = (touches: any[]) => {
+        const dx = Math.abs(touches[0].locationX - touches[1].locationX);
+        const dy = Math.abs(touches[0].locationY - touches[1].locationY);
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const panResponder = PanResponder.create({
+        onMoveShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponderCapture: () => true,
+
+        onPanResponderGrant: (event, gestureState) => {
+            const touches = event.nativeEvent.touches;
+            if (touches.length >= 2) {
+                const touches = event.nativeEvent.touches;
+                const distance = getDistance(touches);
+                setInitialZoomDistance(distance);
+                console.log("ZACZYNAMY Z distance: ", distance);
+            }
+        },
+
+        onPanResponderMove: (event, gestureState) => {
+            const touches = event.nativeEvent.touches;
+
+            if (touches.length >= 2) {
+                const distance =
+                    getDistance(touches) -
+                    initialZoomDistance -
+                    prevZoomDistance;
+                const isNegative = distance < 0;
+                const zoom =
+                    (Math.sqrt(Math.abs(distance)) * (isNegative ? -1 : 1)) / 2;
+                console.log("zoom,", zoom);
+                console.log("scaleFactor: ", scaleFactor);
+
+                const finalScaleFactor = zoom + scaleFactor;
+                if (finalScaleFactor > 40 && finalScaleFactor < 200) {
+                    setScaleFactor(zoom + scaleFactor);
+                }
+
+                setPrevZoomDistance(distance);
+
+                // We have a pinch-to-zoom movement
+                // Track locationX/locationY to know by how much the user moved their fingers
+            }
+        },
+
+        onPanResponderRelease: (event, gestureState) => {
+            setPrevZoomDistance(0);
+            setInitialZoomDistance(0);
+        },
+    });
+
     return (
-        <View style={{ flex: 1 }}>
+        <>
             <ThemedRangeInput
                 label="Skala (px/m)"
                 min={45}
@@ -169,6 +230,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                             transform: [{ scaleY: -1 }],
                         },
                     ]}
+                    {...panResponder.panHandlers}
                 >
                     {/* Oś pionowa */}
                     <View
@@ -179,30 +241,30 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                     />
 
                     {/* Skala wysokości (tylko te co nie kolidują) */}
-                    {Array.from({ length: Math.ceil(MAX_HEIGHT / 5) + 1 }).map(
-                        (_, i) => {
-                            const h = i * 5;
-                            if (!shouldShowScaleMark(h)) return null;
-                            return (
-                                <View
-                                    key={h}
+                    {Array.from({
+                        length: Math.ceil(MAX_HEIGHT / 5) + 1,
+                    }).map((_, i) => {
+                        const h = i * 5;
+                        if (!shouldShowScaleMark(h)) return null;
+                        return (
+                            <View
+                                key={h}
+                                style={[
+                                    styles.scaleMark,
+                                    { bottom: h * scaleFactor },
+                                ]}
+                            >
+                                <ThemedText
                                     style={[
-                                        styles.scaleMark,
-                                        { bottom: h * scaleFactor },
+                                        styles.scaleText,
+                                        { color: theme.iconColour },
                                     ]}
                                 >
-                                    <ThemedText
-                                        style={[
-                                            styles.scaleText,
-                                            { color: theme.iconColour },
-                                        ]}
-                                    >
-                                        {h} m —
-                                    </ThemedText>
-                                </View>
-                            );
-                        },
-                    )}
+                                    {h} m —
+                                </ThemedText>
+                            </View>
+                        );
+                    })}
 
                     {/* Eventy */}
                     {processedEvents.map((item: any, index: number) => {
@@ -355,7 +417,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                     })}
                 </View>
             </ScrollView>
-        </View>
+        </>
     );
 };
 

@@ -50,13 +50,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const refreshToken = await authStorage.getRefreshToken();
 
                 if (accessToken) {
-                    console.log("accessToken in auth context: ", accessToken);
-                    // W idealnym świecie tutaj wywołujemy np. UserService.getCurrentUser()
-                    // aby sprawdzić czy token jest nadal ważny.
                     setAccessToken(accessToken);
                 }
                 if (refreshToken) {
-                    console.log("refreshToken in auth context: ", refreshToken);
                     setRefreshToken(refreshToken);
                 }
             } catch (e) {
