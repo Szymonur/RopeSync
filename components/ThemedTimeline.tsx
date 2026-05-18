@@ -11,13 +11,11 @@ import { File, Directory, Paths } from "expo-file-system";
 import ThemedText from "./ThemedText";
 import Spacer from "../components/Spacer";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import ThemedRangeInput from "./ThemedRangeInput";
 
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Konfiguracja wizualna
-const MAX_HEIGHT = 25;
 const EVENT_CARD_HEIGHT = 60;
 
 const CARD_MIN_GAP = 70; // Minimalny odstęp między początkami kart (w pikselach)
@@ -37,6 +35,13 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const [scaleFactor, setScaleFactor] = useState<number>(45);
     const [initialZoomDistance, setInitialZoomDistance] = useState<number>(0);
     const [prevZoomDistance, setPrevZoomDistance] = useState<number>(0);
+    const [maxTimelineHeight, setMaxTimelineHeight] = useState<number>(0);
+    const [contentHeight, setContentHeight] = useState<number>(0);
+    const [contentHeightRatio, setContentHeightRatio] = useState<number>(0);
+
+    const [isDuringZoom, setIsDuringZoom] = useState<boolean>(false);
+
+    const scrollViewRef = useRef<ScrollView>(null);
 
     useEffect(() => {
         const loadTimeline = async () => {
@@ -59,7 +64,21 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                 }
 
                 const content = await file.textSync();
-                setTimelineData(JSON.parse(content));
+                const jsonContent = JSON.parse(content);
+
+                setTimelineData(jsonContent);
+
+                // Dynamiczne obliczanie max wysokości
+                if (
+                    jsonContent.timeline &&
+                    Array.isArray(jsonContent.timeline)
+                ) {
+                    const highestPoint = Math.max(
+                        ...jsonContent.timeline.map((item: any) => item.height),
+                        0,
+                    );
+                    setMaxTimelineHeight(Math.ceil(highestPoint));
+                }
             } catch (err: any) {
                 console.error("Błąd ładowania timeline:", err);
                 setError(`Błąd: ${err.message}`);
@@ -107,6 +126,73 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         );
     };
 
+    const getEventColor = (type: string) => {
+        switch (type) {
+            case "fall":
+                return Colors.warning;
+            case "clip":
+                return "#44AAFF";
+            case "anchor":
+                return "#44FF44";
+            default:
+                return theme.iconColour;
+        }
+    };
+
+    const getDistance = (touches: any[]) => {
+        const dx = Math.abs(touches[0].locationX - touches[1].locationX);
+        const dy = Math.abs(touches[0].locationY - touches[1].locationY);
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => false,
+        onMoveShouldSetPanResponder: (evt) =>
+            evt.nativeEvent.touches.length >= 2, // aktywacja tylko gdy są 2 pukty dotyku
+
+        onPanResponderGrant: (event, gestureState) => {
+            const touches = event.nativeEvent.touches;
+            if (touches.length >= 2) {
+                setIsDuringZoom(true);
+                const touches = event.nativeEvent.touches;
+                const distance = getDistance(touches);
+                setInitialZoomDistance(distance);
+            }
+        },
+
+        onPanResponderMove: (event, gestureState) => {
+            const touches = event.nativeEvent.touches;
+
+            if (touches.length >= 2) {
+                const distance =
+                    getDistance(touches) - // róznica dystansu między palcami
+                    initialZoomDistance - // odejmujemy początkowy dystans aby liczyła się tylko róznica
+                    prevZoomDistance; // odejmujmey poprzednią róznicę dystansu aby zapobiec kumulowaniu się przyblizena
+
+                const isNegative = distance < 0;
+                const zoom =
+                    (Math.sqrt(Math.abs(distance)) * (isNegative ? -1 : 1)) / 2; // pierwastek i dzielenie aby spowolnić i wygładzić przyblianie
+                const finalScaleFactor = zoom + scaleFactor;
+                if (finalScaleFactor > 40 && finalScaleFactor < 200) {
+                    setScaleFactor(zoom + scaleFactor);
+                }
+                handeFixLauoutWhenZoom();
+                setPrevZoomDistance(distance);
+            }
+        },
+        onPanResponderRelease: () => {
+            setIsDuringZoom(false);
+        },
+    });
+
+    const handeFixLauoutWhenZoom = () => {
+        scrollViewRef.current?.scrollTo({
+            x: 0,
+            y: contentHeightRatio * contentHeight,
+            animated: false,
+        });
+    };
+
     if (loading) {
         return (
             <View style={{ padding: 20, alignItems: "center" }}>
@@ -139,91 +225,31 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         );
     }
 
-    const getEventColor = (type: string) => {
-        switch (type) {
-            case "fall":
-                return Colors.warning;
-            case "clip":
-                return "#44AAFF";
-            case "anchor":
-                return "#44FF44";
-            default:
-                return theme.iconColour;
-        }
-    };
-
-    const getDistance = (touches: any[]) => {
-        const dx = Math.abs(touches[0].locationX - touches[1].locationX);
-        const dy = Math.abs(touches[0].locationY - touches[1].locationY);
-        return Math.sqrt(dx * dx + dy * dy);
-    };
-
-    const panResponder = PanResponder.create({
-        onMoveShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponderCapture: () => true,
-
-        onPanResponderGrant: (event, gestureState) => {
-            const touches = event.nativeEvent.touches;
-            if (touches.length >= 2) {
-                const touches = event.nativeEvent.touches;
-                const distance = getDistance(touches);
-                setInitialZoomDistance(distance);
-                console.log("ZACZYNAMY Z distance: ", distance);
-            }
-        },
-
-        onPanResponderMove: (event, gestureState) => {
-            const touches = event.nativeEvent.touches;
-
-            if (touches.length >= 2) {
-                const distance =
-                    getDistance(touches) -
-                    initialZoomDistance -
-                    prevZoomDistance;
-                const isNegative = distance < 0;
-                const zoom =
-                    (Math.sqrt(Math.abs(distance)) * (isNegative ? -1 : 1)) / 2;
-                console.log("zoom,", zoom);
-                console.log("scaleFactor: ", scaleFactor);
-
-                const finalScaleFactor = zoom + scaleFactor;
-                if (finalScaleFactor > 40 && finalScaleFactor < 200) {
-                    setScaleFactor(zoom + scaleFactor);
-                }
-
-                setPrevZoomDistance(distance);
-
-                // We have a pinch-to-zoom movement
-                // Track locationX/locationY to know by how much the user moved their fingers
-            }
-        },
-
-        onPanResponderRelease: (event, gestureState) => {
-            setPrevZoomDistance(0);
-            setInitialZoomDistance(0);
-        },
-    });
-
     return (
         <>
-            <ThemedRangeInput
-                label="Skala (px/m)"
-                min={45}
-                max={200}
-                value={scaleFactor}
-                onValueChange={setScaleFactor}
-            />
             <ScrollView
+                ref={scrollViewRef}
                 contentContainerStyle={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
+                scrollEventThrottle={24}
                 style={{ transform: [{ scaleY: -1 }] }}
+                onContentSizeChange={(contentWidth, contentHeight) => {
+                    setContentHeight(contentHeight);
+                }}
+                onScroll={(e) => {
+                    if (!isDuringZoom) {
+                        setContentHeightRatio(
+                            e.nativeEvent.contentOffset.y / contentHeight,
+                        );
+                    }
+                }}
             >
                 <View
                     style={[
                         styles.container,
                         {
                             height: Math.max(
-                                MAX_HEIGHT * scaleFactor,
+                                maxTimelineHeight * scaleFactor,
                                 (processedEvents[processedEvents.length - 1]
                                     ?.displayY || 0) + 100,
                             ),
@@ -242,7 +268,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
 
                     {/* Skala wysokości (tylko te co nie kolidują) */}
                     {Array.from({
-                        length: Math.ceil(MAX_HEIGHT / 5) + 1,
+                        length: Math.ceil(maxTimelineHeight / 5) + 1,
                     }).map((_, i) => {
                         const h = i * 5;
                         if (!shouldShowScaleMark(h)) return null;
