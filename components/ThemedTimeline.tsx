@@ -38,10 +38,13 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const [maxTimelineHeight, setMaxTimelineHeight] = useState<number>(0);
     const [contentHeight, setContentHeight] = useState<number>(0);
     const [contentHeightRatio, setContentHeightRatio] = useState<number>(0);
+    const [layoutHeight, setLayoutHeight] = useState<number>(0);
 
     const [isDuringZoom, setIsDuringZoom] = useState<boolean>(false);
 
     const scrollViewRef = useRef<ScrollView>(null);
+    const contentHeightRef = useRef<number>(0);
+    const layoutHeightRef = useRef<number>(0);
 
     useEffect(() => {
         const loadTimeline = async () => {
@@ -188,7 +191,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const handeFixLauoutWhenZoom = () => {
         scrollViewRef.current?.scrollTo({
             x: 0,
-            y: contentHeightRatio * contentHeight,
+            y: contentHeightRatio * contentHeightRef.current,
             animated: false,
         });
     };
@@ -227,222 +230,305 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
 
     return (
         <>
-            <ScrollView
-                ref={scrollViewRef}
-                contentContainerStyle={styles.scrollContainer}
-                showsVerticalScrollIndicator={false}
-                scrollEventThrottle={24}
-                style={{ transform: [{ scaleY: -1 }] }}
-                onContentSizeChange={(contentWidth, contentHeight) => {
-                    setContentHeight(contentHeight);
-                }}
-                onScroll={(e) => {
-                    if (!isDuringZoom) {
-                        setContentHeightRatio(
-                            e.nativeEvent.contentOffset.y / contentHeight,
-                        );
-                    }
-                }}
-            >
-                <View
-                    style={[
-                        styles.container,
-                        {
-                            height: Math.max(
-                                maxTimelineHeight * scaleFactor,
-                                (processedEvents[processedEvents.length - 1]
-                                    ?.displayY || 0) + 100,
-                            ),
-                            transform: [{ scaleY: -1 }],
-                        },
-                    ]}
-                    {...panResponder.panHandlers}
+            <View style={{ display: "flex", flexDirection: "row", flex: 1 }}>
+                <ScrollView
+                    ref={scrollViewRef}
+                    contentContainerStyle={styles.scrollContainer}
+                    showsVerticalScrollIndicator={false}
+                    scrollEventThrottle={24}
+                    style={{ transform: [{ scaleY: -1 }] }}
+                    onLayout={(e) => {
+                        const h = e.nativeEvent.layout.height;
+                        layoutHeightRef.current = h;
+                        setLayoutHeight(h);
+                    }}
+                    onContentSizeChange={(contentWidth, contentHeight) => {
+                        contentHeightRef.current = contentHeight;
+                        setContentHeight(contentHeight);
+                    }}
+                    onScroll={(e) => {
+                        if (!isDuringZoom && contentHeightRef.current > 0) {
+                            setContentHeightRatio(
+                                e.nativeEvent.contentOffset.y /
+                                    (contentHeightRef.current -
+                                        e.nativeEvent.layoutMeasurement.height),
+                            );
+                        }
+                    }}
                 >
-                    {/* Oś pionowa */}
                     <View
                         style={[
-                            styles.verticalLine,
+                            styles.container,
+                            {
+                                height: Math.max(
+                                    maxTimelineHeight * scaleFactor,
+                                    (processedEvents[processedEvents.length - 1]
+                                        ?.displayY || 0) + 100,
+                                ),
+                                transform: [{ scaleY: -1 }],
+                            },
+                        ]}
+                        {...panResponder.panHandlers}
+                    >
+                        {/* Oś pionowa po lewej*/}
+                        <View
+                            style={[
+                                styles.verticalLine,
+                                { backgroundColor: theme.text },
+                            ]}
+                        />
+
+                        {/* Skala wysokości (tylko te co nie kolidują) */}
+                        {Array.from({
+                            length: Math.ceil(maxTimelineHeight / 5) + 1,
+                        }).map((_, i) => {
+                            const h = i * 5;
+                            if (!shouldShowScaleMark(h)) return null;
+                            return (
+                                <View
+                                    key={h}
+                                    style={[
+                                        styles.scaleMark,
+                                        { bottom: h * scaleFactor },
+                                    ]}
+                                >
+                                    <ThemedText
+                                        style={[
+                                            styles.scaleText,
+                                            { color: theme.iconColour },
+                                        ]}
+                                    >
+                                        {h} m —
+                                    </ThemedText>
+                                </View>
+                            );
+                        })}
+
+                        {/* Eventy */}
+                        {processedEvents.map((item: any, index: number) => {
+                            const event = item.events[0];
+                            const eventColor = getEventColor(event.type);
+
+                            return (
+                                <React.Fragment key={index}>
+                                    {/* 1. Kropka i etykieta wysokości na osi (zawsze w idealnym miejscu) */}
+                                    <View
+                                        style={[
+                                            styles.axisPoint,
+                                            { bottom: item.idealY },
+                                        ]}
+                                    >
+                                        <View style={styles.heightLabelWrapper}>
+                                            <ThemedText
+                                                style={styles.heightLabelText}
+                                            >
+                                                {item.height} m
+                                            </ThemedText>
+                                        </View>
+                                        <View
+                                            style={[
+                                                styles.dot,
+                                                {
+                                                    backgroundColor: eventColor,
+                                                    borderColor:
+                                                        theme.background,
+                                                },
+                                            ]}
+                                        />
+                                    </View>
+
+                                    {/* 2. Stałka (łącznik) jeśli jest przesunięcie */}
+                                    {item.hasStalk && (
+                                        <>
+                                            <View
+                                                style={[
+                                                    styles.stalkVertical,
+                                                    {
+                                                        bottom:
+                                                            item.idealY + 10,
+                                                        height:
+                                                            item.displayY -
+                                                            item.idealY,
+                                                        backgroundColor:
+                                                            eventColor,
+                                                        opacity: 0.6,
+                                                    },
+                                                ]}
+                                            />
+                                            <View
+                                                style={[
+                                                    styles.stalkHorizontal,
+                                                    {
+                                                        bottom:
+                                                            item.displayY + 10,
+                                                        backgroundColor:
+                                                            eventColor,
+                                                        opacity: 0.6,
+                                                    },
+                                                ]}
+                                            />
+                                        </>
+                                    )}
+
+                                    {/* 3. Karta zdarzenia (może być przesunięta w górę) */}
+                                    <View
+                                        style={[
+                                            styles.cardWrapper,
+                                            {
+                                                bottom:
+                                                    10 +
+                                                    item.displayY -
+                                                    EVENT_CARD_HEIGHT / 2,
+                                            },
+                                        ]}
+                                    >
+                                        <View
+                                            style={[
+                                                styles.eventCard,
+                                                {
+                                                    height: EVENT_CARD_HEIGHT,
+                                                    borderColor: eventColor,
+                                                    backgroundColor:
+                                                        theme.uiBackground,
+                                                },
+                                            ]}
+                                        >
+                                            <View style={styles.cardHeader}>
+                                                <ThemedText
+                                                    style={styles.eventType}
+                                                >
+                                                    {event.type.toUpperCase()}
+                                                </ThemedText>
+                                                <ThemedText
+                                                    style={{ fontSize: 11 }}
+                                                >
+                                                    <Ionicons
+                                                        name="timer-outline"
+                                                        size={11}
+                                                        color={theme.text}
+                                                    />{" "}
+                                                    {Math.floor(
+                                                        item.timestamp / 60,
+                                                    )}
+                                                    :
+                                                    {(item.timestamp % 60)
+                                                        .toString()
+                                                        .padStart(2, "0")}
+                                                </ThemedText>
+                                            </View>
+
+                                            {event.type === "fall" && (
+                                                <ThemedText
+                                                    style={styles.detailText}
+                                                >
+                                                    Lot:{" "}
+                                                    <ThemedText bold>
+                                                        {event.fallenDisnace}m
+                                                    </ThemedText>{" "}
+                                                    | Czas:{" "}
+                                                    <ThemedText bold>
+                                                        {event.duration}s
+                                                    </ThemedText>{" "}
+                                                    | Siła:{" "}
+                                                    <ThemedText bold>
+                                                        {event.force}kN
+                                                    </ThemedText>
+                                                </ThemedText>
+                                            )}
+                                            {event.type === "clip" && (
+                                                <ThemedText
+                                                    style={styles.detailText}
+                                                >
+                                                    Wpinka:{" "}
+                                                    <ThemedText bold>
+                                                        {event.clipingTime}s
+                                                    </ThemedText>{" "}
+                                                    | Siła:{" "}
+                                                    <ThemedText bold>
+                                                        {event.force}kN
+                                                    </ThemedText>{" "}
+                                                    | Asek.:{" "}
+                                                    <ThemedText bold>
+                                                        {event.belayRate}/10
+                                                    </ThemedText>
+                                                </ThemedText>
+                                            )}
+                                        </View>
+                                    </View>
+                                </React.Fragment>
+                            );
+                        })}
+                    </View>
+                </ScrollView>
+                {/* Oś pionowa po prawej*/}
+                <View
+                    style={[
+                        {
+                            width: 24,
+                            height: layoutHeight,
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        },
+                    ]}
+                >
+                    <View
+                        style={[
+                            styles.verticalLineRight,
                             { backgroundColor: theme.text },
                         ]}
                     />
 
-                    {/* Skala wysokości (tylko te co nie kolidują) */}
-                    {Array.from({
-                        length: Math.ceil(maxTimelineHeight / 5) + 1,
-                    }).map((_, i) => {
-                        const h = i * 5;
-                        if (!shouldShowScaleMark(h)) return null;
-                        return (
-                            <View
-                                key={h}
-                                style={[
-                                    styles.scaleMark,
-                                    { bottom: h * scaleFactor },
-                                ]}
-                            >
-                                <ThemedText
-                                    style={[
-                                        styles.scaleText,
-                                        { color: theme.iconColour },
-                                    ]}
-                                >
-                                    {h} m —
-                                </ThemedText>
-                            </View>
-                        );
-                    })}
+                    <View
+                        style={[
+                            styles.axisPointUser,
+                            {
+                                backgroundColor: theme.background,
+                                bottom: contentHeightRatio * layoutHeight,
+                            },
+                        ]}
+                    >
+                        <Ionicons
+                            size={24}
+                            name="person"
+                            color={theme.iconColour}
+                        />
+                    </View>
+                    {contentHeight > 0 &&
+                        processedEvents.map((item: any, index: number) => {
+                            const event = item.events[0];
+                            const eventColor = getEventColor(event.type);
 
-                    {/* Eventy */}
-                    {processedEvents.map((item: any, index: number) => {
-                        const event = item.events[0];
-                        const eventColor = getEventColor(event.type);
-
-                        return (
-                            <React.Fragment key={index}>
-                                {/* 1. Kropka i etykieta wysokości na osi (zawsze w idealnym miejscu) */}
-                                <View
-                                    style={[
-                                        styles.axisPoint,
-                                        { bottom: item.idealY },
-                                    ]}
-                                >
-                                    <View style={styles.heightLabelWrapper}>
-                                        <ThemedText
-                                            style={styles.heightLabelText}
-                                        >
-                                            {item.height} m
-                                        </ThemedText>
-                                    </View>
+                            return (
+                                <React.Fragment key={index}>
+                                    {/* 1. Kropka na prawej osi (mini-mapa) */}
                                     <View
                                         style={[
-                                            styles.dot,
+                                            styles.axisPointRight,
                                             {
-                                                backgroundColor: eventColor,
-                                                borderColor: theme.background,
+                                                bottom:
+                                                    (item.displayY /
+                                                        contentHeight) *
+                                                    layoutHeight,
                                             },
                                         ]}
-                                    />
-                                </View>
-
-                                {/* 2. Stałka (łącznik) jeśli jest przesunięcie */}
-                                {item.hasStalk && (
-                                    <>
+                                    > 
                                         <View
                                             style={[
-                                                styles.stalkVertical,
+                                                styles.dotMini,
                                                 {
-                                                    bottom: item.idealY + 10,
-                                                    height:
-                                                        item.displayY -
-                                                        item.idealY,
                                                     backgroundColor: eventColor,
-                                                    opacity: 0.6,
+                                                    borderColor:
+                                                        theme.background,
                                                 },
                                             ]}
                                         />
-                                        <View
-                                            style={[
-                                                styles.stalkHorizontal,
-                                                {
-                                                    bottom: item.displayY + 10,
-                                                    backgroundColor: eventColor,
-                                                    opacity: 0.6,
-                                                },
-                                            ]}
-                                        />
-                                    </>
-                                )}
-
-                                {/* 3. Karta zdarzenia (może być przesunięta w górę) */}
-                                <View
-                                    style={[
-                                        styles.cardWrapper,
-                                        {
-                                            bottom:
-                                                10 +
-                                                item.displayY -
-                                                EVENT_CARD_HEIGHT / 2,
-                                        },
-                                    ]}
-                                >
-                                    <View
-                                        style={[
-                                            styles.eventCard,
-                                            {
-                                                height: EVENT_CARD_HEIGHT,
-                                                borderColor: eventColor,
-                                                backgroundColor:
-                                                    theme.uiBackground,
-                                            },
-                                        ]}
-                                    >
-                                        <View style={styles.cardHeader}>
-                                            <ThemedText
-                                                style={styles.eventType}
-                                            >
-                                                {event.type.toUpperCase()}
-                                            </ThemedText>
-                                            <ThemedText
-                                                style={{ fontSize: 11 }}
-                                            >
-                                                <Ionicons
-                                                    name="timer-outline"
-                                                    size={11}
-                                                    color={theme.text}
-                                                />{" "}
-                                                {Math.floor(
-                                                    item.timestamp / 60,
-                                                )}
-                                                :
-                                                {(item.timestamp % 60)
-                                                    .toString()
-                                                    .padStart(2, "0")}
-                                            </ThemedText>
-                                        </View>
-
-                                        {event.type === "fall" && (
-                                            <ThemedText
-                                                style={styles.detailText}
-                                            >
-                                                Lot:{" "}
-                                                <ThemedText bold>
-                                                    {event.fallenDisnace}m
-                                                </ThemedText>{" "}
-                                                | Czas:{" "}
-                                                <ThemedText bold>
-                                                    {event.duration}s
-                                                </ThemedText>{" "}
-                                                | Siła:{" "}
-                                                <ThemedText bold>
-                                                    {event.force}kN
-                                                </ThemedText>
-                                            </ThemedText>
-                                        )}
-                                        {event.type === "clip" && (
-                                            <ThemedText
-                                                style={styles.detailText}
-                                            >
-                                                Wpinka:{" "}
-                                                <ThemedText bold>
-                                                    {event.clipingTime}s
-                                                </ThemedText>{" "}
-                                                | Siła:{" "}
-                                                <ThemedText bold>
-                                                    {event.force}kN
-                                                </ThemedText>{" "}
-                                                | Asek.:{" "}
-                                                <ThemedText bold>
-                                                    {event.belayRate}/10
-                                                </ThemedText>
-                                            </ThemedText>
-                                        )}
                                     </View>
-                                </View>
-                            </React.Fragment>
-                        );
-                    })}
+                                </React.Fragment>
+                            );
+                        })}
                 </View>
-            </ScrollView>
+            </View>
         </>
     );
 };
@@ -451,7 +537,7 @@ const styles = StyleSheet.create({
     scrollContainer: {
         paddingVertical: 40,
         paddingLeft: 10,
-        paddingRight: 15,
+        paddingRight: 40,
     },
     container: {
         width: "100%",
@@ -465,6 +551,19 @@ const styles = StyleSheet.create({
         bottom: 0,
         width: 4,
         borderRadius: 2,
+    },
+    verticalLineRight: {
+        height: "100%",
+
+        position: "relative",
+        width: 2,
+        opacity: 0.6,
+        borderRadius: 2,
+    },
+    axisPointUser: {
+        position: "absolute",
+        borderRadius: 40,
+        zIndex: 10,
     },
     scaleMark: {
         position: "absolute",
@@ -485,6 +584,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         zIndex: 10,
     },
+    axisPointRight: {
+        position: "absolute",
+        flexDirection: "row",
+        alignItems: "center",
+        zIndex: 9,
+    },
     heightLabelWrapper: {
         left: -75,
         position: "absolute",
@@ -498,6 +603,16 @@ const styles = StyleSheet.create({
     dot: {
         width: 20,
         height: 20,
+        borderRadius: 10,
+        borderWidth: 3,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+    },
+    dotMini: {
+        width: 15,
+        height: 15,
         borderRadius: 10,
         borderWidth: 3,
         elevation: 4,
@@ -521,7 +636,7 @@ const styles = StyleSheet.create({
     cardWrapper: {
         position: "absolute",
         left: 15,
-        width: "85%",
+        width: "90%",
     },
     eventCard: {
         padding: 10,
