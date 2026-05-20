@@ -13,8 +13,13 @@ import { UserService } from "../services/api/UserService";
 interface AuthContextData {
     accessToken: string | null;
     refreshToken: string | null;
+    currentUserId: string | null;
     isLoading: boolean;
-    login: (accessToken: string, refreshToken: string) => Promise<void>;
+    login: (
+        accessToken: string,
+        refreshToken: string,
+        userId: string,
+    ) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -40,6 +45,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [refreshToken, setRefreshToken] = useState<string | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const queryClient = useQueryClient();
 
@@ -48,12 +54,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             try {
                 const accessToken = await authStorage.getAccessToken();
                 const refreshToken = await authStorage.getRefreshToken();
+                const currentUserId = await authStorage.getCurrentUserId();
 
                 if (accessToken) {
                     setAccessToken(accessToken);
                 }
                 if (refreshToken) {
                     setRefreshToken(refreshToken);
+                }
+                if (currentUserId) {
+                    setCurrentUserId(currentUserId);
                 }
             } catch (e) {
                 console.error("Błąd inicjalizacji tokena:", e);
@@ -65,24 +75,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         bootstrapAsync();
     }, []);
 
-    const login = async (accesToken: string, refreshToken: string) => {
+    const login = async (
+        accesToken: string,
+        refreshToken: string,
+        userId: string,
+    ) => {
         await authStorage.saveAccessToken(accesToken);
         await authStorage.saveRefreshToken(refreshToken);
+        await authStorage.saveCurrentUserId(userId);
         setAccessToken(accesToken);
         setRefreshToken(refreshToken);
+        setCurrentUserId(userId);
     };
 
     const logout = async () => {
         await authStorage.removeAccessToken();
         await authStorage.removeRefreshToken();
+        await authStorage.removeCurrentUserId();
         setAccessToken(null);
         setRefreshToken(null);
+        setCurrentUserId(null);
         queryClient.clear();
     };
 
     return (
         <AuthContext.Provider
-            value={{ accessToken, refreshToken, isLoading, login, logout }}
+            value={{
+                accessToken,
+                refreshToken,
+                currentUserId,
+                isLoading,
+                login,
+                logout,
+            }}
         >
             {children}
         </AuthContext.Provider>

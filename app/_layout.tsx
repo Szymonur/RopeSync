@@ -28,7 +28,7 @@ import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
 const queryClient = new QueryClient();
 
 const InitialLayout = () => {
-    const { accessToken, refreshToken, isLoading } = useAuth();
+    const { refreshToken, currentUserId, isLoading } = useAuth();
     const segments = useSegments();
     const router = useRouter();
     const { colorScheme } = useTheme();
@@ -39,12 +39,12 @@ const InitialLayout = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
 
-        if (!refreshToken && !inAuthGroup) {
+        if (!currentUserId && !refreshToken && !inAuthGroup) {
             router.replace("/(auth)/login");
-        } else if (refreshToken && inAuthGroup) {
+        } else if (currentUserId && refreshToken && inAuthGroup) {
             router.replace("/(dashboard)");
         }
-    }, [accessToken, refreshToken, isLoading, segments]);
+    }, [refreshToken, !currentUserId, isLoading, segments]);
 
     return (
         <>

@@ -36,11 +36,13 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const [initialZoomDistance, setInitialZoomDistance] = useState<number>(0);
     const [prevZoomDistance, setPrevZoomDistance] = useState<number>(0);
     const [maxTimelineHeight, setMaxTimelineHeight] = useState<number>(0);
-    const [contentHeight, setContentHeight] = useState<number>(0);
-    const [contentHeightRatio, setContentHeightRatio] = useState<number>(0);
+    // const [contentHeight, setContentHeight] = useState<number>(0);
+    // const [contentHeightRatio, setContentHeightRatio] = useState<number>(0);
+    const contentHeightRatioRef = useRef<number>(0);
+    const indicatorRef = useRef<View>(null); // Referencja do ikony na minimapie
     const [layoutHeight, setLayoutHeight] = useState<number>(0);
 
-    const [isDuringZoom, setIsDuringZoom] = useState<boolean>(false);
+    const isDuringZoomRef = useRef<boolean>(false);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const contentHeightRef = useRef<number>(0);
@@ -119,6 +121,16 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         });
     }, [timelineData, scaleFactor]);
 
+    // Synchroniczne obliczanie wysokości (bez czekania na render)
+    const totalTimelineHeight = useMemo(() => {
+        if (!processedEvents || processedEvents.length === 0) return 1; // Zabezpieczenie przed dzieleniem przez zero
+
+        return Math.max(
+            maxTimelineHeight * scaleFactor,
+            (processedEvents[processedEvents.length - 1]?.displayY || 0) + 100,
+        );
+    }, [maxTimelineHeight, scaleFactor, processedEvents]);
+
     // 2. Logika sprawdzania kolizji ze skalą
     const shouldShowScaleMark = (height: number) => {
         const scaleY = height * scaleFactor;
@@ -156,7 +168,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         onPanResponderGrant: (event, gestureState) => {
             const touches = event.nativeEvent.touches;
             if (touches.length >= 2) {
-                setIsDuringZoom(true);
+                isDuringZoomRef.current = true;
                 const touches = event.nativeEvent.touches;
                 const distance = getDistance(touches);
                 setInitialZoomDistance(distance);
@@ -179,21 +191,29 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                 if (finalScaleFactor > 40 && finalScaleFactor < 200) {
                     setScaleFactor(zoom + scaleFactor);
                 }
-                handeFixLauoutWhenZoom();
+                // handeFixLauoutWhenZoom();
                 setPrevZoomDistance(distance);
             }
         },
         onPanResponderRelease: () => {
-            setIsDuringZoom(false);
+            isDuringZoomRef.current = false; // Zmienione na Ref
+        },
+        onPanResponderTerminate: () => {
+            isDuringZoomRef.current = false; // Zmienione na Ref
         },
     });
 
     const handeFixLauoutWhenZoom = () => {
-        scrollViewRef.current?.scrollTo({
-            x: 0,
-            y: contentHeightRatio * contentHeightRef.current,
-            animated: false,
-        });
+        // Scrollable area to różnica między całym kontentem a widocznym oknem
+        const maxScroll = contentHeightRef.current - layoutHeightRef.current;
+
+        if (maxScroll > 0) {
+            scrollViewRef.current?.scrollTo({
+                x: 0,
+                y: contentHeightRatioRef.current * maxScroll, // Poprawiona matematyka!
+                animated: false,
+            });
+        }
     };
 
     if (loading) {
@@ -244,15 +264,43 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                     }}
                     onContentSizeChange={(contentWidth, contentHeight) => {
                         contentHeightRef.current = contentHeight;
-                        setContentHeight(contentHeight);
+
+                        // MAGIA: Zmieniamy pozycję scrolla dopiero, gdy nowa wysokość jest gotowa
+                        if (isDuringZoomRef.current) {
+                            const maxScroll =
+                                contentHeight - layoutHeightRef.current;
+                            if (maxScroll > 0) {
+                                scrollViewRef.current?.scrollTo({
+                                    x: 0,
+                                    y:
+                                        contentHeightRatioRef.current *
+                                        maxScroll,
+                                    animated: false,
+                                });
+                            }
+                        }
                     }}
                     onScroll={(e) => {
-                        if (!isDuringZoom && contentHeightRef.current > 0) {
-                            setContentHeightRatio(
-                                e.nativeEvent.contentOffset.y /
-                                    (contentHeightRef.current -
-                                        e.nativeEvent.layoutMeasurement.height),
-                            );
+                        const currentY = e.nativeEvent.contentOffset.y;
+                        const maxScroll =
+                            contentHeightRef.current -
+                            e.nativeEvent.layoutMeasurement.height;
+
+                        if (maxScroll > 0) {
+                            // Zabezpieczenie: Wykonujemy to TYLKO gdy nie zoomujemy
+                            if (!isDuringZoomRef.current) {
+                                const ratio = Math.max(
+                                    0,
+                                    Math.min(1, currentY / maxScroll),
+                                );
+                                contentHeightRatioRef.current = ratio; // Przeniesione do środka if'a!
+
+                                indicatorRef.current?.setNativeProps({
+                                    style: {
+                                        bottom: ratio * layoutHeightRef.current,
+                                    },
+                                });
+                            }
                         }
                     }}
                 >
@@ -260,11 +308,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                         style={[
                             styles.container,
                             {
-                                height: Math.max(
-                                    maxTimelineHeight * scaleFactor,
-                                    (processedEvents[processedEvents.length - 1]
-                                        ?.displayY || 0) + 100,
-                                ),
+                                height: totalTimelineHeight,
                                 transform: [{ scaleY: -1 }],
                             },
                         ]}
@@ -480,11 +524,14 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                     />
 
                     <View
+                        ref={indicatorRef}
                         style={[
                             styles.axisPointUser,
                             {
                                 backgroundColor: theme.background,
-                                bottom: contentHeightRatio * layoutHeight,
+                                bottom:
+                                    contentHeightRatioRef.current *
+                                    layoutHeight,
                             },
                         ]}
                     >
@@ -494,39 +541,37 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                             color={theme.iconColour}
                         />
                     </View>
-                    {contentHeight > 0 &&
-                        processedEvents.map((item: any, index: number) => {
-                            const event = item.events[0];
-                            const eventColor = getEventColor(event.type);
+                    {processedEvents.map((item: any, index: number) => {
+                        const event = item.events[0];
+                        const eventColor = getEventColor(event.type);
 
-                            return (
-                                <React.Fragment key={index}>
-                                    {/* 1. Kropka na prawej osi (mini-mapa) */}
+                        return (
+                            <React.Fragment key={index}>
+                                {/* 1. Kropka na prawej osi (mini-mapa) */}
+                                <View
+                                    style={[
+                                        styles.axisPointRight,
+                                        {
+                                            bottom:
+                                                (item.displayY /
+                                                    totalTimelineHeight) *
+                                                layoutHeight,
+                                        },
+                                    ]}
+                                >
                                     <View
                                         style={[
-                                            styles.axisPointRight,
+                                            styles.dotMini,
                                             {
-                                                bottom:
-                                                    (item.displayY /
-                                                        contentHeight) *
-                                                    layoutHeight,
+                                                backgroundColor: eventColor,
+                                                borderColor: theme.background,
                                             },
                                         ]}
-                                    > 
-                                        <View
-                                            style={[
-                                                styles.dotMini,
-                                                {
-                                                    backgroundColor: eventColor,
-                                                    borderColor:
-                                                        theme.background,
-                                                },
-                                            ]}
-                                        />
-                                    </View>
-                                </React.Fragment>
-                            );
-                        })}
+                                    />
+                                </View>
+                            </React.Fragment>
+                        );
+                    })}
                 </View>
             </View>
         </>
