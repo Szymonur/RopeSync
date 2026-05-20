@@ -5,7 +5,6 @@ import {
     ScrollView,
     ActivityIndicator,
     PanResponder,
-    Animated,
 } from "react-native";
 import { File, Directory, Paths } from "expo-file-system";
 import ThemedText from "./ThemedText";
@@ -36,8 +35,6 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const [initialZoomDistance, setInitialZoomDistance] = useState<number>(0);
     const [prevZoomDistance, setPrevZoomDistance] = useState<number>(0);
     const [maxTimelineHeight, setMaxTimelineHeight] = useState<number>(0);
-    // const [contentHeight, setContentHeight] = useState<number>(0);
-    // const [contentHeightRatio, setContentHeightRatio] = useState<number>(0);
     const contentHeightRatioRef = useRef<number>(0);
     const indicatorRef = useRef<View>(null); // Referencja do ikony na minimapie
     const [layoutHeight, setLayoutHeight] = useState<number>(0);
@@ -95,7 +92,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         loadTimeline();
     }, [uriTimeline]);
 
-    // 1. Logika obliczania pozycji zdarzeń (unikanie kolizji)
+    // Logika obliczania pozycji zdarzeń (unikanie kolizji)
     const processedEvents = useMemo(() => {
         if (!timelineData?.timeline) return [];
 
@@ -131,7 +128,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         );
     }, [maxTimelineHeight, scaleFactor, processedEvents]);
 
-    // 2. Logika sprawdzania kolizji ze skalą
+    // Logika sprawdzania kolizji ze skalą
     const shouldShowScaleMark = (height: number) => {
         const scaleY = height * scaleFactor;
         // Ukryj jeśli dowolne zdarzenie jest zbyt blisko (idealY to miejsce etykiety metrażu zdarzenia)
@@ -196,10 +193,10 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
             }
         },
         onPanResponderRelease: () => {
-            isDuringZoomRef.current = false; // Zmienione na Ref
+            isDuringZoomRef.current = false;
         },
         onPanResponderTerminate: () => {
-            isDuringZoomRef.current = false; // Zmienione na Ref
+            isDuringZoomRef.current = false;
         },
     });
 
@@ -210,7 +207,7 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
         if (maxScroll > 0) {
             scrollViewRef.current?.scrollTo({
                 x: 0,
-                y: contentHeightRatioRef.current * maxScroll, // Poprawiona matematyka!
+                y: contentHeightRatioRef.current * maxScroll,
                 animated: false,
             });
         }
