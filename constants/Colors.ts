@@ -2,6 +2,10 @@ export const Colors = {
     primary: "#7b0490",
     warning: "#cc475a",
 
+    sport: "#3255d4",
+    trad: "#bc6120",
+    boulder: "#c54242",
+
     dark: {
         text: "#d4d4d4",
         title: "#fff",

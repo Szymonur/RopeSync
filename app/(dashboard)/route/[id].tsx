@@ -13,6 +13,8 @@ import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import { Colors } from "../../../constants/Colors";
 
+
+
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
     const db = useSQLiteContext();

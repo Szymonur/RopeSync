@@ -3,6 +3,7 @@ import {
     FlatList,
     TouchableOpacity,
     SectionList,
+    View,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { Tabs } from "expo-router";
@@ -72,7 +73,7 @@ const Routes = () => {
         <ThemedView style={styles.container}>
             <Tabs.Screen
                 options={{
-                    headerTitle: "Explore",
+                    headerTitle: "Sectors",
                     tabBarLabel: "Routes",
                     headerRight: () => (
                         <TouchableOpacity
@@ -96,7 +97,7 @@ const Routes = () => {
             {showSearchBar && (
                 <ThemedTextInput
                     label="Quick Search"
-                    placeholder="Regions, sectors or routes..."
+                    placeholder="Regions, sectors or routes"
                     value={searchQuery}
                     onChangeText={handleSearchChange}
                     error={error}

@@ -1,11 +1,5 @@
-import {
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    ActivityIndicator,
-    View,
-} from "react-native";
-import { useLocalSearchParams, Stack, useRouter } from "expo-router";
+import { StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 
@@ -19,13 +13,12 @@ import {
 } from "../../../database/repositories/SectorRepository";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
-import ThemedCard from "../../../components/ThemedCard";
 import Spacer from "../../../components/Spacer";
+import RouteCard from "../../../components/Explore/RouteCard";
 
 const SectorRoutes = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
     const db = useSQLiteContext();
-    const router = useRouter();
     const [routes, setRoutes] = useState<RouteListItem[]>([]);
     const [sector, setSector] = useState<Sector | null>(null);
     const [loading, setLoading] = useState(true);
@@ -74,36 +67,11 @@ const SectorRoutes = () => {
                 data={routes}
                 style={{ width: "100%" }}
                 showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        onPress={() =>
-                            router.push({
-                                pathname: "/(dashboard)/route/[id]",
-                                params: { id: item.id_drogi },
-                            })
-                        }
-                    >
-                        <ThemedCard style={styles.card}>
-                            <View style={styles.row}>
-                                <View style={{ flex: 1 }}>
-                                    <ThemedText style={styles.bold}>
-                                        {item.nazwa_drogi}
-                                    </ThemedText>
-                                    <ThemedText style={styles.rock}>
-                                        {item.nazwa_skaly} • {item.typ_drogi}
-                                    </ThemedText>
-                                </View>
-                                <View style={styles.gradeBadge}>
-                                    <ThemedText style={styles.gradeText}>
-                                        {item.skala}
-                                    </ThemedText>
-                                </View>
-                            </View>
-                        </ThemedCard>
-                    </TouchableOpacity>
-                )}
+                renderItem={({ item }) => <RouteCard route={item} />}
                 ListEmptyComponent={
-                    <ThemedText>No routes found in this sector.</ThemedText>
+                    <ThemedText style={styles.emptyText}>
+                        No routes found in this sector.
+                    </ThemedText>
                 }
                 ListHeaderComponent={<Spacer height={20} />}
             />
@@ -118,34 +86,9 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 20,
     },
-    card: {
-        padding: 15,
-        marginBottom: 10,
-    },
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
-    bold: {
-        fontWeight: "bold",
-        fontSize: 18,
-    },
-    rock: {
-        fontSize: 14,
-        opacity: 0.7,
-        marginTop: 2,
-    },
-    gradeBadge: {
-        backgroundColor: "#7b0490",
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 8,
-        marginLeft: 10,
-    },
-    gradeText: {
-        color: "white",
-        fontWeight: "bold",
-        fontSize: 14,
+    emptyText: {
+        textAlign: "center",
+        marginTop: 20,
+        opacity: 0.5,
     },
 });
