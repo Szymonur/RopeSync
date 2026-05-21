@@ -11,6 +11,7 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
+import { Colors } from "../../../constants/Colors";
 
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -42,7 +43,7 @@ const RouteDetail = () => {
                 style={[styles.container, { justifyContent: "center" }]}
                 safe
             >
-                <ActivityIndicator size="large" color="#7b0490" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </ThemedView>
         );
     }
