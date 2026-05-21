@@ -37,6 +37,27 @@ const DashboardLayout = () => {
                     headerShown: true,
                 }}
             />
+            <Stack.Screen
+                name="region/[id]"
+                options={{
+                    title: "Sectors",
+                    headerShown: true,
+                }}
+            />
+            <Stack.Screen
+                name="sector/[id]"
+                options={{
+                    title: "Routes",
+                    headerShown: true,
+                }}
+            />
+            <Stack.Screen
+                name="route/[id]"
+                options={{
+                    title: "Route Details",
+                    headerShown: true,
+                }}
+            />
         </Stack>
     );
 };

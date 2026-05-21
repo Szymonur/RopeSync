@@ -1,34 +1,92 @@
+import React, { forwardRef } from "react";
 import {
     StyleProp,
     TextInput,
     TextStyle,
     TextInputProps,
+    View,
+    ViewStyle,
+    StyleSheet,
 } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
+import ThemedText from "./ThemedText";
 
-const ThemedTextInput = ({ style, ...rest }: TextInputProps) => {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+export interface ThemedTextInputProps extends TextInputProps {
+    label?: string;
+    labelStyle?: StyleProp<TextStyle>;
+    containerStyle?: StyleProp<ViewStyle>;
+    error?: string;
+}
 
-    return (
-        <TextInput
-            // Łączymy style domyślne z tymi przekazanymi z zewnątrz
-            style={[
-                {
-                    backgroundColor: theme.uiBackground,
-                    color: theme.text,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    borderRadius: 6,
-                    fontSize: 14,
-                },
-                style,
-            ]}
-            placeholderTextColor={theme.text}
-            {...rest}
-        />
-    );
-};
+const ThemedTextInput = forwardRef<TextInput, ThemedTextInputProps>(
+    ({ label, labelStyle, containerStyle, style, error, ...rest }, ref) => {
+        const { colorScheme } = useTheme();
+        const theme = Colors[colorScheme];
+
+        // Unique ID for accessibility linkage
+        const labelId = label
+            ? `label-${label.replace(/\s+/g, "-").toLowerCase()}`
+            : undefined;
+
+        return (
+            <View style={[styles.container, containerStyle]}>
+                {label && (
+                    <ThemedText
+                        nativeID={labelId}
+                        style={[styles.label, labelStyle]}
+                        bold
+                    >
+                        {label}
+                    </ThemedText>
+                )}
+                <TextInput
+                    ref={ref}
+                    style={[
+                        styles.input,
+                        {
+                            backgroundColor: theme.uiBackground,
+                            color: theme.text,
+                            borderColor: error ? "#ff4444" : "transparent",
+                            borderWidth: error ? 1 : 0,
+                        },
+                        style,
+                    ]}
+                    placeholderTextColor={theme.text + "80"} // 50% opacity for placeholder
+                    accessibilityLabel={rest.accessibilityLabel || label}
+                    accessibilityLabelledBy={labelId}
+                    {...rest}
+                />
+                {error && (
+                    <ThemedText style={styles.errorText}>{error}</ThemedText>
+                )}
+            </View>
+        );
+    },
+);
+
+const styles = StyleSheet.create({
+    container: {
+        width: "100%",
+        marginBottom: 12,
+    },
+    label: {
+        fontSize: 14,
+        marginBottom: 6,
+        marginLeft: 4,
+    },
+    input: {
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 8,
+        fontSize: 16,
+    },
+    errorText: {
+        color: "#ff4444",
+        fontSize: 12,
+        marginTop: 4,
+        marginLeft: 4,
+    },
+});
 
 export default ThemedTextInput;

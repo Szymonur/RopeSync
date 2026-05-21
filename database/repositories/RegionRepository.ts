@@ -20,4 +20,21 @@ export class RegionRepository {
             "SELECT * FROM Rejony ORDER BY nazwa_rejonu ASC",
         );
     }
+
+    async getRegionById(id: number): Promise<Region | null> {
+        return await this.db.getFirstAsync<Region>(
+            "SELECT * FROM Rejony WHERE id_rejonu = ?",
+            [id],
+        );
+    }
+
+    async searchRegions(query: string): Promise<Region[]> {
+        return await this.db.getAllAsync<any>(
+            `SELECT *
+				 FROM Rejony
+				 WHERE nazwa_rejonu LIKE ? 
+				 ORDER BY nazwa_rejonu ASC;`,
+            [`%${query}%`],
+        );
+    }
 }

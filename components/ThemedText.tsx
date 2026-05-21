@@ -1,8 +1,8 @@
-import { StyleProp, Text, TextStyle } from "react-native";
+import { StyleProp, Text, TextStyle, TextProps } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
 
-interface ThemedViewProps {
+interface ThemedTextProps extends TextProps {
     style?: StyleProp<TextStyle>;
     children: React.ReactNode;
     title?: boolean;
@@ -14,7 +14,8 @@ const ThemedText = ({
     children,
     title = false,
     bold = false,
-}: ThemedViewProps) => {
+    ...rest
+}: ThemedTextProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
@@ -27,8 +28,10 @@ const ThemedText = ({
                 bold && { fontWeight: "bold" },
                 style,
             ]}
-            {...{ children }}
-        />
+            {...rest}
+        >
+            {children}
+        </Text>
     );
 };
 
