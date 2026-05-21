@@ -3,6 +3,7 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 
@@ -12,112 +13,209 @@ import ThemedButton from "../../components/ThemedButton";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
 
-import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Colors } from "../../constants/Colors";
 
 const Register = () => {
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
+    const [userPasswordRepeat, setUserPasswordRepeat] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
 
+    const [userLoginError, setUserLoginError] = useState("");
+    const [userPasswordError, setUserPasswordError] = useState("");
+    const [userPasswordRepeatError, setUserPasswordRepeatError] = useState("");
+    const [firstNameError, setFirstNameError] = useState("");
+    const [lastNameError, setLastNameError] = useState("");
+    const [emailError, setEmailError] = useState("");
+
     const router = useRouter();
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
+
+    const validateEmail = (email: string) => {
+        return String(email)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            );
+    };
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const handleSubmit = async () => {
-        const response = await fetch(`${API_URL}/register`, {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: userLogin,
-                password: userPassword,
-                firstName,
-                lastName,
-                email,
-            }),
-        });
-        if (response.status === 400) {
-            Alert.alert("Registration failed", "Enter credentials.", [
-                { text: "OK" },
-            ]);
+        if (userPassword != userPasswordRepeat) {
+            setUserPasswordError("Passwords are not the same!");
+            setUserPasswordRepeatError("Passwords are not the same!");
+            return;
         }
-        if (response.status === 409) {
-            Alert.alert(
-                "Registration failed",
-                "A user with that username already exists! Please choose a different username.",
-                [{ text: "OK" }],
-            );
+        userLogin
+            ? setUserLoginError("")
+            : setUserLoginError("Enter your Login!");
+        userPassword
+            ? setUserPasswordError("")
+            : setUserPasswordError("Enter your Password!");
+        userPasswordRepeat
+            ? setUserPasswordRepeatError("")
+            : setUserPasswordRepeatError("Repeat your password!");
+        firstName
+            ? setFirstNameError("")
+            : setFirstNameError("Enter your First Name!");
+        lastName
+            ? setLastNameError("")
+            : setLastNameError("Enter your Last Name!");
+        email ? setEmailError("") : setEmailError("Enter your Email!");
+
+        if (email && !validateEmail(email)) {
+            setEmailError("Enter valid email address!");
         }
 
-        if (response.status === 201) {
-            Alert.alert("Registration succeed", "Now login to yout acount.", [
-                { text: "OK", onPress: () => router.replace("/(auth)/login") },
-            ]);
+        // return to not call api when data is missing
+        if (
+            !userLogin ||
+            !userPassword ||
+            !userPasswordRepeat ||
+            !firstName ||
+            !lastName ||
+            !email
+        ) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: userLogin,
+                    password: userPassword,
+                    firstName,
+                    lastName,
+                    email,
+                }),
+            });
+
+            if (response.status === 400) {
+                Alert.alert("Registration failed", "Enter credentials.", [
+                    { text: "OK" },
+                ]);
+            }
+
+            if (response.status === 409) {
+                const json = await response.json();
+                if (json.message.includes("USER_ALREADY_EXISTS")) {
+                    setUserLoginError(
+                        "An account with this login address already exists!",
+                    );
+                }
+                if (json.message.includes("EMAIL_ALREADY_EXISTS")) {
+                    setEmailError(
+                        "An account with this email address already exists!",
+                    );
+                }
+            }
+
+            if (response.status === 201) {
+                Alert.alert(
+                    "Registration succeed",
+                    "Now login to yout acount.",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => router.replace("/(auth)/login"),
+                        },
+                    ],
+                );
+            }
+        } catch (error) {
+            console.error("Network request failed", error);
+            Alert.alert("Error", "Could not connect to the server.");
         }
     };
 
     return (
-        <ThemedView style={styles.container} safe scroll>
+        <ThemedView style={{ flex: 1 }} safe>
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={styles.keyboardView}
+                style={{ flex: 1 }}
             >
-                <Spacer />
-                <ThemedText title={true} style={styles.title}>
-                    Register
-                </ThemedText>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <Spacer height={40} />
 
-                <ThemedTextInput
-                    placeholder="First Name"
-                    style={styles.input}
-                    onChangeText={setFirstName}
-                    value={firstName}
-                ></ThemedTextInput>
-                <ThemedTextInput
-                    placeholder="Last Name"
-                    style={styles.input}
-                    onChangeText={setLastName}
-                    value={lastName}
-                ></ThemedTextInput>
-                <ThemedTextInput
-                    placeholder="Email"
-                    style={styles.input}
-                    keyboardType="email-address"
-                    onChangeText={setEmail}
-                    value={email}
-                ></ThemedTextInput>
-                <ThemedTextInput
-                    placeholder="Login"
-                    style={styles.input}
-                    onChangeText={setUserLogin}
-                    value={userLogin}
-                ></ThemedTextInput>
-                <ThemedTextInput
-                    placeholder="Password"
-                    style={styles.input}
-                    secureTextEntry={true}
-                    onChangeText={setUserPassword}
-                    value={userPassword}
-                ></ThemedTextInput>
-
-                <ThemedButton onPress={handleSubmit}>
-                    <ThemedText style={{ textAlign: "center" }}>
+                    <ThemedText title={true} style={styles.title}>
                         Register
                     </ThemedText>
-                </ThemedButton>
-                <Spacer height={50} />
 
-                <Link href="/login">
-                    <ThemedText style={{ textAlign: "center" }}>
-                        Login instead
-                    </ThemedText>
-                </Link>
-                <Spacer height={50} />
+                    <ThemedTextInput
+                        label="First Name"
+                        onChangeText={setFirstName}
+                        value={firstName}
+                        error={firstNameError}
+                        autoFocus
+                    />
+                    <ThemedTextInput
+                        label="Last Name"
+                        onChangeText={setLastName}
+                        value={lastName}
+                        error={lastNameError}
+                    />
+                    <ThemedTextInput
+                        label="Email"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        onChangeText={setEmail}
+                        value={email}
+                        error={emailError}
+                    />
+                    <ThemedTextInput
+                        label="Login"
+                        autoCapitalize="none"
+                        onChangeText={setUserLogin}
+                        value={userLogin}
+                        error={userLoginError}
+                    />
+                    <ThemedTextInput
+                        label="Password"
+                        autoCapitalize="none"
+                        secureTextEntry={true}
+                        onChangeText={setUserPassword}
+                        value={userPassword}
+                        error={userPasswordError}
+                    />
+                    <ThemedTextInput
+                        label="Repeat Password"
+                        autoCapitalize="none"
+                        secureTextEntry={true}
+                        onChangeText={setUserPasswordRepeat}
+                        value={userPasswordRepeat}
+                        error={userPasswordRepeatError}
+                    />
+
+                    <Spacer height={20} />
+
+                    <ThemedButton onPress={handleSubmit}>
+                        <ThemedText style={styles.buttonText}>
+                            Register
+                        </ThemedText>
+                    </ThemedButton>
+
+                    <Spacer height={20} />
+
+                    <Link href="/login" style={{ textAlign: "center" }}>
+                        <ThemedText>Login instead</ThemedText>
+                    </Link>
+                    <Spacer height={40} />
+                </ScrollView>
             </KeyboardAvoidingView>
         </ThemedView>
     );
@@ -126,22 +224,18 @@ const Register = () => {
 export default Register;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    keyboardView: {
-        flex: 1,
-        width: "100%",
-        alignItems: "center",
+    scrollContent: {
+        flexGrow: 1,
         justifyContent: "center",
+        paddingHorizontal: 30,
     },
     title: {
         textAlign: "center",
-        fontSize: 18,
+        fontSize: 28,
+        fontWeight: "bold",
         marginBottom: 30,
     },
-    input: {
-        width: "80%",
-        marginBottom: 20,
+    buttonText: {
+        textAlign: "center",
     },
 });

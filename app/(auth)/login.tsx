@@ -18,6 +18,9 @@ const Login = () => {
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
 
+    const [errorLogin, setErrorLogin] = useState("");
+    const [errorPassword, setErrorPassword] = useState("");
+
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const handleSubmit = async () => {
@@ -27,6 +30,15 @@ const Login = () => {
                 "You are currently offline. Please check your connection.",
                 [{ text: "OK" }],
             );
+            return;
+        }
+
+        userLogin ? setErrorLogin("") : setErrorLogin("Enter your login!");
+        userPassword
+            ? setErrorPassword("")
+            : setErrorPassword("Enter your Password!");
+
+        if (!userLogin || !userPassword) {
             return;
         }
 
@@ -43,14 +55,13 @@ const Login = () => {
                 }),
             });
             const json = await response.json();
+            console.log(json);
+
             if (json.accesToken && json.refreshToken) {
                 await login(json.accesToken, json.refreshToken, json.id);
             } else {
-                Alert.alert(
-                    "Login failed",
-                    "You entered incorrect login credentials. ",
-                    [{ text: "OK" }],
-                );
+                setErrorLogin("Invalid credentials");
+                setErrorPassword("Invalid credentials");
             }
         } catch (error) {
             Alert.alert("Something went wrong!", `${error}`, [{ text: "OK" }]);
@@ -59,26 +70,26 @@ const Login = () => {
     };
     return (
         <ThemedView style={styles.container} safe>
-            <Spacer />
             <ThemedText title={true} style={styles.title}>
                 Login
             </ThemedText>
 
             <ThemedTextInput
-                placeholder="Login"
-                style={{ width: "80%", marginBottom: 20 }}
+                autoFocus
+                label="Login"
                 onChangeText={setUserLogin}
                 value={userLogin}
+                error={errorLogin ? errorLogin : ""}
             ></ThemedTextInput>
             <ThemedTextInput
-                placeholder="Password"
-                style={{ width: "80%", marginBottom: 20 }}
+                label="Password"
                 keyboardType="visible-password"
                 onChangeText={setUserPassword}
                 value={userPassword}
+                error={errorPassword ? errorPassword : ""}
             ></ThemedTextInput>
 
-            <ThemedButton onPress={handleSubmit}>
+            <ThemedButton onPress={handleSubmit} style={{ width: "100%" }}>
                 <ThemedText style={{ textAlign: "center" }}> Login </ThemedText>
             </ThemedButton>
             <Spacer height={100} />
@@ -97,20 +108,15 @@ export default Login;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexGrow: 1,
         justifyContent: "center",
         alignItems: "center",
+        paddingHorizontal: 30,
     },
     title: {
         textAlign: "center",
-        fontSize: 18,
+        fontSize: 28,
+        fontWeight: "bold",
         marginBottom: 30,
-    },
-    btn: {
-        backgroundColor: Colors.primary,
-        padding: 15,
-        borderRadius: 25,
-    },
-    pressed: {
-        opacity: 0.8,
     },
 });
