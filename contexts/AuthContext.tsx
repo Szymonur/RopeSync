@@ -66,6 +66,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     const login = async (accesToken: string, refreshToken: string) => {
+        // Ensure account switch does not reuse cached data from previous user.
+        queryClient.clear();
         await authStorage.saveAccessToken(accesToken);
         await authStorage.saveRefreshToken(refreshToken);
         setAccessToken(accesToken);

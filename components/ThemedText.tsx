@@ -7,7 +7,7 @@ interface ThemedViewProps {
     children: React.ReactNode;
     title?: boolean;
     bold?: boolean;
-}
+}//te typy są ważne!
 
 const ThemedText = ({
     style,
