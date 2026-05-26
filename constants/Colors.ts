@@ -1,6 +1,7 @@
 export const Colors = {
     primary: "#7b0490",
     warning: "#cc475a",
+    success: "#4CAF50",
 
     sport: "#3255d4",
     trad: "#bc6120",

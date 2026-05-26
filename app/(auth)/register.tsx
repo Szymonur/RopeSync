@@ -4,6 +4,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    View,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 
@@ -12,6 +13,8 @@ import ThemedText from "../../components/ThemedText";
 import ThemedButton from "../../components/ThemedButton";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
+
+import { FontAwesome6 } from "@expo/vector-icons";
 
 import { useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -44,14 +47,41 @@ const Register = () => {
             );
     };
 
+    const handleEmailBlur = () => {
+        if (email && !validateEmail(email)) {
+            setEmailError("Enter valid email address!");
+        } else if (email) {
+            setEmailError("");
+        }
+    };
+
+    const passwordRequirements = [
+        { label: "At least 8 characters", check: (p: string) => p.length >= 8 },
+        { label: "Lowercase letter", check: (p: string) => /[a-z]/.test(p) },
+        { label: "Uppercase letter", check: (p: string) => /[A-Z]/.test(p) },
+        { label: "Digit", check: (p: string) => /[0-9]/.test(p) },
+        {
+            label: "Special character",
+            check: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p),
+        },
+    ];
+
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const handleSubmit = async () => {
-        if (userPassword != userPasswordRepeat) {
+        const ifPasswordRepeatCorreclty = userPassword == userPasswordRepeat;
+        if (!ifPasswordRepeatCorreclty) {
             setUserPasswordError("Passwords are not the same!");
             setUserPasswordRepeatError("Passwords are not the same!");
-            return;
         }
+
+        const isPasswordValid = passwordRequirements.every((req) =>
+            req.check(userPassword),
+        );
+        if (!isPasswordValid) {
+            setUserPasswordError("Password does not meet requirements!");
+        }
+
         userLogin
             ? setUserLoginError("")
             : setUserLoginError("Enter your Login!");
@@ -80,7 +110,11 @@ const Register = () => {
             !userPasswordRepeat ||
             !firstName ||
             !lastName ||
-            !email
+            !email ||
+            !isPasswordValid ||
+            (email && !validateEmail(email)) ||
+            !isPasswordValid ||
+            !ifPasswordRepeatCorreclty
         ) {
             return;
         }
@@ -173,7 +207,11 @@ const Register = () => {
                         label="Email"
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        onChangeText={setEmail}
+                        onChangeText={(text) => {
+                            setEmail(text);
+                            if (emailError) setEmailError("");
+                        }}
+                        onBlur={handleEmailBlur}
                         value={email}
                         error={emailError}
                     />
@@ -188,10 +226,43 @@ const Register = () => {
                         label="Password"
                         autoCapitalize="none"
                         secureTextEntry={true}
-                        onChangeText={setUserPassword}
+                        onChangeText={(text) => {
+                            setUserPassword(text);
+                            if (userPasswordError) setUserPasswordError("");
+                        }}
                         value={userPassword}
                         error={userPasswordError}
                     />
+
+                    <ThemedView style={styles.requirementsContainer}>
+                        {passwordRequirements.map((req, index) => {
+                            const isMet = req.check(userPassword);
+                            return (
+                                <ThemedText
+                                    key={index}
+                                    style={[
+                                        styles.requirementText,
+                                        {
+                                            color: isMet
+                                                ? Colors.success
+                                                : Colors.warning,
+                                        },
+                                    ]}
+                                >
+                                    {isMet ? (
+                                        <FontAwesome6 size={10} name="check" />
+                                    ) : (
+                                        <FontAwesome6
+                                            size={10}
+                                            name="circle-exclamation"
+                                        />
+                                    )}{" "}
+                                    {req.label}
+                                </ThemedText>
+                            );
+                        })}
+                    </ThemedView>
+
                     <ThemedTextInput
                         label="Repeat Password"
                         autoCapitalize="none"
@@ -237,5 +308,13 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         textAlign: "center",
+    },
+    requirementsContainer: {
+        marginBottom: 10,
+        paddingLeft: 10,
+    },
+    requirementText: {
+        fontSize: 12,
+        marginBottom: 2,
     },
 });

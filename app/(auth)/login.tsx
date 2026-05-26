@@ -77,14 +77,16 @@ const Login = () => {
             <ThemedTextInput
                 autoFocus
                 label="Login"
+                autoCapitalize="none"
                 onChangeText={setUserLogin}
                 value={userLogin}
                 error={errorLogin ? errorLogin : ""}
             ></ThemedTextInput>
             <ThemedTextInput
                 label="Password"
-                keyboardType="visible-password"
                 onChangeText={setUserPassword}
+                autoCapitalize="none"
+                secureTextEntry={true}
                 value={userPassword}
                 error={errorPassword ? errorPassword : ""}
             ></ThemedTextInput>
@@ -99,6 +101,8 @@ const Login = () => {
                     Register instead
                 </ThemedText>
             </Link>
+
+			
         </ThemedView>
     );
 };

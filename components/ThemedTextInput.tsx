@@ -47,7 +47,7 @@ const ThemedTextInput = forwardRef<TextInput, ThemedTextInputProps>(
                         {
                             backgroundColor: theme.uiBackground,
                             color: theme.text,
-                            borderColor: error ? "#ff4444" : "transparent",
+                            borderColor: error ? Colors.warning : "transparent",
                         },
                         style,
                     ]}
@@ -56,7 +56,9 @@ const ThemedTextInput = forwardRef<TextInput, ThemedTextInputProps>(
                     accessibilityLabelledBy={labelId}
                     {...rest}
                 />
-                <ThemedText style={styles.errorText}>
+                <ThemedText
+                    style={[{ color: Colors.warning }, styles.errorText]}
+                >
                     {error ? error : ""}
                 </ThemedText>
             </View>
@@ -81,7 +83,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     errorText: {
-        color: "#ff4444",
         fontSize: 12,
         marginTop: 4,
         marginLeft: 4,
