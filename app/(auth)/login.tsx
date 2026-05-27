@@ -12,6 +12,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useState } from "react";
 
+
 const Login = () => {
     const { login } = useAuth();
     const { isConnected } = useNetwork();
@@ -105,8 +106,12 @@ const Login = () => {
                     Register instead
                 </ThemedText>
             </Link>
-
-			
+            <Spacer />
+            <Link href="/restartPassword">
+                <ThemedText style={{ textAlign: "center" }}>
+                    Restart password
+                </ThemedText>
+            </Link>
         </ThemedView>
     );
 };

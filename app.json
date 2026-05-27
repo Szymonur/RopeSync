@@ -1,6 +1,6 @@
 {
     "expo": {
-        "scheme": "RopeSync",
+        "scheme": "ropesync",
         "name": "RopeSync",
         "slug": "RopeSync",
         "version": "1.0.0",

@@ -19,6 +19,10 @@ import { useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Colors } from "../../constants/Colors";
 
+import { useNetwork } from "../../contexts/NetworkContext";
+
+import { validateEmail } from "../../lib/utils/vadidateEmail";
+
 const Register = () => {
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
@@ -34,17 +38,11 @@ const Register = () => {
     const [lastNameError, setLastNameError] = useState("");
     const [emailError, setEmailError] = useState("");
 
+    const { isConnected } = useNetwork();
+
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
-
-    const validateEmail = (email: string) => {
-        return String(email)
-            .toLowerCase()
-            .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-            );
-    };
 
     const handleEmailBlur = () => {
         if (email && !validateEmail(email)) {
@@ -68,6 +66,14 @@ const Register = () => {
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const handleSubmit = async () => {
+        if (!isConnected) {
+            Alert.alert(
+                "No internet",
+                "You are currently offline. Please check your connection.",
+                [{ text: "OK" }],
+            );
+            return;
+        }
         const ifPasswordRepeatCorreclty = userPassword == userPasswordRepeat;
 
         const isPasswordValid = passwordRequirements.every((req) =>
