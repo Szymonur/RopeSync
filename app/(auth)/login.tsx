@@ -12,7 +12,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useState } from "react";
 
-
 const Login = () => {
     const { login } = useAuth();
     const { isConnected } = useNetwork();
@@ -107,7 +106,7 @@ const Login = () => {
                 </ThemedText>
             </Link>
             <Spacer />
-            <Link href="/restartPassword">
+            <Link href="/resetPassword">
                 <ThemedText style={{ textAlign: "center" }}>
                     Restart password
                 </ThemedText>

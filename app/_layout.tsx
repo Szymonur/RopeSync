@@ -13,8 +13,13 @@ if (typeof WeakRef === "undefined") {
 }
 
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { StyleSheet, Platform, View, Text, Linking } from "react-native";
+import {
+    Stack,
+    useRouter,
+    useLocalSearchParams,
+    useSegments,
+} from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -69,6 +74,34 @@ const InitialLayout = () => {
 };
 
 const RootLayout = () => {
+    if (Platform.OS === "web") {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const appUrl = `ropesync://choose-new-password?token=${token}`;
+        useEffect(() => {
+            window.location.replace(appUrl);
+        }, []);
+
+        return (
+            <View style={styles.webContainer}>
+                <Text style={styles.webTitle}>Otwieranie aplikacji...</Text>
+                <Text style={styles.webText}>
+                    Jeśli aplikacja nie otworzyła się automatycznie, kliknij
+                    przycisk poniżej.
+                </Text>
+                <View style={{ marginTop: 30 }}>
+                    <Text
+                        style={styles.buttonText}
+                        onPress={() => {
+                            window.location.replace(appUrl);
+                        }}
+                    >
+                        Otwórz w aplikacji RopeSync
+                    </Text>
+                </View>
+            </View>
+        );
+    }
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
@@ -88,3 +121,36 @@ const RootLayout = () => {
 };
 
 export default RootLayout;
+
+const styles = StyleSheet.create({
+    webContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f0f0f0",
+        padding: 20,
+    },
+    webTitle: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 10,
+    },
+    webText: {
+        fontSize: 16,
+        color: "#666",
+        textAlign: "center",
+        maxWidth: "80%",
+    },
+    // Dodany styl przycisku
+    buttonText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "white",
+        backgroundColor: "#007bff",
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        overflow: "hidden",
+        textAlign: "center",
+    },
+});

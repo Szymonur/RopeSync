@@ -20,7 +20,7 @@ import { useNetwork } from "../../contexts/NetworkContext";
 
 import { validateEmail } from "../../lib/utils/vadidateEmail";
 
-const restartPassword = () => {
+const resetPassword = () => {
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
 
@@ -56,7 +56,7 @@ const restartPassword = () => {
         if (emailError) return;
 
         try {
-            const response = await fetch(`${API_URL}/restart-password`, {
+            const response = await fetch(`${API_URL}/reset-password`, {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
@@ -106,7 +106,7 @@ const restartPassword = () => {
         <ThemedView style={styles.container} safe>
             <Spacer height={80} />
             <ThemedText title={true} style={styles.title}>
-                Restart Password
+                reset Password
             </ThemedText>
             <ThemedText title={true} style={styles.infoText}>
                 Enter your email address and we’ll send you a link to reset your
@@ -134,7 +134,7 @@ const restartPassword = () => {
     );
 };
 
-export default restartPassword;
+export default resetPassword;
 
 const styles = StyleSheet.create({
     container: {
