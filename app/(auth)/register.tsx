@@ -4,7 +4,6 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
-    View,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 
@@ -56,12 +55,12 @@ const Register = () => {
     };
 
     const passwordRequirements = [
-        { label: "At least 8 characters", check: (p: string) => p.length >= 8 },
-        { label: "Lowercase letter", check: (p: string) => /[a-z]/.test(p) },
-        { label: "Uppercase letter", check: (p: string) => /[A-Z]/.test(p) },
-        { label: "Digit", check: (p: string) => /[0-9]/.test(p) },
+        { label: "at least 8 characters", check: (p: string) => p.length >= 8 },
+        { label: "lowercase letter", check: (p: string) => /[a-z]/.test(p) },
+        { label: "uppercase letter", check: (p: string) => /[A-Z]/.test(p) },
+        { label: "number", check: (p: string) => /[0-9]/.test(p) },
         {
-            label: "Special character",
+            label: "special character",
             check: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p),
         },
     ];
@@ -70,10 +69,6 @@ const Register = () => {
 
     const handleSubmit = async () => {
         const ifPasswordRepeatCorreclty = userPassword == userPasswordRepeat;
-        if (!ifPasswordRepeatCorreclty) {
-            setUserPasswordError("Passwords are not the same!");
-            setUserPasswordRepeatError("Passwords are not the same!");
-        }
 
         const isPasswordValid = passwordRequirements.every((req) =>
             req.check(userPassword),
@@ -103,6 +98,11 @@ const Register = () => {
             setEmailError("Enter valid email address!");
         }
 
+        if (!ifPasswordRepeatCorreclty) {
+            setUserPasswordError("Passwords are not the same!");
+            setUserPasswordRepeatError("Passwords are not the same!");
+        }
+
         // return to not call api when data is missing
         if (
             !userLogin ||
@@ -113,7 +113,6 @@ const Register = () => {
             !email ||
             !isPasswordValid ||
             (email && !validateEmail(email)) ||
-            !isPasswordValid ||
             !ifPasswordRepeatCorreclty
         ) {
             return;
@@ -225,7 +224,7 @@ const Register = () => {
                     <ThemedTextInput
                         label="Password"
                         autoCapitalize="none"
-                        secureTextEntry={true}
+                        isPassword={true}
                         onChangeText={(text) => {
                             setUserPassword(text);
                             if (userPasswordError) setUserPasswordError("");
@@ -266,7 +265,7 @@ const Register = () => {
                     <ThemedTextInput
                         label="Repeat Password"
                         autoCapitalize="none"
-                        secureTextEntry={true}
+                        isPassword={true}
                         onChangeText={setUserPasswordRepeat}
                         value={userPasswordRepeat}
                         error={userPasswordRepeatError}

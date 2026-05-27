@@ -86,7 +86,7 @@ const Login = () => {
                 label="Password"
                 onChangeText={setUserPassword}
                 autoCapitalize="none"
-                secureTextEntry={true}
+                isPassword={true}
                 value={userPassword}
                 error={errorPassword ? errorPassword : ""}
             ></ThemedTextInput>
