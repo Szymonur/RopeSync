@@ -81,6 +81,8 @@ const Login = () => {
                 onChangeText={setUserLogin}
                 value={userLogin}
                 error={errorLogin ? errorLogin : ""}
+                textContentType="username"
+                autoComplete="username"
             ></ThemedTextInput>
             <ThemedTextInput
                 label="Password"
@@ -89,6 +91,8 @@ const Login = () => {
                 isPassword={true}
                 value={userPassword}
                 error={errorPassword ? errorPassword : ""}
+                textContentType="password"
+                autoComplete="password"
             ></ThemedTextInput>
 
             <ThemedButton onPress={handleSubmit} style={{ width: "100%" }}>

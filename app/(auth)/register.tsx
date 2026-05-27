@@ -195,12 +195,16 @@ const Register = () => {
                         value={firstName}
                         error={firstNameError}
                         autoFocus
+                        textContentType="givenName"
+                        autoComplete="name-given"
                     />
                     <ThemedTextInput
                         label="Last Name"
                         onChangeText={setLastName}
                         value={lastName}
                         error={lastNameError}
+                        textContentType="familyName"
+                        autoComplete="name-family"
                     />
                     <ThemedTextInput
                         label="Email"
@@ -213,6 +217,8 @@ const Register = () => {
                         onBlur={handleEmailBlur}
                         value={email}
                         error={emailError}
+                        textContentType="emailAddress"
+                        autoComplete="email"
                     />
                     <ThemedTextInput
                         label="Login"
@@ -220,6 +226,8 @@ const Register = () => {
                         onChangeText={setUserLogin}
                         value={userLogin}
                         error={userLoginError}
+                        textContentType="username"
+                        autoComplete="username"
                     />
                     <ThemedTextInput
                         label="Password"
@@ -231,6 +239,8 @@ const Register = () => {
                         }}
                         value={userPassword}
                         error={userPasswordError}
+                        textContentType="newPassword"
+                        autoComplete="password-new"
                     />
 
                     <ThemedView style={styles.requirementsContainer}>
@@ -269,6 +279,8 @@ const Register = () => {
                         onChangeText={setUserPasswordRepeat}
                         value={userPasswordRepeat}
                         error={userPasswordRepeatError}
+                        textContentType="newPassword"
+                        autoComplete="password-new"
                     />
 
                     <Spacer height={20} />
