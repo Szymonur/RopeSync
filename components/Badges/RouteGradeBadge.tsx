@@ -5,13 +5,13 @@ import { Colors } from "../../constants/Colors";
 import ThemedText from "../ThemedText";
 
 interface RouteGradeBadgeProps {
-    route_gade: string;
+    route_grade: string;
 }
 
-const RouteGradeBadge = ({ route_gade }: RouteGradeBadgeProps) => {
+const RouteGradeBadge = ({ route_grade }: RouteGradeBadgeProps) => {
     return (
         <View style={[styles.badge, { backgroundColor: Colors.primary }]}>
-            <ThemedText style={styles.gradeText}>{route_gade}</ThemedText>
+            <ThemedText style={styles.gradeText}>{route_grade}</ThemedText>
         </View>
     );
 };

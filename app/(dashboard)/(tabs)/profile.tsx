@@ -49,7 +49,7 @@ const Profile = () => {
                     headerRight: () => (
                         <TouchableOpacity
                             onPress={() => router.push("/(dashboard)/settings")}
-                            style={{ marginRight: 15 }}
+                            style={{ marginRight: 20 }}
                         >
                             <Ionicons
                                 name="settings-outline"

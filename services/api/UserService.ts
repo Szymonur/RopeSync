@@ -23,6 +23,7 @@ export interface FollowingFeedItem {
     routeId: string;
     routeName: string;
     routeType: string;
+    note: string;
     grade: string | null;
     userId: number;
     username: string;

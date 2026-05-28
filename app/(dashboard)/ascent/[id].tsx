@@ -12,6 +12,10 @@ import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedTimeline from "../../../components/ThemedTimeline";
 
+import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
+import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
+import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
+
 const AscentDetails = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
     const db = useSQLiteContext();
@@ -66,10 +70,11 @@ const AscentDetails = () => {
             <ThemedText title style={styles.title}>
                 {ascent.nazwa_drogi}
             </ThemedText>
-            <ThemedText style={styles.subtitle}>
-                {ascent.typ_drogi.toUpperCase()} • {ascent.nazwa_stylu} •{" "}
-                {ascent.data}
-            </ThemedText>
+            <View style={styles.subtitle}>
+                <RouteTypeBadge route_type={ascent.typ_drogi ?? ""} />
+                <RouteGradeBadge route_grade={ascent.wycena ?? ""} />
+                <RouteStyleBadge route_style={ascent.nazwa_stylu ?? ""} />
+            </View>
             <Spacer height={28} />
             <ThemedText style={styles.noteLabel}>Notatka:</ThemedText>
             <ThemedText style={styles.note}>
@@ -104,9 +109,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-        fontWeight: "500",
+        display: "flex",
+        flexDirection: "row",
+        gap: 8,
     },
     noteLabel: {
         fontSize: 14,

@@ -18,6 +18,10 @@ import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { UserService } from "../../../services/api/UserService";
 
+import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
+import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
+import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
+
 const Index = () => {
     const router = useRouter();
     const { colorScheme } = useTheme();
@@ -121,14 +125,24 @@ const Index = () => {
                         <ThemedText style={styles.routeName}>
                             {item.routeName}
                         </ThemedText>
-
+                        {item.note && (
+                            <>
+                                <ThemedText style={styles.routeNote}>
+                                    {item.note}
+                                </ThemedText>
+                            </>
+                        )}
                         <View style={styles.routeMetaRow}>
-                            <ThemedText style={styles.routeType}>
-                                {item.grade ?? "-"}
-                            </ThemedText>
-                            <ThemedText style={styles.routeType}>
-                                {item.routeType}
-                            </ThemedText>
+                            {item.routeType && (
+                                <RouteTypeBadge route_type={item.routeType} />
+                            )}
+
+                            {item.grade && (
+                                <RouteGradeBadge route_grade={item.grade} />
+                            )}
+                            {item.style && (
+                                <RouteStyleBadge route_style={item.style} />
+                            )}
                         </View>
                     </ThemedCard>
                 )}
@@ -191,12 +205,16 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "600",
         lineHeight: 28,
-        marginBottom: 14,
+        marginBottom: 10,
+    },
+    routeNote: {
+        fontSize: 12,
+        fontWeight: "400",
+        marginBottom: 12,
     },
     routeMetaRow: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        gap: 12,
+        justifyContent: "flex-start",
     },
     routeType: {
         fontSize: 15,

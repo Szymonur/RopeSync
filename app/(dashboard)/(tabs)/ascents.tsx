@@ -39,6 +39,7 @@ const Asce = () => {
     const { data: user } = useMe();
     const [ascents, setAscents] = useState<Ascent[]>([]);
     const [routes, setRoutes] = useState<AscentRouteOption[]>([]);
+    const [stylesList, setStylesList] = useState<string[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [formVisible, setFormVisible] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -62,10 +63,19 @@ const Asce = () => {
 
     const loadRoutes = async () => {
         try {
-            const data = await UserService.getAscentRoutes();
+            const data = await repository.getRoutesForSelection();
             setRoutes(data);
         } catch (error) {
             console.error("Błąd podczas ładowania dróg:", error);
+        }
+    };
+
+    const loadStyles = async () => {
+        try {
+            const data = await repository.getStylesForSelection();
+            setStylesList(data);
+        } catch (error) {
+            console.error("Błąd podczas ładowania stylów:", error);
         }
     };
 
@@ -78,6 +88,7 @@ const Asce = () => {
     useEffect(() => {
         loadAscents();
         loadRoutes();
+        loadStyles();
     }, [user?.id]);
 
     const handleSaveManualAscent = async (values: ManualAscentFormValues) => {
@@ -91,13 +102,14 @@ const Asce = () => {
                 data: values.data,
                 id_drogi: values.id_drogi,
                 notatka: values.notatka,
-                nazwa_stylu: "RP",
+                nazwa_stylu: values.nazwa_stylu,
             });
             await repository.addManualAscent({
                 data: values.data,
                 id_drogi: values.id_drogi,
                 notatka: values.notatka,
                 id_uzytkownika: Number(user.id),
+                nazwa_stylu: values.nazwa_stylu,
             });
             await loadAscents();
             setFormVisible(false);
@@ -116,6 +128,7 @@ const Asce = () => {
                 onSubmit={handleSaveManualAscent}
                 saving={saving}
                 routes={routes}
+                styles={stylesList}
             />
 
             <TouchableOpacity
@@ -151,29 +164,26 @@ const Asce = () => {
                         <ThemedCard style={styles.card}>
                             <View style={styles.rowTop}>
                                 <View style={{ flex: 1 }}>
-                                    <ThemedText style={styles.bold}>
-                                        {item.nazwa_drogi ??
-                                            item.id_drogi ??
-                                            "Bez nazwy"}
+                                    <ThemedText style={styles.heading}>
+                                        {item.nazwa_drogi ?? "Bez nazwy"}
                                     </ThemedText>
-                                    <View style={styles.row}>
-                                        <RouteTypeBadge
-                                            route_type={item.typ_drogi ?? ""}
-                                        />
-                                        <RouteGradeBadge
-                                            route_gade={item.wycena ?? ""}
-                                        />
-                                        <RouteStyleBadge
-                                            route_style={item.nazwa_stylu ?? ""}
-                                        />
-                                    </View>
                                 </View>
                                 <ThemedText>{item.data}</ThemedText>
                             </View>
-
                             <ThemedText style={styles.note}>
                                 {item.notatka}
                             </ThemedText>
+                            <View style={styles.row}>
+                                <RouteTypeBadge
+                                    route_type={item.typ_drogi ?? ""}
+                                />
+                                <RouteGradeBadge
+                                    route_grade={item.wycena ?? ""}
+                                />
+                                <RouteStyleBadge
+                                    route_style={item.nazwa_stylu ?? ""}
+                                />
+                            </View>
                         </ThemedCard>
                     </TouchableOpacity>
                 )}
@@ -214,7 +224,6 @@ const styles = StyleSheet.create({
     heading: {
         fontWeight: "bold",
         fontSize: 22,
-        textAlign: "center",
     },
     card: {
         padding: 15,
@@ -224,7 +233,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         gap: 12,
-        alignItems: "flex-start",
+        alignItems: "center",
     },
     bold: {
         fontWeight: "bold",
@@ -233,11 +242,11 @@ const styles = StyleSheet.create({
     row: {
         display: "flex",
         flexDirection: "row",
-        marginTop: 9,
+        marginTop: 12,
     },
     note: {
-        fontStyle: "italic",
-        color: "#666",
-        marginTop: 5,
+        marginTop: 8,
+        fontSize: 12,
+        fontWeight: "400",
     },
 });

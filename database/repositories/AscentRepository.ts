@@ -116,6 +116,13 @@ export class AscentRepository {
         );
     }
 
+    async getStylesForSelection(): Promise<string[]> {
+        const result = await this.db.getAllAsync<{ nazwa_stylu: string }>(
+            "SELECT nazwa_stylu FROM Style_przejscia ORDER BY nazwa_stylu ASC",
+        );
+        return result.map((item) => item.nazwa_stylu);
+    }
+
     // Dodaj nowe przejście (automatycznie przypisane do usera)
     async addAscent(
         ascent: Omit<Ascent, "id_przejscia"> & { id_przejscia: string },

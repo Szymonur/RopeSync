@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
 import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../contexts/ThemeContext";
 
 import ThemedText from "../ThemedText";
 
@@ -12,19 +13,26 @@ interface RouteStyleBadgeProps {
 }
 
 const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
     const iconSize = 18;
+    const fontColor = theme.text;
 
     switch (route_style) {
         case "Flash":
             return (
                 <View style={styles.badge}>
-                    <FontAwesome name="flash" size={iconSize} color="black" />
+                    <FontAwesome
+                        name="flash"
+                        size={iconSize}
+                        color={fontColor}
+                    />
                 </View>
             );
         case "OS":
             return (
                 <View style={styles.badge}>
-                    <FontAwesome name="eye" size={iconSize} color="black" />
+                    <FontAwesome name="eye" size={iconSize} color={fontColor} />
                 </View>
             );
         case "RP":
@@ -40,13 +48,23 @@ const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
         case "AF":
             return (
                 <View style={styles.badge}>
-                    <FontAwesome6 name="dog" size={iconSize} color="black" />;
+                    <FontAwesome6
+                        name="dog"
+                        size={iconSize}
+                        color={fontColor}
+                    />
+                    ;
                 </View>
             );
         case "TR":
             return (
                 <View style={styles.badge}>
-                    <FontAwesome6 name="fish" size={iconSize} color="black" />;
+                    <FontAwesome6
+                        name="fish"
+                        size={iconSize}
+                        color={fontColor}
+                    />
+                    ;
                 </View>
             );
         default:
