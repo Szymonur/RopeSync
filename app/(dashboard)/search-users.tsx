@@ -11,16 +11,18 @@ import { Stack, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQueryClient } from "@tanstack/react-query";
 
-import ThemedView from "../../../components/ThemedView";
-import ThemedText from "../../../components/ThemedText";
-import ThemedTextInput from "../../../components/ThemedTextInput";
-import ThemedButton from "../../../components/ThemedButton";
-import ThemedCard from "../../../components/ThemedCard";
-import Spacer from "../../../components/Spacer";
+import ThemedView from "../../components/ThemedView";
+import ThemedText from "../../components/ThemedText";
+import ThemedTextInput from "../../components/ThemedTextInput";
+import ThemedButton from "../../components/ThemedButton";
+import ThemedCard from "../../components/ThemedCard";
+import Spacer from "../../components/Spacer";
 
-import { Colors } from "../../../constants/Colors";
-import { useTheme } from "../../../contexts/ThemeContext";
-import { SearchUser, UserService } from "../../../services/api/UserService";
+import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../contexts/ThemeContext";
+import { SearchUser, UserService } from "../../services/api/UserService";
+
+import { useDebounce } from "../../lib/hooks/useDebounce";
 
 const SearchUsers = () => {
     const router = useRouter();
@@ -29,6 +31,8 @@ const SearchUsers = () => {
     const theme = Colors[colorScheme];
 
     const [phrase, setPhrase] = useState("");
+    const debouncedPhrase = useDebounce(phrase);
+    const [phraseError, setPhraseError] = useState("");
     const [users, setUsers] = useState<SearchUser[]>([]);
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -41,7 +45,6 @@ const SearchUsers = () => {
             setUsers([]);
             return;
         }
-
         try {
             setLoading(true);
             const result = await UserService.searchUsers(trimmed);
@@ -55,12 +58,23 @@ const SearchUsers = () => {
     };
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            loadUsers(phrase);
-        }, 300);
+        if (phrase.length === 0 || phrase.length >= 2) {
+            setPhraseError("");
+            return;
+        }
 
-        return () => clearTimeout(timeout);
+        const timer = setTimeout(() => {
+            if (phrase.length === 1) {
+                setPhraseError("Min. 2 znaki są wymagane");
+            }
+        }, 1000);
+
+        return () => clearTimeout(timer);
     }, [phrase]);
+
+    useEffect(() => {
+        loadUsers(debouncedPhrase);
+    }, [debouncedPhrase]);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -78,7 +92,9 @@ const SearchUsers = () => {
                 await UserService.followUser(user.id);
             }
 
-            await queryClient.invalidateQueries({ queryKey: ["following-feed"] });
+            await queryClient.invalidateQueries({
+                queryKey: ["following-feed"],
+            });
 
             setUsers((prev) =>
                 prev.map((item) =>
@@ -101,7 +117,9 @@ const SearchUsers = () => {
                     title: "Szukaj użytkowników",
                     headerRight: () => (
                         <TouchableOpacity
-                            onPress={() => router.replace("/(dashboard)/(tabs)")}
+                            onPress={() =>
+                                router.replace("/(dashboard)/(tabs)")
+                            }
                             style={styles.closeButton}
                             accessibilityRole="button"
                             accessibilityLabel="Zamknij wyszukiwanie"
@@ -118,6 +136,7 @@ const SearchUsers = () => {
 
             <ThemedTextInput
                 value={phrase}
+                error={phraseError}
                 onChangeText={setPhrase}
                 placeholder="Wpisz min. 2 znaki..."
                 autoCapitalize="none"

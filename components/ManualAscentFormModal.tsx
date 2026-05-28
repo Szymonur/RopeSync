@@ -1,5 +1,11 @@
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { useMemo, useState } from "react";
+import {
+    Modal,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { useEffect, useMemo, useState } from "react";
 
 import ThemedButton from "./ThemedButton";
 import ThemedText from "./ThemedText";
@@ -41,11 +47,30 @@ const ManualAscentFormModal = ({
     const [routeFilter, setRouteFilter] = useState("");
     const [selectedRouteId, setSelectedRouteId] = useState("");
 
+    const [routeFilterError, setRouteFilterError] = useState("");
+
+    useEffect(() => {
+        if (routeFilter.length === 0 || routeFilter.length >= 2) {
+            setRouteFilterError("");
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            if (routeFilter.length === 1) {
+                setRouteFilterError("Min. 2 znaki są wymagane");
+            }
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [routeFilter]);
+
     const filteredRoutes = useMemo(() => {
         const query = routeFilter.trim().toLowerCase();
-        if (!query) return routes;
+        if (query.length < 2) return [];
 
-        return routes.filter((route) => route.nazwa_drogi.toLowerCase().includes(query));
+        return routes.filter((route) =>
+            route.nazwa_drogi.toLowerCase().includes(query),
+        );
     }, [routeFilter, routes]);
 
     const selectedRoute = useMemo(
@@ -81,30 +106,53 @@ const ManualAscentFormModal = ({
     };
 
     return (
-        <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+        <Modal
+            visible={visible}
+            transparent
+            animationType="slide"
+            onRequestClose={onClose}
+        >
             <View style={styles.backdrop}>
                 <ThemedView style={styles.sheet}>
                     <View style={styles.header}>
-                        <ThemedText style={styles.title}>Dodaj przejście</ThemedText>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <ThemedText style={styles.closeText}>Zamknij</ThemedText>
+                        <ThemedText style={styles.title}>
+                            Dodaj przejście
+                        </ThemedText>
+                        <TouchableOpacity
+                            onPress={onClose}
+                            style={styles.closeButton}
+                        >
+                            <ThemedText style={styles.closeText}>
+                                Zamknij
+                            </ThemedText>
                         </TouchableOpacity>
                     </View>
 
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        <ThemedText style={styles.label}>Data przejścia</ThemedText>
-                        <ThemedTextInput value={data} onChangeText={setData} placeholder="YYYY-MM-DD" />
+                        <ThemedText style={styles.label}>
+                            Data przejścia
+                        </ThemedText>
+                        <ThemedTextInput
+                            value={data}
+                            onChangeText={setData}
+                            placeholder="YYYY-MM-DD"
+                        />
 
                         <Spacer height={12} />
-                        <ThemedText style={styles.label}>Szukaj drogi</ThemedText>
+                        <ThemedText style={styles.label}>
+                            Szukaj drogi
+                        </ThemedText>
                         <ThemedTextInput
                             value={routeFilter}
                             onChangeText={setRouteFilter}
                             placeholder="Wpisz nazwę drogi..."
+                            error={routeFilterError}
                         />
 
                         <Spacer height={12} />
-                        <ThemedText style={styles.label}>Wybierz drogę z bazy</ThemedText>
+                        <ThemedText style={styles.label}>
+                            Wybierz drogę z bazy
+                        </ThemedText>
                         <View style={styles.routesList}>
                             {filteredRoutes.length === 0 ? (
                                 <ThemedText style={{ opacity: 0.7 }}>
@@ -112,25 +160,33 @@ const ManualAscentFormModal = ({
                                 </ThemedText>
                             ) : (
                                 filteredRoutes.map((item) => {
-                                    const selected = selectedRouteId === item.id_drogi;
+                                    const selected =
+                                        selectedRouteId === item.id_drogi;
 
                                     return (
                                         <TouchableOpacity
                                             key={item.id_drogi}
-                                            onPress={() => setSelectedRouteId(item.id_drogi)}
+                                            onPress={() =>
+                                                setSelectedRouteId(
+                                                    item.id_drogi,
+                                                )
+                                            }
                                             style={[
                                                 styles.routeItem,
                                                 {
                                                     backgroundColor: selected
                                                         ? theme.iconColourFocused
                                                         : theme.uiBackground,
-                                                    borderColor: theme.iconColourFocused,
+                                                    borderColor:
+                                                        theme.iconColourFocused,
                                                 },
                                             ]}
                                         >
                                             <ThemedText
                                                 style={{
-                                                    color: selected ? theme.background : theme.text,
+                                                    color: selected
+                                                        ? theme.background
+                                                        : theme.text,
                                                     fontWeight: "700",
                                                 }}
                                             >
@@ -138,12 +194,16 @@ const ManualAscentFormModal = ({
                                             </ThemedText>
                                             <ThemedText
                                                 style={{
-                                                    color: selected ? theme.background : theme.text,
+                                                    color: selected
+                                                        ? theme.background
+                                                        : theme.text,
                                                     opacity: 0.8,
                                                 }}
                                             >
                                                 {item.typ_drogi}
-                                                {item.wycena ? ` • ${item.wycena}` : ""}
+                                                {item.wycena
+                                                    ? ` • ${item.wycena}`
+                                                    : ""}
                                             </ThemedText>
                                         </TouchableOpacity>
                                     );
@@ -155,14 +215,19 @@ const ManualAscentFormModal = ({
                             <>
                                 <Spacer height={8} />
                                 <ThemedText style={styles.selectedHint}>
-                                    Wybrano: {selectedRoute.nazwa_drogi} • {selectedRoute.typ_drogi}
-                                    {selectedRoute.wycena ? ` • ${selectedRoute.wycena}` : ""}
+                                    Wybrano: {selectedRoute.nazwa_drogi} •{" "}
+                                    {selectedRoute.typ_drogi}
+                                    {selectedRoute.wycena
+                                        ? ` • ${selectedRoute.wycena}`
+                                        : ""}
                                 </ThemedText>
                             </>
                         )}
 
                         <Spacer height={12} />
-                        <ThemedText style={styles.label}>Krótki opis</ThemedText>
+                        <ThemedText style={styles.label}>
+                            Krótki opis
+                        </ThemedText>
                         <ThemedTextInput
                             value={notatka}
                             onChangeText={setNotatka}
@@ -178,7 +243,9 @@ const ManualAscentFormModal = ({
                             disabled={!canSubmit || !!saving}
                             style={{ opacity: !canSubmit || saving ? 0.6 : 1 }}
                         >
-                            <ThemedText style={{ textAlign: "center", color: "white" }}>
+                            <ThemedText
+                                style={{ textAlign: "center", color: "white" }}
+                            >
                                 {saving ? "Zapisywanie..." : "Zapisz przejście"}
                             </ThemedText>
                         </ThemedButton>

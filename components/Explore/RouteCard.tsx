@@ -6,6 +6,9 @@ import { RouteListItem } from "../../database/repositories/RouteRepository";
 import { Colors } from "../../constants/Colors";
 import Spacer from "../Spacer";
 
+import RouteTypeBadge from "../Badges/RouteTypeBadge";
+import RouteGradeBadge from "../Badges/RouteGradeBadge";
+
 interface Props {
     route: RouteListItem;
 }
@@ -33,34 +36,8 @@ const RouteCard = ({ route }: Props) => {
                         </ThemedText>
                     </View>
 
-                    <View
-                        style={[
-                            styles.badge,
-                            {
-                                backgroundColor:
-                                    route.typ_drogi == "sportowa"
-                                        ? Colors.sport
-                                        : route.typ_drogi == "trad"
-                                          ? Colors.trad
-                                          : Colors.boulder,
-                                marginRight: 8,
-                            },
-                        ]}
-                    >
-                        <ThemedText style={styles.gradeText}>
-                            {route.typ_drogi}
-                        </ThemedText>
-                    </View>
-                    <View
-                        style={[
-                            styles.badge,
-                            { backgroundColor: Colors.primary },
-                        ]}
-                    >
-                        <ThemedText style={styles.gradeText}>
-                            {route.skala}
-                        </ThemedText>
-                    </View>
+                    <RouteTypeBadge route_type={route.typ_drogi} />
+                    <RouteGradeBadge route_gade={route.skala} />
                 </View>
             </ThemedCard>
         </TouchableOpacity>

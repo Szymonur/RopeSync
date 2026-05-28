@@ -63,12 +63,12 @@ export const UserService = {
     },
 
     searchUsers: async (phrase: string): Promise<SearchUser[]> => {
-        const { data } = await api.get<{ message: string; users: SearchUser[] }>(
-            "/profile/search/users",
-            {
-                params: { q: phrase },
-            },
-        );
+        const { data } = await api.get<{
+            message: string;
+            users: SearchUser[];
+        }>("/profile/search/users", {
+            params: { q: phrase },
+        });
 
         return data.users;
     },
@@ -82,9 +82,10 @@ export const UserService = {
     },
 
     getFollowingFeed: async (): Promise<FollowingFeedItem[]> => {
-        const { data } = await api.get<{ message: string; feed: FollowingFeedItem[] }>(
-            "/follow/me/feed",
-        );
+        const { data } = await api.get<{
+            message: string;
+            feed: FollowingFeedItem[];
+        }>("/follow/me/feed");
 
         return data.feed;
     },
@@ -94,9 +95,10 @@ export const UserService = {
     },
 
     getAscentRoutes: async (): Promise<AscentRouteOption[]> => {
-        const { data } = await api.get<{ message: string; routes: AscentRouteOption[] }>(
-            "/ascents/routes",
-        );
+        const { data } = await api.get<{
+            message: string;
+            routes: AscentRouteOption[];
+        }>("/ascents/routes");
 
         return data.routes;
     },

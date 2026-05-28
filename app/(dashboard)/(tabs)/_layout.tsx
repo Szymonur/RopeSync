@@ -118,12 +118,6 @@ const TabsLayout = () => {
                     ),
                 }}
             />
-            <Tabs.Screen
-                name="search-users"
-                options={{
-                    href: null,
-                }}
-            />
         </Tabs>
     );
 };

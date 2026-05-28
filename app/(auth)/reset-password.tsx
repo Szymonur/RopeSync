@@ -29,7 +29,7 @@ const resetPassword = () => {
     const router = useRouter();
 
     const handleEmailBlur = () => {
-        if (email && !validateEmail(email)) {
+        if (email && !validateEmail(email.trim())) {
             setEmailError("Enter valid email address!");
         } else if (email) {
             setEmailError("");
@@ -47,13 +47,18 @@ const resetPassword = () => {
             );
             return;
         }
-        email ? setEmailError("") : setEmailError("Enter your Email!");
 
-        if (email && !validateEmail(email)) {
+        const trimmedEmail = email.trim();
+
+        trimmedEmail ? setEmailError("") : setEmailError("Enter your Email!");
+
+        if (trimmedEmail && !validateEmail(trimmedEmail)) {
             setEmailError("Enter valid email address!");
         }
 
-        if (emailError) return;
+        if (emailError || !trimmedEmail || (trimmedEmail && !validateEmail(trimmedEmail))) {
+            return;
+        }
 
         try {
             const response = await fetch(`${API_URL}/reset-password`, {
@@ -63,7 +68,7 @@ const resetPassword = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    email,
+                    email: trimmedEmail,
                 }),
             });
             if (response.status === 400) {

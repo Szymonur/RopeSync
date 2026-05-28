@@ -33,12 +33,15 @@ const Login = () => {
             return;
         }
 
-        userLogin ? setErrorLogin("") : setErrorLogin("Enter your login!");
-        userPassword
+        const trimmedLogin = userLogin.trim();
+        const trimmedPassword = userPassword.trim();
+
+        trimmedLogin ? setErrorLogin("") : setErrorLogin("Enter your login!");
+        trimmedPassword
             ? setErrorPassword("")
             : setErrorPassword("Enter your Password!");
 
-        if (!userLogin || !userPassword) {
+        if (!trimmedLogin || !trimmedPassword) {
             return;
         }
 
@@ -50,8 +53,8 @@ const Login = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    username: userLogin,
-                    password: userPassword,
+                    username: trimmedLogin,
+                    password: trimmedPassword,
                 }),
             });
             const json = await response.json();
@@ -106,7 +109,7 @@ const Login = () => {
                 </ThemedText>
             </Link>
             <Spacer />
-            <Link href="/resetPassword">
+            <Link href="/reset-password">
                 <ThemedText style={{ textAlign: "center" }}>
                     Restart password
                 </ThemedText>

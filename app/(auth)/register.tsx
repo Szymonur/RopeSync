@@ -45,7 +45,7 @@ const Register = () => {
     const theme = Colors[colorScheme];
 
     const handleEmailBlur = () => {
-        if (email && !validateEmail(email)) {
+        if (email && !validateEmail(email.trim())) {
             setEmailError("Enter valid email address!");
         } else if (email) {
             setEmailError("");
@@ -74,33 +74,41 @@ const Register = () => {
             );
             return;
         }
-        const ifPasswordRepeatCorreclty = userPassword == userPasswordRepeat;
+
+        const trimmedLogin = userLogin.trim();
+        const trimmedPassword = userPassword.trim();
+        const trimmedPasswordRepeat = userPasswordRepeat.trim();
+        const trimmedFirstName = firstName.trim();
+        const trimmedLastName = lastName.trim();
+        const trimmedEmail = email.trim();
+
+        const ifPasswordRepeatCorreclty = trimmedPassword == trimmedPasswordRepeat;
 
         const isPasswordValid = passwordRequirements.every((req) =>
-            req.check(userPassword),
+            req.check(trimmedPassword),
         );
         if (!isPasswordValid) {
             setUserPasswordError("Password does not meet requirements!");
         }
 
-        userLogin
+        trimmedLogin
             ? setUserLoginError("")
             : setUserLoginError("Enter your Login!");
-        userPassword
+        trimmedPassword
             ? setUserPasswordError("")
             : setUserPasswordError("Enter your Password!");
-        userPasswordRepeat
+        trimmedPasswordRepeat
             ? setUserPasswordRepeatError("")
             : setUserPasswordRepeatError("Repeat your password!");
-        firstName
+        trimmedFirstName
             ? setFirstNameError("")
             : setFirstNameError("Enter your First Name!");
-        lastName
+        trimmedLastName
             ? setLastNameError("")
             : setLastNameError("Enter your Last Name!");
-        email ? setEmailError("") : setEmailError("Enter your Email!");
+        trimmedEmail ? setEmailError("") : setEmailError("Enter your Email!");
 
-        if (email && !validateEmail(email)) {
+        if (trimmedEmail && !validateEmail(trimmedEmail)) {
             setEmailError("Enter valid email address!");
         }
 
@@ -111,14 +119,14 @@ const Register = () => {
 
         // return to not call api when data is missing
         if (
-            !userLogin ||
-            !userPassword ||
-            !userPasswordRepeat ||
-            !firstName ||
-            !lastName ||
-            !email ||
+            !trimmedLogin ||
+            !trimmedPassword ||
+            !trimmedPasswordRepeat ||
+            !trimmedFirstName ||
+            !trimmedLastName ||
+            !trimmedEmail ||
             !isPasswordValid ||
-            (email && !validateEmail(email)) ||
+            (trimmedEmail && !validateEmail(trimmedEmail)) ||
             !ifPasswordRepeatCorreclty
         ) {
             return;
@@ -132,11 +140,11 @@ const Register = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    username: userLogin,
-                    password: userPassword,
-                    firstName,
-                    lastName,
-                    email,
+                    username: trimmedLogin,
+                    password: trimmedPassword,
+                    firstName: trimmedFirstName,
+                    lastName: trimmedLastName,
+                    email: trimmedEmail,
                 }),
             });
 

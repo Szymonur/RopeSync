@@ -39,10 +39,13 @@ const ChooseNewPassword = () => {
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const handleSubmit = async () => {
+        const trimmedPassword = password.trim();
+        const trimmedPasswordRepeat = passwordRepeat.trim();
+
         const isPasswordValid = passwordRequirements.every((req) =>
-            req.check(password),
+            req.check(trimmedPassword),
         );
-        const ifPasswordRepeatCorreclty = password === passwordRepeat;
+        const ifPasswordRepeatCorreclty = trimmedPassword === trimmedPasswordRepeat;
 
         if (!isPasswordValid) {
             setPasswordError("Password does not meet requirements!");
@@ -70,7 +73,7 @@ const ChooseNewPassword = () => {
                 },
                 body: JSON.stringify({
                     token,
-                    newPassword: password,
+                    newPassword: trimmedPassword,
                 }),
             });
 

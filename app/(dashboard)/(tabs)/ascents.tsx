@@ -30,6 +30,10 @@ import {
     AscentRouteOption,
 } from "../../../services/api/UserService";
 
+import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
+import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
+import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
+
 const Asce = () => {
     const db = useSQLiteContext();
     const { data: user } = useMe();
@@ -81,6 +85,8 @@ const Asce = () => {
 
         try {
             setSaving(true);
+            console.log("values: ", values);
+
             await UserService.createAscent({
                 data: values.data,
                 id_drogi: values.id_drogi,
@@ -146,12 +152,21 @@ const Asce = () => {
                             <View style={styles.rowTop}>
                                 <View style={{ flex: 1 }}>
                                     <ThemedText style={styles.bold}>
-                                        {item.nazwa_drogi ?? item.id_drogi ?? "Bez nazwy"}
+                                        {item.nazwa_drogi ??
+                                            item.id_drogi ??
+                                            "Bez nazwy"}
                                     </ThemedText>
-                                    <ThemedText style={styles.meta}>
-                                        {item.typ_drogi ?? item.nazwa_stylu}
-                                        {item.wycena ? ` • ${item.wycena}` : ""}
-                                    </ThemedText>
+                                    <View style={styles.row}>
+                                        <RouteTypeBadge
+                                            route_type={item.typ_drogi ?? ""}
+                                        />
+                                        <RouteGradeBadge
+                                            route_gade={item.wycena ?? ""}
+                                        />
+                                        <RouteStyleBadge
+                                            route_style={item.nazwa_stylu ?? ""}
+                                        />
+                                    </View>
                                 </View>
                                 <ThemedText>{item.data}</ThemedText>
                             </View>
@@ -215,10 +230,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 16,
     },
-    meta: {
-        marginTop: 2,
-        opacity: 0.72,
-        fontSize: 12,
+    row: {
+        display: "flex",
+        flexDirection: "row",
+        marginTop: 9,
     },
     note: {
         fontStyle: "italic",

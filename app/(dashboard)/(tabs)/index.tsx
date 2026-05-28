@@ -1,4 +1,11 @@
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
@@ -40,21 +47,21 @@ const Index = () => {
     };
 
     return (
-        <ThemedView safe>
+        <ThemedView>
             <Tabs.Screen
                 options={{
                     title: "Home",
-                    headerLeft: () => (
+                    headerRight: () => (
                         <TouchableOpacity
                             onPress={() =>
-                                router.push("/(dashboard)/(tabs)/search-users")
+                                router.push("/(dashboard)/search-users")
                             }
-                            style={{ marginLeft: 12 }}
+                            style={{ marginRight: 20 }}
                         >
                             <Ionicons
-                                name="search-outline"
-                                size={26}
+                                name="search"
                                 color={theme.iconColour}
+                                size={24}
                             />
                         </TouchableOpacity>
                     ),
@@ -68,28 +75,25 @@ const Index = () => {
                     <RefreshControl
                         refreshing={isRefetching}
                         onRefresh={refetch}
-                        colors={[theme.iconColourFocused]}
-                        tintColor={theme.iconColourFocused}
+                        colors={[theme.iconColour]}
+                        tintColor={theme.iconColour}
                     />
                 }
-                ListHeaderComponent={
-                    <View style={styles.headerBlock}>
-                        <ThemedText style={styles.heading}>Home</ThemedText>
-                        <ThemedText style={styles.subheading}>
-                            Przejścia osób, które obserwujesz
-                        </ThemedText>
-                    </View>
-                }
+                ListHeaderComponent={<View style={styles.headerBlock}></View>}
                 ListEmptyComponent={
                     isLoading ? (
-                        <ActivityIndicator size="large" color={theme.iconColourFocused} />
+                        <ActivityIndicator
+                            size="large"
+                            color={theme.iconColourFocused}
+                        />
                     ) : (
                         <ThemedCard style={styles.emptyCard}>
                             <ThemedText style={styles.emptyTitle}>
                                 Brak aktywności do pokazania
                             </ThemedText>
                             <ThemedText style={styles.emptyText}>
-                                Obserwuj znajomych, a ich przejścia pojawią się tutaj.
+                                Obserwuj znajomych, a ich przejścia pojawią się
+                                tutaj.
                             </ThemedText>
                         </ThemedCard>
                     )
