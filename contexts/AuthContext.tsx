@@ -80,6 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refreshToken: string,
         userId: string,
     ) => {
+        queryClient.clear();
         await authStorage.saveAccessToken(accesToken);
         await authStorage.saveRefreshToken(refreshToken);
         await authStorage.saveCurrentUserId(userId);

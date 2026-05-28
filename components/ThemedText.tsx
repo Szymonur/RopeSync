@@ -7,7 +7,7 @@ interface ThemedTextProps extends TextProps {
     children: React.ReactNode;
     title?: boolean;
     bold?: boolean;
-}
+}//te typy są ważne!
 
 const ThemedText = ({
     style,
