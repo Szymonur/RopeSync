@@ -41,7 +41,7 @@ const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
                     <FontAwesome
                         name="dot-circle-o"
                         size={iconSize}
-                        color="red"
+                        color={Colors.warning}
                     />
                 </View>
             );
@@ -53,7 +53,6 @@ const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
                         size={iconSize}
                         color={fontColor}
                     />
-                    ;
                 </View>
             );
         case "TR":
@@ -64,7 +63,6 @@ const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
                         size={iconSize}
                         color={fontColor}
                     />
-                    ;
                 </View>
             );
         default:

@@ -45,8 +45,6 @@ const Index = () => {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
         }).format(date);
     };
 
@@ -105,11 +103,18 @@ const Index = () => {
                 renderItem={({ item }) => (
                     <ThemedCard style={styles.feedCard}>
                         <View style={styles.authorRow}>
-                            <View style={styles.avatar}>
+                            <View
+                                style={[
+                                    styles.avatar,
+                                    {
+                                        borderColor: theme.text,
+                                    },
+                                ]}
+                            >
                                 <Ionicons
                                     name="person-outline"
                                     size={26}
-                                    color={theme.iconColourFocused}
+                                    color={theme.text}
                                 />
                             </View>
                             <View style={styles.authorTextBlock}>
@@ -185,7 +190,6 @@ const styles = StyleSheet.create({
         height: 52,
         borderRadius: 26,
         borderWidth: 2,
-        borderColor: Colors.light.iconColourFocused,
         alignItems: "center",
         justifyContent: "center",
     },

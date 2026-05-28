@@ -37,7 +37,7 @@ const RouteCard = ({ route }: Props) => {
                     </View>
 
                     <RouteTypeBadge route_type={route.typ_drogi} />
-                    <RouteGradeBadge route_gade={route.skala} />
+                    <RouteGradeBadge route_grade={route.skala} />
                 </View>
             </ThemedCard>
         </TouchableOpacity>

@@ -6,6 +6,8 @@ import {
     Platform,
     KeyboardAvoidingView,
     View,
+    TouchableWithoutFeedback,
+    Keyboard,
 } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 
@@ -120,12 +122,14 @@ const ManualAscentFormModal = ({
             transparent
             animationType="slide"
             onRequestClose={onClose}
+            statusBarTranslucent
         >
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-            >
-                <View style={styles.backdrop}>
+            <View style={styles.backdrop}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : undefined}
+                    style={{ flex: 1, justifyContent: "flex-end" }}
+                    pointerEvents="box-none"
+                >
                     <ThemedView style={styles.sheet}>
                         <View style={styles.header}>
                             <ThemedText style={styles.title}>
@@ -141,7 +145,10 @@ const ManualAscentFormModal = ({
                             </TouchableOpacity>
                         </View>
 
-                        <ScrollView showsVerticalScrollIndicator={false}>
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps="handled"
+                        >
                             <ThemedText style={styles.label}>
                                 Data przejścia
                             </ThemedText>
@@ -162,7 +169,12 @@ const ManualAscentFormModal = ({
                                 error={routeFilterError}
                             />
 
-                            <View style={styles.routesList}>
+                            <ScrollView
+                                style={styles.routesList}
+                                nestedScrollEnabled={true}
+                                showsVerticalScrollIndicator={false}
+                                keyboardShouldPersistTaps="handled"
+                            >
                                 {filteredRoutes.length === 0 &&
                                 routeFilter.length >= 2 ? (
                                     <ThemedText style={{ opacity: 0.7 }}>
@@ -218,6 +230,7 @@ const ManualAscentFormModal = ({
                                                         opacity: 0.8,
                                                     }}
                                                 >
+                                                    {item.nazwa_rejonu} •{" "}
                                                     {item.typ_drogi}
                                                     {item.wycena
                                                         ? ` • ${item.wycena}`
@@ -227,12 +240,13 @@ const ManualAscentFormModal = ({
                                         );
                                     })
                                 )}
-                            </View>
+                            </ScrollView>
 
                             {selectedRoute && (
                                 <>
                                     <ThemedText style={styles.selectedHint}>
                                         Wybrałeś: {selectedRoute.nazwa_drogi} •{" "}
+                                        {selectedRoute.nazwa_rejonu} •{" "}
                                         {selectedRoute.typ_drogi}
                                         {selectedRoute.wycena
                                             ? ` • ${selectedRoute.wycena}`
@@ -318,8 +332,8 @@ const ManualAscentFormModal = ({
                             </ThemedButton>
                         </ScrollView>
                     </ThemedView>
-                </View>
-            </KeyboardAvoidingView>
+                </KeyboardAvoidingView>
+            </View>
         </Modal>
     );
 };

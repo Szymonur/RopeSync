@@ -32,6 +32,7 @@ export interface RouteForSelection {
     nazwa_drogi: string;
     typ_drogi: string;
     wycena: string | null;
+    nazwa_rejonu: string;
 }
 
 export class AscentRepository {
@@ -107,11 +108,15 @@ export class AscentRepository {
                 d.id_drogi,
                 d.nazwa_drogi,
                 d.typ_drogi,
-                COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) AS wycena
+                COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) AS wycena,
+                r.nazwa_rejonu
              FROM Drogi d
              LEFT JOIN Drogi_sportowe_szczegoly ds ON ds.id_drogi = d.id_drogi AND d.typ_drogi = 'sportowa'
              LEFT JOIN Trady_szczegoly dt ON dt.id_drogi = d.id_drogi AND d.typ_drogi = 'trad'
              LEFT JOIN Bouldery_szczegoly db ON db.id_drogi = d.id_drogi AND d.typ_drogi = 'boulder'
+             JOIN Skaly s ON d.id_skaly = s.id_skaly
+             JOIN Sektory sek ON s.id_sektoru = sek.id_sektoru
+             JOIN Rejony r ON sek.id_rejonu = r.id_rejonu
              ORDER BY d.nazwa_drogi ASC`,
         );
     }
