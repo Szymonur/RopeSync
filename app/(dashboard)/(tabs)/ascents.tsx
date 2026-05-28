@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontWeight: "bold",
-        fontSize: 22,
+        fontSize: 18,
     },
     card: {
         padding: 15,

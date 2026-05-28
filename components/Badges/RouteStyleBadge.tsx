@@ -3,8 +3,6 @@ import { StyleSheet, View } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../contexts/ThemeContext";
 
-import ThemedText from "../ThemedText";
-
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
@@ -38,11 +36,14 @@ const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
         case "RP":
             return (
                 <View style={styles.badge}>
-                    <FontAwesome
-                        name="dot-circle-o"
-                        size={iconSize}
-                        color={Colors.warning}
-                    />
+                    <View
+                        style={{
+                            backgroundColor: Colors.warning,
+                            height: iconSize,
+                            width: iconSize,
+                            borderRadius: 50,
+                        }}
+                    ></View>
                 </View>
             );
         case "AF":

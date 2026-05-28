@@ -4,10 +4,9 @@ import {
     StyleSheet,
     TouchableOpacity,
     Platform,
-    KeyboardAvoidingView,
     View,
-    TouchableWithoutFeedback,
     Keyboard,
+    KeyboardEvent,
 } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 
@@ -56,6 +55,31 @@ const ManualAscentFormModal = ({
     const [selectedRouteId, setSelectedRouteId] = useState("");
 
     const [routeFilterError, setRouteFilterError] = useState("");
+
+    // Dodano stan dla wysokości klawiatury
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    useEffect(() => {
+        const showEvent =
+            Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+        const hideEvent =
+            Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+        const keyboardDidShowListener = Keyboard.addListener(
+            showEvent,
+            (e: KeyboardEvent) => {
+                setKeyboardHeight(e.endCoordinates.height);
+            },
+        );
+        const keyboardDidHideListener = Keyboard.addListener(hideEvent, () => {
+            setKeyboardHeight(0);
+        });
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
 
     useEffect(() => {
         if (routeFilter.length === 0 || routeFilter.length >= 2) {
@@ -125,155 +149,86 @@ const ManualAscentFormModal = ({
             statusBarTranslucent
         >
             <View style={styles.backdrop}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : undefined}
-                    style={{ flex: 1, justifyContent: "flex-end" }}
-                    pointerEvents="box-none"
+                <ThemedView
+                    style={[
+                        styles.sheet,
+                        {
+                            paddingBottom:
+                                keyboardHeight > 0 ? keyboardHeight : 20,
+                        },
+                    ]}
                 >
-                    <ThemedView style={styles.sheet}>
-                        <View style={styles.header}>
-                            <ThemedText style={styles.title}>
-                                Dodaj przejście
+                    <View style={styles.header}>
+                        <ThemedText style={styles.title}>
+                            Dodaj przejście
+                        </ThemedText>
+                        <TouchableOpacity
+                            onPress={onClose}
+                            style={styles.closeButton}
+                        >
+                            <ThemedText style={styles.closeText}>
+                                Zamknij
                             </ThemedText>
-                            <TouchableOpacity
-                                onPress={onClose}
-                                style={styles.closeButton}
-                            >
-                                <ThemedText style={styles.closeText}>
-                                    Zamknij
-                                </ThemedText>
-                            </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
+                    </View>
+
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        <ThemedText style={styles.label}>
+                            Data przejścia
+                        </ThemedText>
+                        <ThemedTextInput
+                            value={data}
+                            onChangeText={setData}
+                            placeholder="YYYY-MM-DD"
+                        />
+
+                        <Spacer height={12} />
+                        <ThemedText style={styles.label}>
+                            Szukaj drogi
+                        </ThemedText>
+                        <ThemedTextInput
+                            value={routeFilter}
+                            onChangeText={setRouteFilter}
+                            placeholder="Wpisz nazwę drogi..."
+                            error={routeFilterError}
+                        />
 
                         <ScrollView
+                            style={styles.routesList}
+                            nestedScrollEnabled={true}
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
                         >
-                            <ThemedText style={styles.label}>
-                                Data przejścia
-                            </ThemedText>
-                            <ThemedTextInput
-                                value={data}
-                                onChangeText={setData}
-                                placeholder="YYYY-MM-DD"
-                            />
+                            {filteredRoutes.length === 0 &&
+                            routeFilter.length >= 2 ? (
+                                <ThemedText style={{ opacity: 0.7 }}>
+                                    Brak dróg pasujących do filtra.
+                                </ThemedText>
+                            ) : (
+                                filteredRoutes.map((item) => {
+                                    const selected =
+                                        selectedRouteId === item.id_drogi;
 
-                            <Spacer height={12} />
-                            <ThemedText style={styles.label}>
-                                Szukaj drogi
-                            </ThemedText>
-                            <ThemedTextInput
-                                value={routeFilter}
-                                onChangeText={setRouteFilter}
-                                placeholder="Wpisz nazwę drogi..."
-                                error={routeFilterError}
-                            />
-
-                            <ScrollView
-                                style={styles.routesList}
-                                nestedScrollEnabled={true}
-                                showsVerticalScrollIndicator={false}
-                                keyboardShouldPersistTaps="handled"
-                            >
-                                {filteredRoutes.length === 0 &&
-                                routeFilter.length >= 2 ? (
-                                    <ThemedText style={{ opacity: 0.7 }}>
-                                        Brak dróg pasujących do filtra.
-                                    </ThemedText>
-                                ) : (
-                                    filteredRoutes.map((item) => {
-                                        const selected =
-                                            selectedRouteId === item.id_drogi;
-
-                                        return (
-                                            <TouchableOpacity
-                                                key={item.id_drogi}
-                                                onPress={() => {
-                                                    if (
-                                                        selectedRouteId ==
-                                                        item.id_drogi
-                                                    ) {
-                                                        setSelectedRouteId("");
-                                                    } else {
-                                                        setSelectedRouteId(
-                                                            item.id_drogi,
-                                                        );
-                                                    }
-                                                }}
-                                                style={[
-                                                    styles.routeItem,
-                                                    {
-                                                        backgroundColor:
-                                                            selected
-                                                                ? theme.iconColourFocused
-                                                                : theme.uiBackground,
-                                                        borderColor:
-                                                            theme.iconColourFocused,
-                                                    },
-                                                ]}
-                                            >
-                                                <ThemedText
-                                                    style={{
-                                                        color: selected
-                                                            ? theme.background
-                                                            : theme.text,
-                                                        fontWeight: "700",
-                                                    }}
-                                                >
-                                                    {item.nazwa_drogi}
-                                                </ThemedText>
-                                                <ThemedText
-                                                    style={{
-                                                        color: selected
-                                                            ? theme.background
-                                                            : theme.text,
-                                                        opacity: 0.8,
-                                                    }}
-                                                >
-                                                    {item.nazwa_rejonu} •{" "}
-                                                    {item.typ_drogi}
-                                                    {item.wycena
-                                                        ? ` • ${item.wycena}`
-                                                        : ""}
-                                                </ThemedText>
-                                            </TouchableOpacity>
-                                        );
-                                    })
-                                )}
-                            </ScrollView>
-
-                            {selectedRoute && (
-                                <>
-                                    <ThemedText style={styles.selectedHint}>
-                                        Wybrałeś: {selectedRoute.nazwa_drogi} •{" "}
-                                        {selectedRoute.nazwa_rejonu} •{" "}
-                                        {selectedRoute.typ_drogi}
-                                        {selectedRoute.wycena
-                                            ? ` • ${selectedRoute.wycena}`
-                                            : ""}
-                                    </ThemedText>
-                                </>
-                            )}
-
-                            <Spacer height={12} />
-                            <ThemedText style={styles.label}>
-                                Styl przejścia
-                            </ThemedText>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                style={styles.stylesList}
-                            >
-                                {stylesList.map((style) => {
-                                    const selected = ascentStyle === style;
                                     return (
                                         <TouchableOpacity
-                                            key={style}
-                                            onPress={() =>
-                                                setAscentStyle(style)
-                                            }
+                                            key={item.id_drogi}
+                                            onPress={() => {
+                                                if (
+                                                    selectedRouteId ==
+                                                    item.id_drogi
+                                                ) {
+                                                    setSelectedRouteId("");
+                                                } else {
+                                                    setSelectedRouteId(
+                                                        item.id_drogi,
+                                                    );
+                                                }
+                                            }}
                                             style={[
-                                                styles.styleItem,
+                                                styles.routeItem,
                                                 {
                                                     backgroundColor: selected
                                                         ? theme.iconColourFocused
@@ -291,48 +246,114 @@ const ManualAscentFormModal = ({
                                                     fontWeight: "700",
                                                 }}
                                             >
-                                                {style}
+                                                {item.nazwa_drogi}
+                                            </ThemedText>
+                                            <ThemedText
+                                                style={{
+                                                    color: selected
+                                                        ? theme.background
+                                                        : theme.text,
+                                                    opacity: 0.8,
+                                                }}
+                                            >
+                                                {item.nazwa_rejonu} •{" "}
+                                                {item.typ_drogi}
+                                                {item.wycena
+                                                    ? ` • ${item.wycena}`
+                                                    : ""}
                                             </ThemedText>
                                         </TouchableOpacity>
                                     );
-                                })}
-                            </ScrollView>
+                                })
+                            )}
+                        </ScrollView>
 
-                            <Spacer height={12} />
-                            <ThemedText style={styles.label}>
-                                Krótki opis
-                            </ThemedText>
-                            <ThemedTextInput
-                                value={note}
-                                onChangeText={setNote}
-                                placeholder="Jak było?"
-                                multiline
-                                numberOfLines={4}
-                                style={styles.multilineInput}
-                            />
+                        {selectedRoute && (
+                            <>
+                                <ThemedText style={styles.selectedHint}>
+                                    Wybrałeś: {selectedRoute.nazwa_drogi} •{" "}
+                                    {selectedRoute.nazwa_rejonu} •{" "}
+                                    {selectedRoute.typ_drogi}
+                                    {selectedRoute.wycena
+                                        ? ` • ${selectedRoute.wycena}`
+                                        : ""}
+                                </ThemedText>
+                            </>
+                        )}
 
-                            <Spacer height={18} />
-                            <ThemedButton
-                                onPress={handleSubmit}
-                                disabled={!canSubmit || !!saving}
+                        <Spacer height={12} />
+                        <ThemedText style={styles.label}>
+                            Styl przejścia
+                        </ThemedText>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.stylesList}
+                        >
+                            {stylesList.map((style) => {
+                                const selected = ascentStyle === style;
+                                return (
+                                    <TouchableOpacity
+                                        key={style}
+                                        onPress={() => setAscentStyle(style)}
+                                        style={[
+                                            styles.styleItem,
+                                            {
+                                                backgroundColor: selected
+                                                    ? theme.iconColourFocused
+                                                    : theme.uiBackground,
+                                                borderColor:
+                                                    theme.iconColourFocused,
+                                            },
+                                        ]}
+                                    >
+                                        <ThemedText
+                                            style={{
+                                                color: selected
+                                                    ? theme.background
+                                                    : theme.text,
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            {style}
+                                        </ThemedText>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+
+                        <Spacer height={12} />
+                        <ThemedText style={styles.label}>
+                            Krótki opis
+                        </ThemedText>
+                        <ThemedTextInput
+                            value={note}
+                            onChangeText={setNote}
+                            placeholder="Jak było?"
+                            multiline
+                            numberOfLines={4}
+                            style={styles.multilineInput}
+                        />
+
+                        <Spacer height={18} />
+                        <ThemedButton
+                            onPress={handleSubmit}
+                            disabled={!canSubmit || !!saving}
+                            style={{
+                                opacity: !canSubmit || saving ? 0.6 : 1,
+                            }}
+                        >
+                            <ThemedText
                                 style={{
-                                    opacity: !canSubmit || saving ? 0.6 : 1,
+                                    textAlign: "center",
+                                    color: "white",
                                 }}
                             >
-                                <ThemedText
-                                    style={{
-                                        textAlign: "center",
-                                        color: "white",
-                                    }}
-                                >
-                                    {saving
-                                        ? "Zapisywanie..."
-                                        : "Zapisz przejście"}
-                                </ThemedText>
-                            </ThemedButton>
-                        </ScrollView>
-                    </ThemedView>
-                </KeyboardAvoidingView>
+                                {saving ? "Zapisywanie..." : "Zapisz przejście"}
+                            </ThemedText>
+                        </ThemedButton>
+                    </ScrollView>
+                </ThemedView>
             </View>
         </Modal>
     );

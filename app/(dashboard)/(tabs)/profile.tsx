@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         textAlign: "right",
         width: "100%",
+        textAlignVertical: "center",
         paddingVertical: 10,
         paddingHorizontal: 20,
     },

@@ -42,6 +42,7 @@ export interface AscentRouteOption {
     id_drogi: string;
     nazwa_drogi: string;
     typ_drogi: string;
+    nazwa_rejonu: string;
     wycena: string | null;
 }
 

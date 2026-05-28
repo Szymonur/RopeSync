@@ -73,6 +73,7 @@ const Index = () => {
                 data={feed}
                 keyExtractor={(item) => item.ascentId}
                 contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching}
@@ -167,14 +168,6 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         paddingBottom: 10,
     },
-    heading: {
-        fontWeight: "bold",
-        fontSize: 24,
-    },
-    subheading: {
-        marginTop: 4,
-        opacity: 0.75,
-    },
     feedCard: {
         marginBottom: 12,
         padding: 16,
@@ -206,7 +199,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     routeName: {
-        fontSize: 22,
+        fontSize: 18,
         fontWeight: "600",
         lineHeight: 28,
         marginBottom: 10,
