@@ -79,12 +79,13 @@ const Login = () => {
 
             <ThemedTextInput
                 autoFocus
-                label="Login"
+                label="Login or email"
                 autoCapitalize="none"
                 onChangeText={setUserLogin}
                 value={userLogin}
                 error={errorLogin ? errorLogin : ""}
-                textContentType="username"
+                keyboardType="email-address"
+                textContentType={"username"}
                 autoComplete="username"
             ></ThemedTextInput>
             <ThemedTextInput
