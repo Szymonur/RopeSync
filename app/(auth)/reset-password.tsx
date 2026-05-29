@@ -56,7 +56,11 @@ const resetPassword = () => {
             setEmailError("Enter valid email address!");
         }
 
-        if (emailError || !trimmedEmail || (trimmedEmail && !validateEmail(trimmedEmail))) {
+        if (
+            emailError ||
+            !trimmedEmail ||
+            (trimmedEmail && !validateEmail(trimmedEmail))
+        ) {
             return;
         }
 
@@ -111,7 +115,7 @@ const resetPassword = () => {
         <ThemedView style={styles.container} safe>
             <Spacer height={80} />
             <ThemedText title={true} style={styles.title}>
-                reset Password
+                Reset password
             </ThemedText>
             <ThemedText title={true} style={styles.infoText}>
                 Enter your email address and we’ll send you a link to reset your
