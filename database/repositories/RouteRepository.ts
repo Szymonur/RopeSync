@@ -13,6 +13,7 @@ export interface RouteDetails extends RouteListItem {
     dlugosc_drogi?: number;
     liczba_ringow?: number;
     stanowisko?: string;
+    czy_stanowiska?: boolean;
     wysokosc?: number;
     liczba_potrzebnych_crashpadow?: number;
     potrzebny_sprzet?: string;

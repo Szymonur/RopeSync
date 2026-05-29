@@ -13,7 +13,9 @@ import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import { Colors } from "../../../constants/Colors";
 
-
+import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
+import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
+import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -77,20 +79,14 @@ const RouteDetail = () => {
             <ThemedText title style={styles.title}>
                 {route.nazwa_drogi}
             </ThemedText>
-            <ThemedText style={styles.subtitle}>
-                {route.typ_drogi.toUpperCase()} • {route.skala} •{" "}
-                {route.nazwa_skaly}
-            </ThemedText>
+            <View style={styles.subtitle}>
+                <RouteTypeBadge route_type={route.typ_drogi} />
+                <RouteGradeBadge route_grade={route.skala} />
+            </View>
 
             <Spacer height={28} />
 
             <ThemedCard style={styles.detailsCard}>
-                <View style={styles.detailRow}>
-                    <ThemedText style={styles.label}>Type:</ThemedText>
-                    <ThemedText style={styles.value}>
-                        {route.typ_drogi}
-                    </ThemedText>
-                </View>
                 {route.dlugosc_drogi && (
                     <View style={styles.detailRow}>
                         <ThemedText style={styles.label}>Length:</ThemedText>
@@ -99,7 +95,7 @@ const RouteDetail = () => {
                         </ThemedText>
                     </View>
                 )}
-                {route.liczba_ringow !== undefined && (
+                {route.liczba_ringow && (
                     <View style={styles.detailRow}>
                         <ThemedText style={styles.label}>Bolts:</ThemedText>
                         <ThemedText style={styles.value}>
@@ -128,6 +124,26 @@ const RouteDetail = () => {
                         <ThemedText style={styles.label}>Gear:</ThemedText>
                         <ThemedText style={styles.value}>
                             {route.potrzebny_sprzet}
+                        </ThemedText>
+                    </View>
+                )}
+                {route.liczba_potrzebnych_crashpadow && (
+                    <View style={styles.detailRow}>
+                        <ThemedText style={styles.label}>
+                            Number of carshpads:
+                        </ThemedText>
+                        <ThemedText style={styles.value}>
+                            {route.liczba_potrzebnych_crashpadow}
+                        </ThemedText>
+                    </View>
+                )}
+                {route.czy_stanowiska && (
+                    <View style={styles.detailRow}>
+                        <ThemedText style={styles.label}>
+                            Bolred anchors:
+                        </ThemedText>
+                        <ThemedText style={styles.value}>
+                            {route.czy_stanowiska ? "yes" : "no"}
                         </ThemedText>
                     </View>
                 )}
@@ -160,9 +176,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-        fontWeight: "500",
+        display: "flex",
+        flexDirection: "row",
+        gap: 6,
     },
     detailsCard: {
         padding: 15,

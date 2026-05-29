@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     subtitle: {
         display: "flex",
         flexDirection: "row",
-        gap: 8,
+        gap: 6,
     },
     noteLabel: {
         fontSize: 14,
