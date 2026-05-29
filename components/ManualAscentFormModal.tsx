@@ -33,6 +33,8 @@ interface ManualAscentFormModalProps {
     saving?: boolean;
     routes: RouteForSelection[];
     styles: string[];
+    preselectedRouteId?: string;
+    hideRouteSearch?: boolean;
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -44,6 +46,8 @@ const ManualAscentFormModal = ({
     saving,
     routes,
     styles: stylesList,
+    preselectedRouteId,
+    hideRouteSearch,
 }: ManualAscentFormModalProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
@@ -52,12 +56,20 @@ const ManualAscentFormModal = ({
     const [note, setNote] = useState("");
     const [ascentStyle, setAscentStyle] = useState("RP");
     const [routeFilter, setRouteFilter] = useState("");
-    const [selectedRouteId, setSelectedRouteId] = useState("");
+    const [selectedRouteId, setSelectedRouteId] = useState(
+        preselectedRouteId || "",
+    );
 
     const [routeFilterError, setRouteFilterError] = useState("");
 
     // Dodano stan dla wysokości klawiatury
     const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    useEffect(() => {
+        if (preselectedRouteId) {
+            setSelectedRouteId(preselectedRouteId);
+        }
+    }, [preselectedRouteId]);
 
     useEffect(() => {
         const showEvent =
@@ -122,7 +134,7 @@ const ManualAscentFormModal = ({
         setData(getToday());
         setNote("");
         setRouteFilter("");
-        setSelectedRouteId("");
+        setSelectedRouteId(preselectedRouteId || "");
         setAscentStyle("RP");
     };
 
@@ -185,87 +197,92 @@ const ManualAscentFormModal = ({
                         />
 
                         <Spacer height={12} />
-                        <ThemedText style={styles.label}>
-                            Szukaj drogi
-                        </ThemedText>
-                        <ThemedTextInput
-                            value={routeFilter}
-                            onChangeText={setRouteFilter}
-                            placeholder="Wpisz nazwę drogi..."
-                            error={routeFilterError}
-                        />
-
-                        <ScrollView
-                            style={styles.routesList}
-                            nestedScrollEnabled={true}
-                            showsVerticalScrollIndicator={false}
-                            keyboardShouldPersistTaps="handled"
-                        >
-                            {filteredRoutes.length === 0 &&
-                            routeFilter.length >= 2 ? (
-                                <ThemedText style={{ opacity: 0.7 }}>
-                                    Brak dróg pasujących do filtra.
+                        
+                        {!hideRouteSearch && (
+                            <>
+                                <ThemedText style={styles.label}>
+                                    Szukaj drogi
                                 </ThemedText>
-                            ) : (
-                                filteredRoutes.map((item) => {
-                                    const selected =
-                                        selectedRouteId === item.id_drogi;
+                                <ThemedTextInput
+                                    value={routeFilter}
+                                    onChangeText={setRouteFilter}
+                                    placeholder="Wpisz nazwę drogi..."
+                                    error={routeFilterError}
+                                />
 
-                                    return (
-                                        <TouchableOpacity
-                                            key={item.id_drogi}
-                                            onPress={() => {
-                                                if (
-                                                    selectedRouteId ==
-                                                    item.id_drogi
-                                                ) {
-                                                    setSelectedRouteId("");
-                                                } else {
-                                                    setSelectedRouteId(
-                                                        item.id_drogi,
-                                                    );
-                                                }
-                                            }}
-                                            style={[
-                                                styles.routeItem,
-                                                {
-                                                    backgroundColor: selected
-                                                        ? theme.iconColourFocused
-                                                        : theme.uiBackground,
-                                                    borderColor:
-                                                        theme.iconColourFocused,
-                                                },
-                                            ]}
-                                        >
-                                            <ThemedText
-                                                style={{
-                                                    color: selected
-                                                        ? theme.background
-                                                        : theme.text,
-                                                    fontWeight: "700",
-                                                }}
-                                            >
-                                                {item.nazwa_drogi}
-                                            </ThemedText>
-                                            <ThemedText
-                                                style={{
-                                                    color: selected
-                                                        ? theme.background
-                                                        : theme.text,
-                                                    opacity: 0.8,
-                                                }}
-                                            >
-                                                {item.nazwa_rejonu} •{" "}
-                                                {item.typ_drogi}
-                                                {item.wycena
-                                                    ? ` • ${item.wycena}`
-                                                    : ""}
-                                            </ThemedText>
-                                        </TouchableOpacity>
-                                    );
-                                })
-                            )}
-                        </ScrollView>
+                                <ScrollView
+                                    style={styles.routesList}
+                                    nestedScrollEnabled={true}
+                                    showsVerticalScrollIndicator={false}
+                                    keyboardShouldPersistTaps="handled"
+                                >
+                                    {filteredRoutes.length === 0 &&
+                                    routeFilter.length >= 2 ? (
+                                        <ThemedText style={{ opacity: 0.7 }}>
+                                            Brak dróg pasujących do filtra.
+                                        </ThemedText>
+                                    ) : (
+                                        filteredRoutes.map((item) => {
+                                            const selected =
+                                                selectedRouteId === item.id_drogi;
+
+                                            return (
+                                                <TouchableOpacity
+                                                    key={item.id_drogi}
+                                                    onPress={() => {
+                                                        if (
+                                                            selectedRouteId ==
+                                                            item.id_drogi
+                                                        ) {
+                                                            setSelectedRouteId("");
+                                                        } else {
+                                                            setSelectedRouteId(
+                                                                item.id_drogi,
+                                                            );
+                                                        }
+                                                    }}
+                                                    style={[
+                                                        styles.routeItem,
+                                                        {
+                                                            backgroundColor: selected
+                                                                ? theme.iconColourFocused
+                                                                : theme.uiBackground,
+                                                            borderColor:
+                                                                theme.iconColourFocused,
+                                                        },
+                                                    ]}
+                                                >
+                                                    <ThemedText
+                                                        style={{
+                                                            color: selected
+                                                                ? theme.background
+                                                                : theme.text,
+                                                            fontWeight: "700",
+                                                        }}
+                                                    >
+                                                        {item.nazwa_drogi}
+                                                    </ThemedText>
+                                                    <ThemedText
+                                                        style={{
+                                                            color: selected
+                                                                ? theme.background
+                                                                : theme.text,
+                                                            opacity: 0.8,
+                                                        }}
+                                                    >
+                                                        {item.nazwa_rejonu} •{" "}
+                                                        {item.typ_drogi}
+                                                        {item.wycena
+                                                            ? ` • ${item.wycena}`
+                                                            : ""}
+                                                    </ThemedText>
+                                                </TouchableOpacity>
+                                            );
+                                        })
+                                    )}
+                                </ScrollView>
+                            </>
+                        )}
 
                         {selectedRoute && (
                             <>

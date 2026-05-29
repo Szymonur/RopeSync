@@ -1,4 +1,4 @@
-import { StyleSheet, ActivityIndicator, View } from "react-native";
+import { StyleSheet, ActivityIndicator, View, TouchableOpacity, ScrollView } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
@@ -13,9 +13,16 @@ import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import { Colors } from "../../../constants/Colors";
 
+import ManualAscentFormModal, {
+    ManualAscentFormValues,
+} from "../../../components/ManualAscentFormModal";
+
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
-import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
+
+import { useMe } from "../../../lib/hooks/useProfile";
+import { AscentRepository } from "../../../database/repositories/AscentRepository";
+import { UserService } from "../../../services/api/UserService";
 
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,7 +30,13 @@ const RouteDetail = () => {
     const [route, setRoute] = useState<RouteDetails | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const { data: user } = useMe();
+    const [formVisible, setFormVisible] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [stylesList, setStylesList] = useState<string[]>([]);
+
     const repository = useMemo(() => new RouteRepository(db), [db]);
+    const ascentRepository = useMemo(() => new AscentRepository(db), [db]);
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -38,8 +51,44 @@ const RouteDetail = () => {
             }
         };
 
+        const loadStyles = async () => {
+            try {
+                const data = await ascentRepository.getStylesForSelection();
+                setStylesList(data);
+            } catch (error) {
+                console.error("Błąd podczas ładowania stylów:", error);
+            }
+        };
+
         fetchDetails();
-    }, [id]);
+        loadStyles();
+    }, [id, repository, ascentRepository]);
+
+    const handleSaveManualAscent = async (values: ManualAscentFormValues) => {
+        if (!user?.id) return;
+
+        try {
+            setSaving(true);
+            await UserService.createAscent({
+                data: values.data,
+                id_drogi: values.id_drogi,
+                notatka: values.notatka,
+                nazwa_stylu: values.nazwa_stylu,
+            });
+            await ascentRepository.addManualAscent({
+                data: values.data,
+                id_drogi: values.id_drogi,
+                notatka: values.notatka,
+                id_uzytkownika: Number(user.id),
+                nazwa_stylu: values.nazwa_stylu,
+            });
+            setFormVisible(false);
+        } catch (error) {
+            console.error("Błąd podczas zapisywania przejścia:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -66,96 +115,124 @@ const RouteDetail = () => {
     const headerTitle = `${route.nazwa_rejonu}/${route.nazwa_sektoru}`;
 
     return (
-        <ThemedView style={styles.container} scroll>
-            <Stack.Screen
-                options={{
-                    title: headerTitle,
-                    headerTitleStyle: {
-                        fontSize: 16,
-                    },
-                }}
+        <ThemedView style={styles.container}>
+            <ManualAscentFormModal
+                visible={formVisible}
+                onClose={() => setFormVisible(false)}
+                onSubmit={handleSaveManualAscent}
+                saving={saving}
+                routes={[{
+                    id_drogi: id,
+                    nazwa_drogi: route.nazwa_drogi,
+                    nazwa_rejonu: route.nazwa_rejonu,
+                    typ_drogi: route.typ_drogi,
+                    wycena: route.skala
+                }]}
+                styles={stylesList}
+                preselectedRouteId={id}
+                hideRouteSearch={true}
             />
-            <Spacer height={16} />
-            <ThemedText title style={styles.title}>
-                {route.nazwa_drogi}
-            </ThemedText>
-            <View style={styles.subtitle}>
-                <RouteTypeBadge route_type={route.typ_drogi} />
-                <RouteGradeBadge route_grade={route.skala} />
-            </View>
 
-            <Spacer height={28} />
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => setFormVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Dodaj przejście"
+            >
+                <ThemedText style={styles.fabIcon}>+</ThemedText>
+            </TouchableOpacity>
 
-            <ThemedCard style={styles.detailsCard}>
-                {route.dlugosc_drogi && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>Length:</ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.dlugosc_drogi}m
-                        </ThemedText>
-                    </View>
-                )}
-                {route.liczba_ringow && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>Bolts:</ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.liczba_ringow}
-                        </ThemedText>
-                    </View>
-                )}
-                {route.wysokosc && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>Height:</ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.wysokosc}m
-                        </ThemedText>
-                    </View>
-                )}
-                {route.stanowisko && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>Anchor:</ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.stanowisko}
-                        </ThemedText>
-                    </View>
-                )}
-                {route.potrzebny_sprzet && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>Gear:</ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.potrzebny_sprzet}
-                        </ThemedText>
-                    </View>
-                )}
-                {route.liczba_potrzebnych_crashpadow && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>
-                            Number of carshpads:
-                        </ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.liczba_potrzebnych_crashpadow}
-                        </ThemedText>
-                    </View>
-                )}
-                {route.czy_stanowiska && (
-                    <View style={styles.detailRow}>
-                        <ThemedText style={styles.label}>
-                            Bolred anchors:
-                        </ThemedText>
-                        <ThemedText style={styles.value}>
-                            {route.czy_stanowiska ? "yes" : "no"}
-                        </ThemedText>
-                    </View>
-                )}
-            </ThemedCard>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+                <Stack.Screen
+                    options={{
+                        title: headerTitle,
+                        headerTitleStyle: {
+                            fontSize: 16,
+                        },
+                    }}
+                />
+                <Spacer height={16} />
+                <ThemedText title style={styles.title}>
+                    {route.nazwa_drogi}
+                </ThemedText>
+                <View style={styles.subtitle}>
+                    <RouteTypeBadge route_type={route.typ_drogi} />
+                    <RouteGradeBadge route_grade={route.skala} />
+                </View>
 
-            <Spacer height={20} />
-            <ThemedText style={styles.noteLabel}>Description:</ThemedText>
-            <ThemedText style={styles.note}>
-                {route.opis || "No description available."}
-            </ThemedText>
+                <Spacer height={28} />
 
-            <Spacer height={40} />
+                <ThemedCard style={styles.detailsCard}>
+                    {route.dlugosc_drogi && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>Length:</ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.dlugosc_drogi}m
+                            </ThemedText>
+                        </View>
+                    )}
+                    {route.liczba_ringow && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>Bolts:</ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.liczba_ringow}
+                            </ThemedText>
+                        </View>
+                    )}
+                    {route.wysokosc && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>Height:</ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.wysokosc}m
+                            </ThemedText>
+                        </View>
+                    )}
+                    {route.stanowisko && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>Anchor:</ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.stanowisko}
+                            </ThemedText>
+                        </View>
+                    )}
+                    {route.potrzebny_sprzet && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>Gear:</ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.potrzebny_sprzet}
+                            </ThemedText>
+                        </View>
+                    )}
+                    {route.liczba_potrzebnych_crashpadow && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>
+                                Number of carshpads:
+                            </ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.liczba_potrzebnych_crashpadow}
+                            </ThemedText>
+                        </View>
+                    )}
+                    {route.czy_stanowiska && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>
+                                Bolred anchors:
+                            </ThemedText>
+                            <ThemedText style={styles.value}>
+                                {route.czy_stanowiska ? "yes" : "no"}
+                            </ThemedText>
+                        </View>
+                    )}
+                </ThemedCard>
+
+                <Spacer height={20} />
+                <ThemedText style={styles.noteLabel}>Description:</ThemedText>
+                <ThemedText style={styles.note}>
+                    {route.opis || "No description available."}
+                </ThemedText>
+
+                <Spacer height={40} />
+            </ScrollView>
         </ThemedView>
     );
 };
@@ -166,6 +243,25 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 20,
+    },
+    fab: {
+        position: "absolute",
+        right: 20,
+        bottom: 24,
+        zIndex: 20,
+        width: 58,
+        height: 58,
+        borderRadius: 29,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.primary,
+        elevation: 5,
+    },
+    fabIcon: {
+        color: "white",
+        fontSize: 28,
+        fontWeight: "800",
+        lineHeight: 30,
     },
     stack_header: {
         fontSize: 12,
