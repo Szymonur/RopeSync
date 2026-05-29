@@ -68,8 +68,7 @@ export const useBLE = () => {
             BLE_CHARACTERISTIC_UUID,
             (error, characteristic) => {
                 if (error) {
-                    if (error.errorCode !== 2)
-                        console.error("Błąd monitorowania:", error);
+                    if (error.errorCode !== 2) disconnectFromDevice();
                     return;
                 }
 
