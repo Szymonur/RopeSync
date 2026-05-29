@@ -150,7 +150,8 @@ export default Routes;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 2,
     },
     sectionHeader: {
         fontSize: 18,

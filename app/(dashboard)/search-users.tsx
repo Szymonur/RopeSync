@@ -138,7 +138,7 @@ const SearchUsers = () => {
                 value={phrase}
                 error={phraseError}
                 onChangeText={setPhrase}
-                placeholder="Wpisz min. 2 znaki..."
+                placeholder="Wpisz przynajmniej 2 znaki"
                 autoCapitalize="none"
             />
             <Spacer height={10} />
@@ -147,11 +147,14 @@ const SearchUsers = () => {
                 <ActivityIndicator size="small" color={theme.iconColour} />
             )}
 
-            {!loading && phrase.trim().length >= 2 && users.length === 0 && (
-                <ThemedText style={styles.emptyText}>
-                    Brak wyników dla tej frazy.
-                </ThemedText>
-            )}
+            {!loading &&
+                debouncedPhrase.trim().length >= 2 &&
+                phrase === debouncedPhrase &&
+                users.length === 0 && (
+                    <ThemedText style={styles.emptyText}>
+                        Nic nie wiemy o takim wspinaczu.
+                    </ThemedText>
+                )}
 
             <FlatList
                 data={users}
@@ -185,7 +188,6 @@ const SearchUsers = () => {
                                         styles.followButton,
                                         item.isFollowing && {
                                             backgroundColor: theme.uiBackground,
-                                            borderWidth: 1,
                                             borderColor: theme.iconColour,
                                         },
                                     ]}
@@ -200,11 +202,16 @@ const SearchUsers = () => {
                                                 : "white",
                                         }}
                                     >
-                                        {isBusy
-                                            ? "..."
-                                            : item.isFollowing
-                                              ? "Obserwujesz"
-                                              : "Obserwuj"}
+                                        {isBusy ? (
+                                            <ActivityIndicator
+                                                size="small"
+                                                color={theme.text}
+                                            />
+                                        ) : item.isFollowing ? (
+                                            "Obserwujesz"
+                                        ) : (
+                                            "Obserwuj"
+                                        )}
                                     </ThemedText>
                                 </ThemedButton>
                             </View>
@@ -214,7 +221,7 @@ const SearchUsers = () => {
                 ListEmptyComponent={
                     phrase.trim().length < 2 ? (
                         <ThemedText style={styles.emptyText}>
-                            Zacznij wpisywać, aby wyszukać użytkowników.
+                            Zacznij wpisywać, aby wyszukać wspinaczy.
                         </ThemedText>
                     ) : null
                 }
@@ -249,8 +256,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
     followButton: {
+        borderWidth: 1,
+        borderColor: "transparent",
         marginVertical: 0,
-        paddingVertical: 10,
+        paddingVertical: 8,
         minWidth: 118,
     },
     emptyText: {

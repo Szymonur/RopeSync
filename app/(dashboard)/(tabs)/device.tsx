@@ -262,7 +262,9 @@ const DeviceScreen = () => {
                         </ThemedText>
                     </View>
                     <ThemedButton onPress={() => disconnectFromDevice()}>
-                        <ThemedText>Rozłącz</ThemedText>
+                        <ThemedText style={{ textAlign: "center" }}>
+                            Rozłącz
+                        </ThemedText>
                     </ThemedButton>
                 </View>
             )}

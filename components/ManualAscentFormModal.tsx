@@ -114,7 +114,6 @@ const ManualAscentFormModal = ({
         () =>
             data.trim().length > 0 &&
             selectedRouteId.trim().length > 0 &&
-            note.trim().length > 0 &&
             ascentStyle.length > 0,
         [data, selectedRouteId, note, ascentStyle],
     );
@@ -340,7 +339,7 @@ const ManualAscentFormModal = ({
                             onPress={handleSubmit}
                             disabled={!canSubmit || !!saving}
                             style={{
-                                opacity: !canSubmit || saving ? 0.6 : 1,
+                                opacity: !canSubmit || saving ? 0.4 : 1,
                             }}
                         >
                             <ThemedText

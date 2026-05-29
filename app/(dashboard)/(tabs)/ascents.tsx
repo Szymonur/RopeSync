@@ -144,7 +144,7 @@ const Asce = () => {
                 data={ascents}
                 keyExtractor={(item) => item.id_przejscia}
                 showsVerticalScrollIndicator={false}
-                style={{ width: "100%" }}
+                style={{ width: "100%", paddingVertical: 7 }}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
