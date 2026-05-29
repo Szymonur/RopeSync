@@ -19,12 +19,12 @@ export const Colors = {
         iconColourFocused: "#fff",
     },
     light: {
-        text: "#2f3e46",
-        title: "#244b36",
+        text: "#3a4a42",
+        title: "#1b4d3e",
         background: "#f4f7f5",
-        navBackground: "#e8ebe9",
-        uiBackground: "#dce1de",
-        iconColour: "#7f9186",
-        iconColourFocused: "#244b36",
+        navBackground: "#ffffff",
+        uiBackground: "#ffffff",
+        iconColour: "#6c8174",
+        iconColourFocused: "#1b4d3e",
     },
 };
