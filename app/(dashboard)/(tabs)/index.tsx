@@ -21,6 +21,7 @@ import { UserService } from "../../../services/api/UserService";
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
+import ThemedButton from "../../../components/ThemedButton";
 
 const Index = () => {
     const router = useRouter();
@@ -82,7 +83,6 @@ const Index = () => {
                         tintColor={theme.iconColour}
                     />
                 }
-                ListHeaderComponent={<View style={styles.headerBlock}></View>}
                 ListEmptyComponent={
                     isLoading ? (
                         <ActivityIndicator
@@ -92,12 +92,27 @@ const Index = () => {
                     ) : (
                         <ThemedCard style={styles.emptyCard}>
                             <ThemedText style={styles.emptyTitle}>
-                                Brak aktywności do pokazania
+                                Czas zapełnić ten widok!
+                            </ThemedText>
+                            <Spacer height={20} />
+
+                            <ThemedText style={styles.emptyText}>
+                                Nie widzisz jeszcze żadnych przejść.
                             </ThemedText>
                             <ThemedText style={styles.emptyText}>
-                                Obserwuj znajomych, a ich przejścia pojawią się
-                                tutaj.
+                                Dodaj znajomych do obserwowanych, żeby śledzić
+                                ich kolejne kroki.
                             </ThemedText>
+                            <Spacer />
+                            <ThemedButton
+                                onPress={() =>
+                                    router.push("/(dashboard)/search-users")
+                                }
+                            >
+                                <ThemedText style={styles.emptyButtonText}>
+                                    Szukaj znajomych
+                                </ThemedText>
+                            </ThemedButton>
                         </ThemedCard>
                     )
                 }
@@ -162,11 +177,7 @@ export default Index;
 const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 16,
-        paddingBottom: 24,
-    },
-    headerBlock: {
-        paddingTop: 12,
-        paddingBottom: 10,
+        paddingVertical: 12,
     },
     feedCard: {
         marginBottom: 12,
@@ -220,15 +231,25 @@ const styles = StyleSheet.create({
     },
     emptyCard: {
         marginTop: 24,
-        padding: 18,
+        paddingVertical: 40,
+        paddingHorizontal: 18,
+        height: "90%",
+        display: "flex",
+        justifyContent: "center",
     },
     emptyTitle: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: "700",
         marginBottom: 8,
+        textAlign: "center",
     },
     emptyText: {
         opacity: 0.8,
         lineHeight: 20,
+        textAlign: "center",
+    },
+    emptyButtonText: {
+        fontWeight: 500,
+        textAlign: "center",
     },
 });

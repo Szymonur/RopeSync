@@ -13,12 +13,6 @@ export interface Ascent {
     wycena?: string | null;
 }
 
-export interface AscentWithRouteDetails extends Ascent {
-    nazwa_drogi: string;
-    typ_drogi: string;
-    wycena: string | null;
-}
-
 export interface ManualAscentInput {
     data: string;
     id_drogi: string;
@@ -72,10 +66,8 @@ export class AscentRepository {
     }
 
     // Pobierz szczegóły konkretnego przejścia wraz z nazwą drogi
-    async getAscentDetails(
-        ascentId: string,
-    ): Promise<AscentWithRouteDetails | null> {
-        const result = await this.db.getFirstAsync<AscentWithRouteDetails>(
+    async getAscentDetails(ascentId: string): Promise<Ascent | null> {
+        const result = await this.db.getFirstAsync<Ascent>(
             `SELECT
                 p.id_przejscia,
                 p.data,

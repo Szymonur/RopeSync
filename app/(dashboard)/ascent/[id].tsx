@@ -1,28 +1,74 @@
-import { StyleSheet, ActivityIndicator, View } from "react-native";
+import {
+    StyleSheet,
+    ActivityIndicator,
+    View,
+    TouchableOpacity,
+    Alert,
+} from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+import { useRouter } from "expo-router";
 
 import {
     AscentRepository,
-    AscentWithRouteDetails,
+    Ascent,
 } from "../../../database/repositories/AscentRepository";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedTimeline from "../../../components/ThemedTimeline";
 
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 
+import { useTheme } from "../../../contexts/ThemeContext";
+import { Colors } from "../../../constants/Colors";
+
 const AscentDetails = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
     const db = useSQLiteContext();
-    const [ascent, setAscent] = useState<AscentWithRouteDetails | null>(null);
+    const [ascent, setAscent] = useState<Ascent | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     const repository = useMemo(() => new AscentRepository(db), [db]);
+
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
+
+    const handleDelete = () => {
+        Alert.alert(
+            "Usuń przejście",
+            `Czy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"? Tego kroku nie da się cofnąć.`,
+            [
+                { text: "Anuluj", style: "cancel" },
+                {
+                    text: "Usuń",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            if (
+                                ascent?.id_przejscia &&
+                                ascent?.id_uzytkownika
+                            ) {
+                                await repository.deleteAscent(
+                                    ascent?.id_przejscia,
+                                    ascent?.id_uzytkownika,
+                                );
+                            }
+                            router.back();
+                        } catch (error) {
+                            console.error("Błąd podczas usuwania:", error);
+                        }
+                    },
+                },
+            ],
+        );
+    };
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -46,7 +92,7 @@ const AscentDetails = () => {
                 style={[styles.container, { justifyContent: "center" }]}
                 safe
             >
-                <ActivityIndicator size="large" color="#7b0490" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </ThemedView>
         );
     }
@@ -65,7 +111,22 @@ const AscentDetails = () => {
 
     return (
         <ThemedView style={styles.container} scroll>
-            <Stack.Screen />
+            <Stack.Screen
+                options={{
+                    headerRight: () => (
+                        <TouchableOpacity
+                            onPress={handleDelete}
+                            style={{ marginRight: 20 }}
+                        >
+                            <FontAwesome6
+                                name="trash-can"
+                                color={theme.iconColour}
+                                size={22}
+                            />
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
             <Spacer height={16} />
             <ThemedText title style={styles.title}>
                 {ascent.nazwa_drogi}
@@ -82,7 +143,7 @@ const AscentDetails = () => {
             </ThemedText>
             {ascent.uri_timeline && (
                 <>
-                    <Spacer height={8} />
+                    <Spacer height={10} />
                     <ThemedTimeline uriTimeline={ascent.uri_timeline} />
                 </>
             )}

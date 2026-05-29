@@ -4,6 +4,7 @@ import {
     TouchableOpacity,
     View,
     RefreshControl,
+    ActivityIndicator,
 } from "react-native";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useSQLiteContext } from "expo-sqlite";
@@ -16,6 +17,7 @@ import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedCard from "../../../components/ThemedCard";
+import ThemedButton from "../../../components/ThemedButton";
 import ManualAscentFormModal, {
     ManualAscentFormValues,
 } from "../../../components/ManualAscentFormModal";
@@ -96,8 +98,6 @@ const Asce = () => {
 
         try {
             setSaving(true);
-            console.log("values: ", values);
-
             await UserService.createAscent({
                 data: values.data,
                 id_drogi: values.id_drogi,
@@ -188,7 +188,33 @@ const Asce = () => {
                     </TouchableOpacity>
                 )}
                 ListEmptyComponent={
-                    <ThemedText>Brak zarejestrowanych przejść.</ThemedText>
+                    refreshing ? (
+                        <ActivityIndicator
+                            size="large"
+                            color={theme.iconColourFocused}
+                        />
+                    ) : (
+                        <ThemedCard style={styles.emptyCard}>
+                            <ThemedText style={styles.emptyTitle}>
+                                Twoja księga przejść jest jeszcze czysta
+                            </ThemedText>
+                            <Spacer height={20} />
+
+                            <ThemedText style={styles.emptyText}>
+                                Każda droga zaczyna się od pierwszego kroku.
+                            </ThemedText>
+                            <ThemedText style={styles.emptyText}>
+                                Zapisz swoje ostatnie przejście, aby zacząć
+                                budować swoją historię.
+                            </ThemedText>
+                            <Spacer />
+                            <ThemedButton onPress={() => setFormVisible(true)}>
+                                <ThemedText style={styles.emptyButtonText}>
+                                    Dodaj pierwsze przejście
+                                </ThemedText>
+                            </ThemedButton>
+                        </ThemedCard>
+                    )
                 }
             />
         </ThemedView>
@@ -200,7 +226,7 @@ export default Asce;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
+        paddingHorizontal: 16,
     },
     fab: {
         position: "absolute",
@@ -248,5 +274,28 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 12,
         fontWeight: "400",
+    },
+    emptyCard: {
+        marginTop: 24,
+        paddingVertical: 40,
+        paddingHorizontal: 18,
+        height: "90%",
+        display: "flex",
+        justifyContent: "center",
+    },
+    emptyTitle: {
+        fontSize: 22,
+        fontWeight: "700",
+        marginBottom: 8,
+        textAlign: "center",
+    },
+    emptyText: {
+        opacity: 0.8,
+        lineHeight: 20,
+        textAlign: "center",
+    },
+    emptyButtonText: {
+        fontWeight: 500,
+        textAlign: "center",
     },
 });
