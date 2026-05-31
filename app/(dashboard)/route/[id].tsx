@@ -1,4 +1,10 @@
-import { StyleSheet, ActivityIndicator, View, TouchableOpacity, ScrollView } from "react-native";
+import {
+    StyleSheet,
+    ActivityIndicator,
+    View,
+    TouchableOpacity,
+    ScrollView,
+} from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
@@ -69,17 +75,19 @@ const RouteDetail = () => {
 
         try {
             setSaving(true);
-            await UserService.createAscent({
-                data: values.data,
-                id_drogi: values.id_drogi,
-                notatka: values.notatka,
-                nazwa_stylu: values.nazwa_stylu,
-            });
-            await ascentRepository.addManualAscent({
+
+            const localId = await ascentRepository.addManualAscent({
                 data: values.data,
                 id_drogi: values.id_drogi,
                 notatka: values.notatka,
                 id_uzytkownika: Number(user.id),
+                nazwa_stylu: values.nazwa_stylu,
+            });
+            await UserService.createAscent({
+                data: values.data,
+                id: localId,
+                id_drogi: values.id_drogi,
+                notatka: values.notatka,
                 nazwa_stylu: values.nazwa_stylu,
             });
             setFormVisible(false);
@@ -121,13 +129,15 @@ const RouteDetail = () => {
                 onClose={() => setFormVisible(false)}
                 onSubmit={handleSaveManualAscent}
                 saving={saving}
-                routes={[{
-                    id_drogi: id,
-                    nazwa_drogi: route.nazwa_drogi,
-                    nazwa_rejonu: route.nazwa_rejonu,
-                    typ_drogi: route.typ_drogi,
-                    wycena: route.skala
-                }]}
+                routes={[
+                    {
+                        id_drogi: id,
+                        nazwa_drogi: route.nazwa_drogi,
+                        nazwa_rejonu: route.nazwa_rejonu,
+                        typ_drogi: route.typ_drogi,
+                        wycena: route.skala,
+                    },
+                ]}
                 styles={stylesList}
                 preselectedRouteId={id}
                 hideRouteSearch={true}
@@ -142,7 +152,10 @@ const RouteDetail = () => {
                 <ThemedText style={styles.fabIcon}>+</ThemedText>
             </TouchableOpacity>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={{ flex: 1 }}
+            >
                 <Stack.Screen
                     options={{
                         title: headerTitle,
@@ -165,7 +178,9 @@ const RouteDetail = () => {
                 <ThemedCard style={styles.detailsCard}>
                     {route.dlugosc_drogi && (
                         <View style={styles.detailRow}>
-                            <ThemedText style={styles.label}>Length:</ThemedText>
+                            <ThemedText style={styles.label}>
+                                Length:
+                            </ThemedText>
                             <ThemedText style={styles.value}>
                                 {route.dlugosc_drogi}m
                             </ThemedText>
@@ -181,7 +196,9 @@ const RouteDetail = () => {
                     )}
                     {route.wysokosc && (
                         <View style={styles.detailRow}>
-                            <ThemedText style={styles.label}>Height:</ThemedText>
+                            <ThemedText style={styles.label}>
+                                Height:
+                            </ThemedText>
                             <ThemedText style={styles.value}>
                                 {route.wysokosc}m
                             </ThemedText>
@@ -189,7 +206,9 @@ const RouteDetail = () => {
                     )}
                     {route.stanowisko && (
                         <View style={styles.detailRow}>
-                            <ThemedText style={styles.label}>Anchor:</ThemedText>
+                            <ThemedText style={styles.label}>
+                                Anchor:
+                            </ThemedText>
                             <ThemedText style={styles.value}>
                                 {route.stanowisko}
                             </ThemedText>

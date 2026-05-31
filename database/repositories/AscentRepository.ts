@@ -1,14 +1,16 @@
 import { SQLiteDatabase } from "expo-sqlite";
+import * as Crypto from "expo-crypto";
 
 export interface Ascent {
     id_przejscia: string;
     data: string;
     notatka: string;
-    uri_timeline: string;
+    uri_timeline: string | null;
     id_uzytkownika: number;
     nazwa_stylu: string;
     id_drogi: string | null;
     synced: number; // 0 = false, 1 = true
+    deleted: number; // 0 = false, 1 = true
     nazwa_drogi?: string;
     typ_drogi?: string;
     wycena?: string | null;
@@ -21,6 +23,7 @@ export interface ManualAscentInput {
     id_uzytkownika: number;
     nazwa_stylu?: string;
     synced?: number;
+    deleted?: number;
 }
 
 export interface RouteForSelection {
@@ -38,7 +41,7 @@ export class AscentRepository {
         this.db = db;
     }
 
-    // Pobierz tylko przejścia zalogowanego użytkownika
+    // Pobierz tylko przejścia zalogowanego użytkownika (nieusunięte)
     async getAscentsForUser(userId: number): Promise<Ascent[]> {
         return await this.db.getAllAsync<Ascent>(
             `SELECT
@@ -50,6 +53,7 @@ export class AscentRepository {
                 p.nazwa_stylu,
                 p.id_drogi,
                 p.synced,
+                p.deleted,
                 d.nazwa_drogi AS nazwa_drogi,
                 d.typ_drogi AS typ_drogi,
                 COALESCE(
@@ -62,7 +66,7 @@ export class AscentRepository {
              LEFT JOIN Drogi_sportowe_szczegoly ds ON ds.id_drogi = d.id_drogi AND d.typ_drogi = 'sportowa'
              LEFT JOIN Trady_szczegoly dt ON dt.id_drogi = d.id_drogi AND d.typ_drogi = 'trad'
              LEFT JOIN Bouldery_szczegoly db ON db.id_drogi = d.id_drogi AND d.typ_drogi = 'boulder'
-             WHERE p.id_uzytkownika = ?
+             WHERE p.id_uzytkownika = ? AND p.deleted = 0
              ORDER BY p.data DESC, p.id_przejscia DESC`,
             [userId],
         );
@@ -80,6 +84,7 @@ export class AscentRepository {
                 p.nazwa_stylu,
                 p.id_drogi,
                 p.synced,
+                p.deleted,
                 d.nazwa_drogi AS nazwa_drogi,
                 d.typ_drogi AS typ_drogi,
                 COALESCE(
@@ -92,7 +97,7 @@ export class AscentRepository {
              LEFT JOIN Drogi_sportowe_szczegoly ds ON ds.id_drogi = d.id_drogi AND d.typ_drogi = 'sportowa'
              LEFT JOIN Trady_szczegoly dt ON dt.id_drogi = d.id_drogi AND d.typ_drogi = 'trad'
              LEFT JOIN Bouldery_szczegoly db ON db.id_drogi = d.id_drogi AND d.typ_drogi = 'boulder'
-             WHERE p.id_przejscia = ?`,
+             WHERE p.id_przejscia = ? AND p.deleted = 0`,
             [ascentId],
         );
         return result;
@@ -129,7 +134,7 @@ export class AscentRepository {
         ascent: Omit<Ascent, "id_przejscia"> & { id_przejscia: string },
     ) {
         await this.db.runAsync(
-            "INSERT INTO Przejscia (id_przejscia, data, notatka, uri_timeline, id_uzytkownika, nazwa_stylu, id_drogi, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO Przejscia (id_przejscia, data, notatka, uri_timeline, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 ascent.id_przejscia,
                 ascent.data,
@@ -139,12 +144,13 @@ export class AscentRepository {
                 ascent.nazwa_stylu,
                 ascent.id_drogi,
                 ascent.synced ?? 1,
+                ascent.deleted ?? 0,
             ],
         );
     }
 
     async addManualAscent(ascent: ManualAscentInput) {
-        const ascentId = `manual_${Date.now()}`;
+        const ascentId = Crypto.randomUUID();
 
         await this.db.runAsync(
             `INSERT INTO Przejscia (
@@ -155,8 +161,9 @@ export class AscentRepository {
                 id_uzytkownika,
                 nazwa_stylu,
                 id_drogi,
-                synced
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                synced,
+                deleted
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 ascentId,
                 ascent.data,
@@ -166,24 +173,41 @@ export class AscentRepository {
                 ascent.nazwa_stylu ?? "RP",
                 ascent.id_drogi,
                 ascent.synced ?? 0,
+                ascent.deleted ?? 0,
             ],
         );
 
         return ascentId;
     }
 
-    // Usuń przejście (sprawdzając czy należy do usera dla bezpieczeństwa)
-    async deleteAscent(ascentId: string, userId: number) {
+    // Miękkie usuwanie lokalne (oznaczenie do synchronizacji)
+    async markAsDeletedLocal(ascentId: string) {
         await this.db.runAsync(
-            "DELETE FROM Przejscia WHERE id_przejscia = ? AND id_uzytkownika = ?",
-            [ascentId, userId],
+            "UPDATE Przejscia SET deleted = 1, synced = 0 WHERE id_przejscia = ?",
+            [ascentId],
         );
     }
 
-    // Pobierz przejścia do synchronizacji
+    // Twarde usuwanie z bazy lokalnej
+    async deleteAscentPermanently(ascentId: string) {
+        await this.db.runAsync(
+            "DELETE FROM Przejscia WHERE id_przejscia = ?",
+            [ascentId],
+        );
+    }
+
+    // Pobierz przejścia do synchronizacji (nowe)
     async getUnsyncedAscents(userId: number): Promise<Ascent[]> {
         return await this.db.getAllAsync<Ascent>(
-            "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0",
+            "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0 AND deleted = 0",
+            [userId],
+        );
+    }
+
+    // Pobierz przejścia do usunięcia na serwerze
+    async getUnsyncedDeletions(userId: number): Promise<Ascent[]> {
+        return await this.db.getAllAsync<Ascent>(
+            "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0 AND deleted = 1",
             [userId],
         );
     }

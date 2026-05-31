@@ -32,6 +32,7 @@ export interface FollowingFeedItem {
 }
 
 export interface CreateAscentPayload {
+    id: string;
     data: string;
     id_drogi: string;
     notatka: string;
@@ -103,5 +104,9 @@ export const UserService = {
         }>("/ascents/routes");
 
         return data.routes;
+    },
+
+    deleteAscent: async (ascentId: string): Promise<void> => {
+        await api.delete(`/ascents/${ascentId}`);
     },
 };

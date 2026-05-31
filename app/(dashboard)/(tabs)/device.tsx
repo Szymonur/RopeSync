@@ -138,6 +138,7 @@ const DeviceScreen = () => {
                 uri_timeline: relativePath, // Zapisujemy ścieżkę RELATYWNĄ
                 id_uzytkownika: Number(userId),
                 synced: 0,
+                deleted: 0,
                 nazwa_stylu: "RP",
                 id_drogi: "d_s1", // Istniejąca droga w SEED_DATA
             });

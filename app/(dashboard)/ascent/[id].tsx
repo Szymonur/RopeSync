@@ -14,6 +14,9 @@ import {
     AscentRepository,
     Ascent,
 } from "../../../database/repositories/AscentRepository";
+import { UserService } from "../../../services/api/UserService";
+import { useNetwork } from "../../../contexts/NetworkContext";
+
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
@@ -31,6 +34,7 @@ import { Colors } from "../../../constants/Colors";
 const AscentDetails = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
     const db = useSQLiteContext();
+    const { isConnected } = useNetwork();
     const [ascent, setAscent] = useState<Ascent | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -43,7 +47,7 @@ const AscentDetails = () => {
     const handleDelete = () => {
         Alert.alert(
             "Usuń przejście",
-            `Czy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"? Tego kroku nie da się cofnąć.`,
+            `Czy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"?`,
             [
                 { text: "Anuluj", style: "cancel" },
                 {
@@ -51,16 +55,32 @@ const AscentDetails = () => {
                     style: "destructive",
                     onPress: async () => {
                         try {
-                            if (
-                                ascent?.id_przejscia &&
-                                ascent?.id_uzytkownika
-                            ) {
-                                await repository.deleteAscent(
-                                    ascent?.id_przejscia,
-                                    ascent?.id_uzytkownika,
+                            if (ascent?.id_przejscia) {
+                                // 1. Oznaczamy jako usunięte lokalnie (soft delete)
+                                await repository.markAsDeletedLocal(
+                                    ascent.id_przejscia,
                                 );
+
+                                // 2. Natychmiast wracamy do listy
+                                router.back();
+
+                                // 3. Próbujemy zsynchronizować z API jeśli jest sieć
+                                if (isConnected) {
+                                    try {
+                                        await UserService.deleteAscent(
+                                            ascent.id_przejscia,
+                                        );
+                                        await repository.deleteAscentPermanently(
+                                            ascent.id_przejscia,
+                                        );
+                                    } catch (apiError) {
+                                        console.warn(
+                                            "Błąd podczas usuwania z API (zostanie usunięte przy synchronizacji):",
+                                            apiError,
+                                        );
+                                    }
+                                }
                             }
-                            router.back();
                         } catch (error) {
                             console.error("Błąd podczas usuwania:", error);
                         }

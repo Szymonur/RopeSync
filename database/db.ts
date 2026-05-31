@@ -11,6 +11,7 @@ export async function initializeDatabase(db: SQLiteDatabase) {
     const result = await db.getFirstAsync<{ user_version: number }>(
         "PRAGMA user_version",
     );
+
     let currentDbVersion = result?.user_version ?? 0;
 
     if (currentDbVersion < 6) {
@@ -56,9 +57,23 @@ export async function initializeDatabase(db: SQLiteDatabase) {
             `);
             currentDbVersion = 7;
             await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-            console.log("Migracja 6 -> 7 zakończona pomyślnie.");
         } catch (error) {
             console.error("Błąd podczas migracji 6 -> 7:", error);
+        }
+    }
+
+    // Migracja z wersji 7 do 8 (Dodanie kolumny deleted)
+    if (currentDbVersion === 7) {
+        console.log("Migracja bazy danych: 7 -> 8 (Dodawanie kolumny deleted)");
+        try {
+            await db.execAsync(`
+                ALTER TABLE Przejscia ADD COLUMN deleted INTEGER DEFAULT 0;
+            `);
+            currentDbVersion = 8;
+            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
+            console.log("Migracja 7 -> 8 zakończona pomyślnie.");
+        } catch (error) {
+            console.error("Błąd podczas migracji 7 -> 8:", error);
         }
     }
 }

@@ -122,6 +122,7 @@ const Asce = () => {
             if (isConnected) {
                 try {
                     await UserService.createAscent({
+                        id: localId,
                         data: values.data,
                         id_drogi: values.id_drogi,
                         notatka: values.notatka,
