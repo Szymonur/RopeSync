@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, View, Alert } from "react-native";
 import { File, Directory, Paths } from "expo-file-system";
 import { useSQLiteContext } from "expo-sqlite";
@@ -7,15 +7,16 @@ import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedButton from "../../../components/ThemedButton";
-import { useMe } from "../../../lib/hooks/useProfile";
 
 import { useBLE } from "../../../lib/hooks/useBLE";
 import { AscentRepository } from "../../../database/repositories/AscentRepository";
 
+import { useAuth } from "../../../contexts/AuthContext";
+
 const DeviceScreen = () => {
     const db = useSQLiteContext();
     const repository = useMemo(() => new AscentRepository(db), [db]);
-    const { data: user } = useMe();
+    const { currentUserId: userId } = useAuth();
 
     const {
         scanForPeripherals,
@@ -135,7 +136,8 @@ const DeviceScreen = () => {
                 data: new Date().toISOString().split("T")[0],
                 notatka: "Automatycznie wygenerowany mock timeline",
                 uri_timeline: relativePath, // Zapisujemy ścieżkę RELATYWNĄ
-                id_uzytkownika: Number(user?.id),
+                id_uzytkownika: Number(userId),
+                synced: 0,
                 nazwa_stylu: "RP",
                 id_drogi: "d_s1", // Istniejąca droga w SEED_DATA
             });

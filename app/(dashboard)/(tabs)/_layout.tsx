@@ -23,6 +23,7 @@ const TabsLayout = () => {
                 headerTintColor: theme.title,
                 headerTitleStyle: {
                     fontWeight: "bold",
+                    marginLeft: 16,
                 },
                 headerShadowVisible: false,
                 headerLeft: () => <OfflineHeaderIcon />,

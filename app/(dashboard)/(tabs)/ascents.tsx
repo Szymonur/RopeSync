@@ -14,6 +14,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useNetwork } from "../../../contexts/NetworkContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
@@ -29,7 +30,6 @@ import {
     AscentRepository,
     Ascent,
 } from "../../../database/repositories/AscentRepository";
-import { useMe } from "../../../lib/hooks/useProfile";
 import {
     UserService,
     AscentRouteOption,
@@ -41,7 +41,7 @@ import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 
 const Asce = () => {
     const db = useSQLiteContext();
-    const { data: user } = useMe();
+    const { currentUserId: userId } = useAuth();
     const { isConnected } = useNetwork();
     const [ascents, setAscents] = useState<Ascent[]>([]);
     const [routes, setRoutes] = useState<AscentRouteOption[]>([]);
@@ -58,9 +58,10 @@ const Asce = () => {
     const repository = useMemo(() => new AscentRepository(db), [db]);
 
     const loadAscents = async () => {
-        if (!user?.id) return;
+        if (!userId) return;
+        
         try {
-            const data = await repository.getAscentsForUser(Number(user.id));
+            const data = await repository.getAscentsForUser(Number(userId));
             setAscents(data);
         } catch (error) {
             console.error("Błąd podczas ładowania przejść:", error);
@@ -89,28 +90,28 @@ const Asce = () => {
         setRefreshing(true);
         await loadAscents();
         setRefreshing(false);
-    }, [user?.id, repository]);
+    }, [userId, repository]);
 
     useEffect(() => {
         loadAscents();
         loadRoutes();
         loadStyles();
-    }, [user?.id]);
+    }, [userId]);
 
     const handleSaveManualAscent = async (values: ManualAscentFormValues) => {
-        if (!user?.id) return;
+        if (!userId) return;
 
         try {
             setSaving(true);
-            
-            // 1. Zapisujemy lokalnie z synced = 0 (domyślnie w addManualAscent)
+
+            // 1. Zapisujemy lokalnie z synced = 0
             const localId = await repository.addManualAscent({
                 data: values.data,
                 id_drogi: values.id_drogi,
                 notatka: values.notatka,
-                id_uzytkownika: Number(user.id),
+                id_uzytkownika: Number(userId),
                 nazwa_stylu: values.nazwa_stylu,
-                synced: 0
+                synced: 0,
             });
 
             // 2. Odświeżamy UI natychmiast
@@ -126,12 +127,15 @@ const Asce = () => {
                         notatka: values.notatka,
                         nazwa_stylu: values.nazwa_stylu,
                     });
-                    
+
                     // 4. Jeśli sukces, oznaczamy jako zsynchronizowane
                     await repository.markAsSynced(localId);
-                    await loadAscents(); // Ponowne odświeżenie UI (zniknie ikonka braku synchronizacji)
+                    await loadAscents();
                 } catch (apiError) {
-                    console.warn("Nie udało się zsynchronizować z API (zostaje lokalnie):", apiError);
+                    console.warn(
+                        "Nie udało się zsynchronizować z API (zostaje lokalnie):",
+                        apiError,
+                    );
                 }
             }
         } catch (error) {
@@ -184,12 +188,24 @@ const Asce = () => {
                     >
                         <ThemedCard style={styles.card}>
                             <View style={styles.rowTop}>
-                                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 8,
+                                    }}
+                                >
                                     <ThemedText style={styles.heading}>
                                         {item.nazwa_drogi ?? "Bez nazwy"}
                                     </ThemedText>
                                     {item.synced === 0 && (
-                                        <Ionicons name="cloud-offline-outline" size={16} color={theme.iconColour} opacity={0.6} />
+                                        <Ionicons
+                                            name="cloud-offline-outline"
+                                            size={16}
+                                            color={theme.iconColour}
+                                            opacity={0.6}
+                                        />
                                     )}
                                 </View>
                                 <ThemedText>{item.data}</ThemedText>

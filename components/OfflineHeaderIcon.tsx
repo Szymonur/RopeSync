@@ -28,7 +28,6 @@ export default OfflineHeaderIcon;
 const styles = StyleSheet.create({
     container: {
         marginLeft: 20,
-        marginRight: 10,
         justifyContent: "center",
         alignItems: "center",
     },

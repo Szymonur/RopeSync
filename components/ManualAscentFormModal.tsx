@@ -19,6 +19,8 @@ import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
 import { RouteForSelection } from "../database/repositories/AscentRepository";
 
+import Ionicons from "@expo/vector-icons/Ionicons";
+
 export interface ManualAscentFormValues {
     data: string;
     id_drogi: string;
@@ -177,9 +179,11 @@ const ManualAscentFormModal = ({
                             onPress={onClose}
                             style={styles.closeButton}
                         >
-                            <ThemedText style={styles.closeText}>
-                                Zamknij
-                            </ThemedText>
+                            <Ionicons
+                                name="close"
+                                size={28}
+                                color={theme.iconColour}
+                            />
                         </TouchableOpacity>
                     </View>
 
@@ -197,7 +201,7 @@ const ManualAscentFormModal = ({
                         />
 
                         <Spacer height={12} />
-                        
+
                         {!hideRouteSearch && (
                             <>
                                 <ThemedText style={styles.label}>
@@ -224,7 +228,8 @@ const ManualAscentFormModal = ({
                                     ) : (
                                         filteredRoutes.map((item) => {
                                             const selected =
-                                                selectedRouteId === item.id_drogi;
+                                                selectedRouteId ===
+                                                item.id_drogi;
 
                                             return (
                                                 <TouchableOpacity
@@ -234,7 +239,9 @@ const ManualAscentFormModal = ({
                                                             selectedRouteId ==
                                                             item.id_drogi
                                                         ) {
-                                                            setSelectedRouteId("");
+                                                            setSelectedRouteId(
+                                                                "",
+                                                            );
                                                         } else {
                                                             setSelectedRouteId(
                                                                 item.id_drogi,
@@ -244,9 +251,10 @@ const ManualAscentFormModal = ({
                                                     style={[
                                                         styles.routeItem,
                                                         {
-                                                            backgroundColor: selected
-                                                                ? theme.iconColourFocused
-                                                                : theme.uiBackground,
+                                                            backgroundColor:
+                                                                selected
+                                                                    ? theme.iconColourFocused
+                                                                    : theme.uiBackground,
                                                             borderColor:
                                                                 theme.iconColourFocused,
                                                         },
