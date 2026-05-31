@@ -58,7 +58,6 @@ const Login = () => {
                 }),
             });
             const json = await response.json();
-            console.log(json);
 
             if (json.accesToken && json.refreshToken) {
                 await login(json.accesToken, json.refreshToken, json.id);

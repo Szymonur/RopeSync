@@ -22,6 +22,7 @@ import ManualAscentFormModal, {
     ManualAscentFormValues,
 } from "../../../components/ManualAscentFormModal";
 
+import ThemedEmptyState from "../../../components/ThemedEmptyState";
 import {
     AscentRepository,
     Ascent,
@@ -194,26 +195,15 @@ const Asce = () => {
                             color={theme.iconColourFocused}
                         />
                     ) : (
-                        <ThemedCard style={styles.emptyCard}>
-                            <ThemedText style={styles.emptyTitle}>
-                                Twoja księga przejść jest jeszcze czysta
-                            </ThemedText>
-                            <Spacer height={20} />
-
-                            <ThemedText style={styles.emptyText}>
-                                Każda droga zaczyna się od pierwszego kroku.
-                            </ThemedText>
-                            <ThemedText style={styles.emptyText}>
-                                Zapisz swoje ostatnie przejście, aby zacząć
-                                budować swoją historię.
-                            </ThemedText>
-                            <Spacer />
-                            <ThemedButton onPress={() => setFormVisible(true)}>
-                                <ThemedText style={styles.emptyButtonText}>
-                                    Dodaj pierwsze przejście
-                                </ThemedText>
-                            </ThemedButton>
-                        </ThemedCard>
+                        <ThemedEmptyState
+                            title="Twoja księga przejść jest jeszcze czysta"
+                            description={[
+                                "Każda droga zaczyna się od pierwszego kroku.",
+                                "Zapisz swoje ostatnie przejście, aby zacząć budować swoją historię.",
+                            ]}
+                            buttonLabel="Dodaj pierwsze przejście"
+                            onButtonPress={() => setFormVisible(true)}
+                        />
                     )
                 }
             />
@@ -274,28 +264,5 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 12,
         fontWeight: "400",
-    },
-    emptyCard: {
-        marginTop: 24,
-        paddingVertical: 40,
-        paddingHorizontal: 18,
-        height: "90%",
-        display: "flex",
-        justifyContent: "center",
-    },
-    emptyTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        marginBottom: 8,
-        textAlign: "center",
-    },
-    emptyText: {
-        opacity: 0.8,
-        lineHeight: 20,
-        textAlign: "center",
-    },
-    emptyButtonText: {
-        fontWeight: 500,
-        textAlign: "center",
     },
 });

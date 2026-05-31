@@ -10,7 +10,6 @@ import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 
-import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
@@ -21,7 +20,7 @@ import { UserService } from "../../../services/api/UserService";
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
-import ThemedButton from "../../../components/ThemedButton";
+import ThemedEmptyState from "../../../components/ThemedEmptyState";
 
 const Index = () => {
     const router = useRouter();
@@ -90,30 +89,17 @@ const Index = () => {
                             color={theme.iconColourFocused}
                         />
                     ) : (
-                        <ThemedCard style={styles.emptyCard}>
-                            <ThemedText style={styles.emptyTitle}>
-                                Czas zapełnić ten widok!
-                            </ThemedText>
-                            <Spacer height={20} />
-
-                            <ThemedText style={styles.emptyText}>
-                                Nie widzisz jeszcze żadnych przejść.
-                            </ThemedText>
-                            <ThemedText style={styles.emptyText}>
-                                Dodaj znajomych do obserwowanych, żeby śledzić
-                                ich kolejne kroki.
-                            </ThemedText>
-                            <Spacer />
-                            <ThemedButton
-                                onPress={() =>
-                                    router.push("/(dashboard)/search-users")
-                                }
-                            >
-                                <ThemedText style={styles.emptyButtonText}>
-                                    Szukaj znajomych
-                                </ThemedText>
-                            </ThemedButton>
-                        </ThemedCard>
+                        <ThemedEmptyState
+                            title="Czas zapełnić ten widok!"
+                            description={[
+                                "Nie widzisz jeszcze żadnych przejść.",
+                                "Dodaj znajomych do obserwowanych, żeby śledzić ich kolejne kroki.",
+                            ]}
+                            buttonLabel="Szukaj znajomych"
+                            onButtonPress={() =>
+                                router.push("/(dashboard)/search-users")
+                            }
+                        />
                     )
                 }
                 renderItem={({ item }) => (
@@ -228,28 +214,5 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         opacity: 0.9,
-    },
-    emptyCard: {
-        marginTop: 24,
-        paddingVertical: 40,
-        paddingHorizontal: 18,
-        height: "90%",
-        display: "flex",
-        justifyContent: "center",
-    },
-    emptyTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-        marginBottom: 8,
-        textAlign: "center",
-    },
-    emptyText: {
-        opacity: 0.8,
-        lineHeight: 20,
-        textAlign: "center",
-    },
-    emptyButtonText: {
-        fontWeight: 500,
-        textAlign: "center",
     },
 });
