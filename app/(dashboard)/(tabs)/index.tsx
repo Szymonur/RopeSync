@@ -15,17 +15,20 @@ import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { useNetwork } from "../../../contexts/NetworkContext";
 import { UserService } from "../../../services/api/UserService";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
+import OfflineHeaderIcon from "../../../components/OfflineHeaderIcon";
 
 const Index = () => {
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+    const { isConnected } = useNetwork();
 
     const {
         data: feed = [],
@@ -35,7 +38,8 @@ const Index = () => {
     } = useQuery({
         queryKey: ["following-feed"],
         queryFn: UserService.getFollowingFeed,
-        staleTime: 1000 * 30,
+        staleTime: 1000 * 60 * 5,
+        enabled: isConnected !== false, // Nie próbuj pobierać jeśli wiemy że nie ma neta
     });
 
     const formatDate = (value: string) => {
@@ -49,7 +53,7 @@ const Index = () => {
     };
 
     return (
-        <ThemedView>
+        <ThemedView style={{ flex: 1 }}>
             <Tabs.Screen
                 options={{
                     title: "Home",
@@ -80,6 +84,7 @@ const Index = () => {
                         onRefresh={refetch}
                         colors={[theme.iconColour]}
                         tintColor={theme.iconColour}
+                        enabled={isConnected !== false}
                     />
                 }
                 ListEmptyComponent={
@@ -90,14 +95,28 @@ const Index = () => {
                         />
                     ) : (
                         <ThemedEmptyState
-                            title="Czas zapełnić ten widok!"
-                            description={[
-                                "Nie widzisz jeszcze żadnych przejść.",
-                                "Dodaj znajomych do obserwowanych, żeby śledzić ich kolejne kroki.",
-                            ]}
-                            buttonLabel="Szukaj znajomych"
+                            title={
+                                isConnected === false
+                                    ? "Jesteś offline"
+                                    : "Czas zapełnić ten widok!"
+                            }
+                            description={
+                                isConnected === false
+                                    ? "Nie możemy pobrać nowych postów. Sprawdź swoje połączenie."
+                                    : [
+                                          "Nie widzisz jeszcze żadnych przejść.",
+                                          "Dodaj znajomych do obserwowanych, żeby śledzić ich kolejne kroki.",
+                                      ]
+                            }
+                            buttonLabel={
+                                isConnected === false
+                                    ? "Spróbuj odświeżyć"
+                                    : "Szukaj znajomych"
+                            }
                             onButtonPress={() =>
-                                router.push("/(dashboard)/search-users")
+                                isConnected === false
+                                    ? refetch()
+                                    : router.push("/(dashboard)/search-users")
                             }
                         />
                     )
@@ -214,5 +233,11 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         opacity: 0.9,
+    },
+    offlineNotice: {
+        textAlign: "center",
+        paddingVertical: 8,
+        fontSize: 12,
+        opacity: 0.6,
     },
 });

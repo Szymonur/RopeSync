@@ -8,6 +8,7 @@ export interface Ascent {
     id_uzytkownika: number;
     nazwa_stylu: string;
     id_drogi: string | null;
+    synced: number; // 0 = false, 1 = true
     nazwa_drogi?: string;
     typ_drogi?: string;
     wycena?: string | null;
@@ -19,6 +20,7 @@ export interface ManualAscentInput {
     notatka: string;
     id_uzytkownika: number;
     nazwa_stylu?: string;
+    synced?: number;
 }
 
 export interface RouteForSelection {
@@ -47,6 +49,7 @@ export class AscentRepository {
                 p.id_uzytkownika,
                 p.nazwa_stylu,
                 p.id_drogi,
+                p.synced,
                 d.nazwa_drogi AS nazwa_drogi,
                 d.typ_drogi AS typ_drogi,
                 COALESCE(
@@ -76,6 +79,7 @@ export class AscentRepository {
                 p.id_uzytkownika,
                 p.nazwa_stylu,
                 p.id_drogi,
+                p.synced,
                 d.nazwa_drogi AS nazwa_drogi,
                 d.typ_drogi AS typ_drogi,
                 COALESCE(
@@ -125,7 +129,7 @@ export class AscentRepository {
         ascent: Omit<Ascent, "id_przejscia"> & { id_przejscia: string },
     ) {
         await this.db.runAsync(
-            "INSERT INTO Przejscia (id_przejscia, data, notatka, uri_timeline, id_uzytkownika, nazwa_stylu, id_drogi) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO Przejscia (id_przejscia, data, notatka, uri_timeline, id_uzytkownika, nazwa_stylu, id_drogi, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 ascent.id_przejscia,
                 ascent.data,
@@ -134,6 +138,7 @@ export class AscentRepository {
                 ascent.id_uzytkownika,
                 ascent.nazwa_stylu,
                 ascent.id_drogi,
+                ascent.synced ?? 1,
             ],
         );
     }
@@ -149,8 +154,9 @@ export class AscentRepository {
                 uri_timeline,
                 id_uzytkownika,
                 nazwa_stylu,
-                id_drogi
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                id_drogi,
+                synced
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 ascentId,
                 ascent.data,
@@ -159,6 +165,7 @@ export class AscentRepository {
                 ascent.id_uzytkownika,
                 ascent.nazwa_stylu ?? "RP",
                 ascent.id_drogi,
+                ascent.synced ?? 0,
             ],
         );
 
@@ -170,6 +177,22 @@ export class AscentRepository {
         await this.db.runAsync(
             "DELETE FROM Przejscia WHERE id_przejscia = ? AND id_uzytkownika = ?",
             [ascentId, userId],
+        );
+    }
+
+    // Pobierz przejścia do synchronizacji
+    async getUnsyncedAscents(userId: number): Promise<Ascent[]> {
+        return await this.db.getAllAsync<Ascent>(
+            "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0",
+            [userId],
+        );
+    }
+
+    // Oznacz jako zsynchronizowane
+    async markAsSynced(ascentId: string) {
+        await this.db.runAsync(
+            "UPDATE Przejscia SET synced = 1 WHERE id_przejscia = ?",
+            [ascentId],
         );
     }
 }

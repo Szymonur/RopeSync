@@ -13,17 +13,13 @@ export async function initializeDatabase(db: SQLiteDatabase) {
     );
     let currentDbVersion = result?.user_version ?? 0;
 
-    // Zmieniamy na < 6, żeby wymusić wejście w blok i czyszczenie
     if (currentDbVersion < 6) {
         console.log(
             `Inicjalizacja bazy danych: Wymuszam czyszczenie i nowy schemat`,
         );
 
         try {
-            // Wyłączamy sprawdzanie kluczy na chwilę, żeby móc usunąć tabele w dowolnej kolejności
             await db.execAsync(`PRAGMA foreign_keys = OFF;`);
-
-            // Usuwamy wszystkie stare tabele (tzw. "twardy reset" bazy)
             await db.execAsync(`
                 DROP TABLE IF EXISTS Pomiary_wyciagow;
                 DROP TABLE IF EXISTS Przejscia;
@@ -40,23 +36,29 @@ export async function initializeDatabase(db: SQLiteDatabase) {
                 DROP TABLE IF EXISTS Style_przejscia;
                 DROP TABLE IF EXISTS Typy_skaly;
             `);
-
-            // Włączamy klucze obce z powrotem PRZED tworzeniem schematu
             await db.execAsync(`PRAGMA foreign_keys = ON;`);
-
-            // Wykonujemy cały schemat (teraz stworzy świeże tabele)
             await db.execAsync(DATABASE_SCHEMA);
-
-            // Wypełniamy danymi
             await db.execAsync(SEED_DATA);
 
-            // Zapisujemy nową wersję
             currentDbVersion = 6;
             await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-
-            console.log("Baza danych zainicjalizowana pomyślnie (wersja 6).");
         } catch (error) {
             console.error("Błąd podczas inicjalizacji bazy danych:", error);
+        }
+    }
+
+    // Migracja z wersji 6 do 7 (Dodanie kolumny synced)
+    if (currentDbVersion === 6) {
+        console.log("Migracja bazy danych: 6 -> 7 (Dodawanie kolumny synced)");
+        try {
+            await db.execAsync(`
+                ALTER TABLE Przejscia ADD COLUMN synced INTEGER DEFAULT 1;
+            `);
+            currentDbVersion = 7;
+            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
+            console.log("Migracja 6 -> 7 zakończona pomyślnie.");
+        } catch (error) {
+            console.error("Błąd podczas migracji 6 -> 7:", error);
         }
     }
 }

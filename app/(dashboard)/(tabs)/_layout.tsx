@@ -7,6 +7,7 @@ import {
     FontAwesome5,
     FontAwesome6,
 } from "@expo/vector-icons";
+import OfflineHeaderIcon from "../../../components/OfflineHeaderIcon";
 
 const TabsLayout = () => {
     const { colorScheme } = useTheme();
@@ -24,6 +25,7 @@ const TabsLayout = () => {
                     fontWeight: "bold",
                 },
                 headerShadowVisible: false,
+                headerLeft: () => <OfflineHeaderIcon />,
                 tabBarStyle: {
                     backgroundColor: theme.navBackground,
                     paddingTop: 10,

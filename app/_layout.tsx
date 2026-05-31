@@ -13,22 +13,22 @@ if (typeof WeakRef === "undefined") {
 }
 
 import { useEffect } from "react";
-import { StyleSheet, Platform, View, Text, Linking } from "react-native";
+import { StyleSheet, Platform, View, Text } from "react-native";
 import {
     Stack,
     useRouter,
-    useLocalSearchParams,
     useSegments,
 } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { Colors } from "../constants/Colors";
 import { initializeDatabase } from "../database/db";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { NetworkProvider } from "../contexts/NetworkContext";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
+import { useSyncManager } from "../lib/hooks/useSyncManager";
+import { Colors } from "../constants/Colors";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +38,9 @@ const InitialLayout = () => {
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+
+    // Aktywacja managera synchronizacji
+    useSyncManager();
 
     useEffect(() => {
         if (isLoading) return;
@@ -52,7 +55,7 @@ const InitialLayout = () => {
     }, [refreshToken, !currentUserId, isLoading, segments]);
 
     return (
-        <>
+        <View style={{ flex: 1 }}>
             <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
             <Stack
                 screenOptions={{
@@ -69,7 +72,7 @@ const InitialLayout = () => {
                     options={{ headerShown: false }}
                 />
             </Stack>
-        </>
+        </View>
     );
 };
 
@@ -141,7 +144,6 @@ const styles = StyleSheet.create({
         textAlign: "center",
         maxWidth: "80%",
     },
-    // Dodany styl przycisku
     buttonText: {
         fontSize: 18,
         fontWeight: "bold",
@@ -152,5 +154,5 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         overflow: "hidden",
         textAlign: "center",
-    },
+    }
 });

@@ -17,9 +17,11 @@ import ThemedTextInput from "../../components/ThemedTextInput";
 import ThemedButton from "../../components/ThemedButton";
 import ThemedCard from "../../components/ThemedCard";
 import Spacer from "../../components/Spacer";
+import ThemedEmptyState from "../../components/ThemedEmptyState";
 
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useNetwork } from "../../contexts/NetworkContext";
 import { SearchUser, UserService } from "../../services/api/UserService";
 
 import { useDebounce } from "../../lib/hooks/useDebounce";
@@ -29,6 +31,7 @@ const SearchUsers = () => {
     const queryClient = useQueryClient();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+    const { isConnected } = useNetwork();
 
     const [phrase, setPhrase] = useState("");
     const debouncedPhrase = useDebounce(phrase);
@@ -39,6 +42,8 @@ const SearchUsers = () => {
     const [busyUserId, setBusyUserId] = useState<number | null>(null);
 
     const loadUsers = async (query: string) => {
+        if (!isConnected) return;
+
         const trimmed = query.trim();
 
         if (trimmed.length < 2) {
@@ -74,7 +79,7 @@ const SearchUsers = () => {
 
     useEffect(() => {
         loadUsers(debouncedPhrase);
-    }, [debouncedPhrase]);
+    }, [debouncedPhrase, isConnected]);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -83,6 +88,8 @@ const SearchUsers = () => {
     };
 
     const onToggleFollow = async (user: SearchUser) => {
+        if (!isConnected) return;
+
         try {
             setBusyUserId(user.id);
 
@@ -134,98 +141,118 @@ const SearchUsers = () => {
                 }}
             />
 
-            <ThemedTextInput
-                value={phrase}
-                error={phraseError}
-                onChangeText={setPhrase}
-                placeholder="Wpisz przynajmniej 2 znaki"
-                autoCapitalize="none"
-            />
-            <Spacer height={10} />
-
-            {loading && (
-                <ActivityIndicator size="small" color={theme.iconColour} />
-            )}
-
-            {!loading &&
-                debouncedPhrase.trim().length >= 2 &&
-                phrase === debouncedPhrase &&
-                users.length === 0 && (
-                    <ThemedText style={styles.emptyText}>
-                        Nic nie wiemy o takim wspinaczu.
-                    </ThemedText>
-                )}
-
-            <FlatList
-                data={users}
-                keyExtractor={(item) => String(item.id)}
-                style={{ width: "100%" }}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        colors={[theme.iconColour]}
-                        tintColor={theme.iconColour}
+            {!isConnected ? (
+                <View>
+                    <ThemedEmptyState
+                        title="Brak połączenia"
+                        description="Wyszukiwanie użytkowników jest możliwe tylko w trybie online."
+                        buttonLabel="Wróć"
+                        onButtonPress={() => router.back()}
                     />
-                }
-                renderItem={({ item }) => {
-                    const isBusy = busyUserId === item.id;
+                </View>
+            ) : (
+                <>
+                    <ThemedTextInput
+                        value={phrase}
+                        error={phraseError}
+                        onChangeText={setPhrase}
+                        placeholder="Wpisz przynajmniej 2 znaki"
+                        autoCapitalize="none"
+                    />
+                    <Spacer height={10} />
 
-                    return (
-                        <ThemedCard style={styles.userCard}>
-                            <View style={styles.rowTop}>
-                                <View>
-                                    <ThemedText style={styles.nameText}>
-                                        {item.firstName} {item.lastName}
-                                    </ThemedText>
-                                    <ThemedText style={styles.usernameText}>
-                                        @{item.username}
-                                    </ThemedText>
-                                </View>
+                    {loading && (
+                        <ActivityIndicator
+                            size="small"
+                            color={theme.iconColour}
+                        />
+                    )}
 
-                                <ThemedButton
-                                    style={[
-                                        styles.followButton,
-                                        item.isFollowing && {
-                                            backgroundColor: theme.uiBackground,
-                                            borderColor: theme.iconColour,
-                                        },
-                                    ]}
-                                    onPress={() => onToggleFollow(item)}
-                                    disabled={isBusy}
-                                >
-                                    <ThemedText
-                                        style={{
-                                            textAlign: "center",
-                                            color: item.isFollowing
-                                                ? theme.text
-                                                : "white",
-                                        }}
-                                    >
-                                        {isBusy ? (
-                                            <ActivityIndicator
-                                                size="small"
-                                                color={theme.text}
-                                            />
-                                        ) : item.isFollowing ? (
-                                            "Obserwujesz"
-                                        ) : (
-                                            "Obserwuj"
-                                        )}
-                                    </ThemedText>
-                                </ThemedButton>
-                            </View>
-                        </ThemedCard>
-                    );
-                }}
-                ListEmptyComponent={
-                    phrase.trim().length < 2 ? (
-                        <ThemedText style={styles.emptyText}>
-                            Zacznij wpisywać, aby wyszukać wspinaczy.
-                        </ThemedText>
-                    ) : null
-                }
-            />
+                    {!loading &&
+                        debouncedPhrase.trim().length >= 2 &&
+                        phrase === debouncedPhrase &&
+                        users.length === 0 && (
+                            <ThemedText style={styles.emptyText}>
+                                Nic nie wiemy o takim wspinaczu.
+                            </ThemedText>
+                        )}
+
+                    <FlatList
+                        data={users}
+                        keyExtractor={(item) => String(item.id)}
+                        style={{ width: "100%" }}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={onRefresh}
+                                colors={[theme.iconColour]}
+                                tintColor={theme.iconColour}
+                            />
+                        }
+                        renderItem={({ item }) => {
+                            const isBusy = busyUserId === item.id;
+
+                            return (
+                                <ThemedCard style={styles.userCard}>
+                                    <View style={styles.rowTop}>
+                                        <View>
+                                            <ThemedText style={styles.nameText}>
+                                                {item.firstName} {item.lastName}
+                                            </ThemedText>
+                                            <ThemedText
+                                                style={styles.usernameText}
+                                            >
+                                                @{item.username}
+                                            </ThemedText>
+                                        </View>
+
+                                        <ThemedButton
+                                            style={[
+                                                styles.followButton,
+                                                item.isFollowing && {
+                                                    backgroundColor:
+                                                        theme.uiBackground,
+                                                    borderColor:
+                                                        theme.iconColour,
+                                                },
+                                            ]}
+                                            onPress={() => onToggleFollow(item)}
+                                            disabled={isBusy}
+                                        >
+                                            <ThemedText
+                                                style={{
+                                                    textAlign: "center",
+                                                    color: item.isFollowing
+                                                        ? theme.text
+                                                        : "white",
+                                                }}
+                                            >
+                                                {isBusy ? (
+                                                    <ActivityIndicator
+                                                        size="small"
+                                                        color={theme.text}
+                                                    />
+                                                ) : item.isFollowing ? (
+                                                    "Obserwujesz"
+                                                ) : (
+                                                    "Obserwuj"
+                                                )}
+                                            </ThemedText>
+                                        </ThemedButton>
+                                    </View>
+                                </ThemedCard>
+                            );
+                        }}
+                        ListEmptyComponent={
+                            phrase.trim().length < 2 ? (
+                                <ThemedText style={styles.emptyText}>
+                                    Zacznij wpisywać, aby wyszukać wspinaczy.
+                                </ThemedText>
+                            ) : null
+                        }
+                    />
+                </>
+            )}
         </ThemedView>
     );
 };

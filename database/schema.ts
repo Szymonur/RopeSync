@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS Przejscia (
     id_uzytkownika INTEGER NOT NULL,
     nazwa_stylu TEXT NOT NULL,
     id_drogi TEXT NOT NULL,
+    synced INTEGER DEFAULT 1,
     FOREIGN KEY (id_uzytkownika) REFERENCES Uzytkownicy(id_uzytkownika) ON DELETE CASCADE,
     FOREIGN KEY (nazwa_stylu) REFERENCES Style_przejscia(nazwa_stylu) ON UPDATE CASCADE ON DELETE RESTRICT,
     FOREIGN KEY (id_drogi) REFERENCES Drogi(id_drogi) ON DELETE CASCADE

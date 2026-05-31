@@ -9,9 +9,11 @@ import {
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { useRouter } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { useNetwork } from "../../../contexts/NetworkContext";
 
 import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
@@ -40,6 +42,7 @@ import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 const Asce = () => {
     const db = useSQLiteContext();
     const { data: user } = useMe();
+    const { isConnected } = useNetwork();
     const [ascents, setAscents] = useState<Ascent[]>([]);
     const [routes, setRoutes] = useState<AscentRouteOption[]>([]);
     const [stylesList, setStylesList] = useState<string[]>([]);
@@ -99,21 +102,38 @@ const Asce = () => {
 
         try {
             setSaving(true);
-            await UserService.createAscent({
-                data: values.data,
-                id_drogi: values.id_drogi,
-                notatka: values.notatka,
-                nazwa_stylu: values.nazwa_stylu,
-            });
-            await repository.addManualAscent({
+            
+            // 1. Zapisujemy lokalnie z synced = 0 (domyślnie w addManualAscent)
+            const localId = await repository.addManualAscent({
                 data: values.data,
                 id_drogi: values.id_drogi,
                 notatka: values.notatka,
                 id_uzytkownika: Number(user.id),
                 nazwa_stylu: values.nazwa_stylu,
+                synced: 0
             });
+
+            // 2. Odświeżamy UI natychmiast
             await loadAscents();
             setFormVisible(false);
+
+            // 3. Próbujemy wysłać do API jeśli jest sieć
+            if (isConnected) {
+                try {
+                    await UserService.createAscent({
+                        data: values.data,
+                        id_drogi: values.id_drogi,
+                        notatka: values.notatka,
+                        nazwa_stylu: values.nazwa_stylu,
+                    });
+                    
+                    // 4. Jeśli sukces, oznaczamy jako zsynchronizowane
+                    await repository.markAsSynced(localId);
+                    await loadAscents(); // Ponowne odświeżenie UI (zniknie ikonka braku synchronizacji)
+                } catch (apiError) {
+                    console.warn("Nie udało się zsynchronizować z API (zostaje lokalnie):", apiError);
+                }
+            }
         } catch (error) {
             console.error("Błąd podczas zapisywania przejścia:", error);
         } finally {
@@ -164,10 +184,13 @@ const Asce = () => {
                     >
                         <ThemedCard style={styles.card}>
                             <View style={styles.rowTop}>
-                                <View style={{ flex: 1 }}>
+                                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                     <ThemedText style={styles.heading}>
                                         {item.nazwa_drogi ?? "Bez nazwy"}
                                     </ThemedText>
+                                    {item.synced === 0 && (
+                                        <Ionicons name="cloud-offline-outline" size={16} color={theme.iconColour} opacity={0.6} />
+                                    )}
                                 </View>
                                 <ThemedText>{item.data}</ThemedText>
                             </View>

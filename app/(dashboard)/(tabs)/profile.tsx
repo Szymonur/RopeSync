@@ -77,9 +77,8 @@ const styles = StyleSheet.create({
     heading: {
         fontWeight: "bold",
         fontSize: 24,
-        textAlign: "right",
+        textAlign: "center",
         width: "100%",
-        textAlignVertical: "center",
         paddingVertical: 10,
         paddingHorizontal: 20,
     },
