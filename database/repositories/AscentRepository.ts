@@ -5,7 +5,7 @@ export interface Ascent {
     id_przejscia: string;
     data: string;
     notatka: string;
-    uri_timeline: string | null;
+    timeline_data: string | null;
     id_uzytkownika: number;
     nazwa_stylu: string;
     id_drogi: string | null;
@@ -48,7 +48,7 @@ export class AscentRepository {
                 p.id_przejscia,
                 p.data,
                 p.notatka,
-                p.uri_timeline,
+                p.timeline_data,
                 p.id_uzytkownika,
                 p.nazwa_stylu,
                 p.id_drogi,
@@ -79,7 +79,7 @@ export class AscentRepository {
                 p.id_przejscia,
                 p.data,
                 p.notatka,
-                p.uri_timeline,
+                p.timeline_data,
                 p.id_uzytkownika,
                 p.nazwa_stylu,
                 p.id_drogi,
@@ -134,12 +134,12 @@ export class AscentRepository {
         ascent: Omit<Ascent, "id_przejscia"> & { id_przejscia: string },
     ) {
         await this.db.runAsync(
-            "INSERT INTO Przejscia (id_przejscia, data, notatka, uri_timeline, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 ascent.id_przejscia,
                 ascent.data,
                 ascent.notatka,
-                ascent.uri_timeline,
+                ascent.timeline_data,
                 ascent.id_uzytkownika,
                 ascent.nazwa_stylu,
                 ascent.id_drogi,
@@ -157,7 +157,7 @@ export class AscentRepository {
                 id_przejscia,
                 data,
                 notatka,
-                uri_timeline,
+                timeline_data,
                 id_uzytkownika,
                 nazwa_stylu,
                 id_drogi,

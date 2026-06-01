@@ -87,7 +87,7 @@ const RouteDetail = () => {
                 data: values.data,
                 id: localId,
                 id_drogi: values.id_drogi,
-                uri_timeline: "",
+                timeline_data: {},
                 notatka: values.notatka,
                 nazwa_stylu: values.nazwa_stylu,
             });

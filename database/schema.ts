@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS Style_przejscia (
 CREATE TABLE IF NOT EXISTS Przejscia (
     id_przejscia TEXT PRIMARY KEY,
     data TEXT DEFAULT CURRENT_DATE,
-    uri_timeline TEXT,
+    timeline_data TEXT,
     notatka TEXT,
     id_uzytkownika INTEGER NOT NULL,
     nazwa_stylu TEXT NOT NULL,
@@ -237,10 +237,10 @@ INSERT OR IGNORE INTO Uzytkownicy (id_uzytkownika, login, email, imie, nazwisko)
 (3, 'boulder_boy', 'crusher@szkola.edu.pl', 'Jan', 'Wiśniewski');
 
 -- 8. PRZEJŚCIA
-INSERT OR IGNORE INTO Przejscia (id_przejscia, data, uri_timeline, notatka, id_uzytkownika, nazwa_stylu, id_drogi) VALUES 
-('przejscie_1', '2024-05-01', 'database/timelines/timeline-user1-1.json', 'Poszło gładko w 2 próbie. Mega warun!', 1, 'RP', 'd_s1'),
+INSERT OR IGNORE INTO Przejscia (id_przejscia, data, timeline_data, notatka, id_uzytkownika, nazwa_stylu, id_drogi) VALUES 
+('przejscie_1', '2024-05-01', '{"date":"2024-05-01","timeline":[]}', 'Poszło gładko w 2 próbie. Mega warun!', 1, 'RP', 'd_s1'),
 ('przejscie_2', '2024-05-15', NULL, 'Klasyk na rozgrzewkę. Trochę wyślizgane startowe chwyty.', 1, 'OS', 'd_s2'),
-('przejscie_3', '2023-08-10', 'database/timelines/timeline-user2-1.json', 'Piękna przygoda, pogodę mieliśmy idealną. Start o 6 rano.', 2, 'OS', 'd_t2'),
+('przejscie_3', '2023-08-10', '{"date":"2023-08-10","timeline":[]}', 'Piękna przygoda, pogodę mieliśmy idealną. Start o 6 rano.', 2, 'OS', 'd_t2'),
 ('przejscie_4', '2023-10-22', NULL, 'Rozdarty palec, ale padło rzutem na taśmę.', 3, 'RP', 'd_b1'),
 ('przejscie_5', '2024-04-12', NULL, 'Bałem się wyjścia nad cama, ale dało radę.', 1, 'Flash', 'd_t1');
 

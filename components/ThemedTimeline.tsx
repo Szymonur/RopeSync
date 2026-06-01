@@ -6,7 +6,6 @@ import {
     ActivityIndicator,
     PanResponder,
 } from "react-native";
-import { File, Directory, Paths } from "expo-file-system";
 import ThemedText from "./ThemedText";
 import Spacer from "../components/Spacer";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -21,10 +20,10 @@ const CARD_MIN_GAP = 70; // Minimalny odstęp między początkami kart (w piksel
 const SCALE_COLLISION_THRESHOLD = 15; // Próg kolizji ze skalą (w pikselach)
 
 interface ThemedTimelineProps {
-    uriTimeline: string;
+    timelineData: string | any;
 }
 
-const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
+const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
@@ -46,9 +45,9 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
     const layoutHeightRef = useRef<number>(0);
 
     useEffect(() => {
-        const loadTimeline = async () => {
-            if (!uriTimeline) {
-                setError("Brak ścieżki do danych timeline.");
+        const processTimeline = async () => {
+            if (!propTimelineData) {
+                setError("Brak danych timeline.");
                 setLoading(false);
                 return;
             }
@@ -57,16 +56,12 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                 setLoading(true);
                 setError(null);
 
-                const file = new File(Paths.document, uriTimeline);
-
-                if (!file.exists) {
-                    throw new Error(
-                        `Plik wspinaczki nie istnieje (${uriTimeline})`,
-                    );
+                let jsonContent;
+                if (typeof propTimelineData === "string") {
+                    jsonContent = JSON.parse(propTimelineData);
+                } else {
+                    jsonContent = propTimelineData;
                 }
-
-                const content = await file.textSync();
-                const jsonContent = JSON.parse(content);
 
                 setTimelineData(jsonContent);
 
@@ -82,15 +77,15 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
                     setMaxTimelineHeight(Math.ceil(highestPoint));
                 }
             } catch (err: any) {
-                console.error("Błąd ładowania timeline:", err);
+                console.error("Błąd przetwarzania timeline:", err);
                 setError(`Błąd: ${err.message}`);
             } finally {
                 setLoading(false);
             }
         };
 
-        loadTimeline();
-    }, [uriTimeline]);
+        processTimeline();
+    }, [propTimelineData]);
 
     // Logika obliczania pozycji zdarzeń (unikanie kolizji)
     const processedEvents = useMemo(() => {
@@ -166,7 +161,6 @@ const ThemedTimeline = ({ uriTimeline }: ThemedTimelineProps) => {
             const touches = event.nativeEvent.touches;
             if (touches.length >= 2) {
                 isDuringZoomRef.current = true;
-                const touches = event.nativeEvent.touches;
                 const distance = getDistance(touches);
                 setInitialZoomDistance(distance);
             }

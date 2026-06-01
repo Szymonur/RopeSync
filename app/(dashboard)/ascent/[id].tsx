@@ -161,10 +161,10 @@ const AscentDetails = () => {
             <ThemedText style={styles.note}>
                 {ascent.notatka || "Brak notatki"}
             </ThemedText>
-            {ascent.uri_timeline && (
+            {ascent.timeline_data && (
                 <>
                     <Spacer height={10} />
-                    <ThemedTimeline uriTimeline={ascent.uri_timeline} />
+                    <ThemedTimeline timelineData={ascent.timeline_data} />
                 </>
             )}
 

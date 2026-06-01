@@ -125,7 +125,7 @@ const Asce = () => {
                         id: localId,
                         data: values.data,
                         id_drogi: values.id_drogi,
-                        uri_timeline: "",
+                        timeline_data: {},
                         notatka: values.notatka,
                         nazwa_stylu: values.nazwa_stylu,
                     });

@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, View, Alert } from "react-native";
-import { File, Directory, Paths } from "expo-file-system";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNetwork } from "../../../contexts/NetworkContext";
 
@@ -36,8 +35,6 @@ const DeviceScreen = () => {
         try {
             // 1. Przygotowanie danych mock
             const mockId = `mock_${Date.now()}`;
-            const fileName = `timeline_${mockId}.json`;
-            const relativePath = `timelines/${fileName}`;
 
             const mockData = {
                 date: new Date().toISOString().split("T")[0],
@@ -126,20 +123,13 @@ const DeviceScreen = () => {
                 ],
             };
 
-            const timelinesDir = new Directory(Paths.document, "timelines");
-
-            if (!timelinesDir.exists) {
-                timelinesDir.create();
-            }
-
-            const file = new File(Paths.document, relativePath);
-            await file.write(JSON.stringify(mockData, null, 2));
+            const timelineJson = JSON.stringify(mockData);
 
             await repository.addAscent({
                 id_przejscia: mockId,
                 data: new Date().toISOString().split("T")[0],
                 notatka: "Automatycznie wygenerowany mock timeline",
-                uri_timeline: relativePath, // Zapisujemy ścieżkę RELATYWNĄ
+                timeline_data: timelineJson,
                 id_uzytkownika: Number(userId),
                 synced: 0,
                 deleted: 0,
@@ -153,7 +143,7 @@ const DeviceScreen = () => {
                         id: mockId,
                         data: new Date().toISOString().split("T")[0],
                         id_drogi: "d_s1",
-                        uri_timeline: relativePath,
+                        timeline_data: mockData, // Wysyłamy obiekt JSON
                         notatka: "Automatycznie wygenerowany mock timeline",
                         nazwa_stylu: "RP",
                     });
@@ -170,7 +160,7 @@ const DeviceScreen = () => {
 
             Alert.alert(
                 "Sukces",
-                `Utworzono mockowe przejście i plik: ${relativePath}`,
+                "Utworzono mockowe przejście i zapisano dane w bazie.",
             );
         } catch (error: any) {
             console.error("Błąd tworzenia mocka:", error);

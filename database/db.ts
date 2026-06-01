@@ -76,4 +76,21 @@ export async function initializeDatabase(db: SQLiteDatabase) {
             console.error("Błąd podczas migracji 7 -> 8:", error);
         }
     }
+
+    // Migracja z wersji 8 do 9 (Zmiana uri_timeline na timeline_data)
+    if (currentDbVersion === 8) {
+        console.log(
+            "Migracja bazy danych: 8 -> 9 (Zmiana uri_timeline na timeline_data)",
+        );
+        try {
+            await db.execAsync(`
+                ALTER TABLE Przejscia RENAME COLUMN uri_timeline TO timeline_data;
+            `);
+            currentDbVersion = 9;
+            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
+            console.log("Migracja 8 -> 9 zakończona pomyślnie.");
+        } catch (error) {
+            console.error("Błąd podczas migracji 8 -> 9:", error);
+        }
+    }
 }

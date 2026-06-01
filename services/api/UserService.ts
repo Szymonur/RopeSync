@@ -35,7 +35,7 @@ export interface CreateAscentPayload {
     id: string;
     data: string;
     id_drogi: string;
-    uri_timeline: string;
+    timeline_data: any;
     notatka: string;
     nazwa_stylu?: string;
 }
