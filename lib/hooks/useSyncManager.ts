@@ -59,6 +59,7 @@ export const useSyncManager = () => {
                         id: ascent.id_przejscia,
                         data: ascent.data,
                         id_drogi: ascent.id_drogi!,
+                        uri_timeline: "",
                         notatka: ascent.notatka,
                         nazwa_stylu: ascent.nazwa_stylu,
                     });

@@ -59,7 +59,7 @@ const Asce = () => {
 
     const loadAscents = async () => {
         if (!userId) return;
-        
+
         try {
             const data = await repository.getAscentsForUser(Number(userId));
             setAscents(data);
@@ -125,6 +125,7 @@ const Asce = () => {
                         id: localId,
                         data: values.data,
                         id_drogi: values.id_drogi,
+                        uri_timeline: "",
                         notatka: values.notatka,
                         nazwa_stylu: values.nazwa_stylu,
                     });
