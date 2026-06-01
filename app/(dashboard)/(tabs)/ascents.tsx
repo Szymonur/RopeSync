@@ -46,6 +46,28 @@ const Asce = () => {
     // Inicjalizacja repozytorium
     const repository = useMemo(() => new AscentRepository(db), [db]);
 
+    const syncAscentsFromServer = useCallback(async () => {
+        if (!user?.id) return;
+
+        try {
+            const serverAscents = await UserService.getMyAscents();
+            await repository.replaceAscentsForUser(
+                Number(user.id),
+                serverAscents.map((item) => ({
+                    id_przejscia: item.id_przejscia,
+                    data: item.data,
+                    notatka: item.notatka ?? "",
+                    uri_timeline: item.uri_timeline,
+                    id_uzytkownika: item.id_uzytkownika,
+                    nazwa_stylu: item.nazwa_stylu,
+                    id_drogi: item.id_drogi,
+                })),
+            );
+        } catch (error) {
+            console.error("Błąd podczas synchronizacji przejść z serwera:", error);
+        }
+    }, [user?.id, repository]);
+
     const loadAscents = async () => {
         if (!user?.id) return;
         try {
@@ -67,14 +89,18 @@ const Asce = () => {
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
+        await syncAscentsFromServer();
         await loadAscents();
         setRefreshing(false);
-    }, [user?.id, repository]);
+    }, [syncAscentsFromServer, user?.id, repository]);
 
     useEffect(() => {
-        loadAscents();
+        (async () => {
+            await syncAscentsFromServer();
+            await loadAscents();
+        })();
         loadRoutes();
-    }, [user?.id]);
+    }, [user?.id, syncAscentsFromServer]);
 
     const handleSaveManualAscent = async (values: ManualAscentFormValues) => {
         if (!user?.id) return;
@@ -87,12 +113,7 @@ const Asce = () => {
                 notatka: values.notatka,
                 nazwa_stylu: "RP",
             });
-            await repository.addManualAscent({
-                data: values.data,
-                id_drogi: values.id_drogi,
-                notatka: values.notatka,
-                id_uzytkownika: Number(user.id),
-            });
+            await syncAscentsFromServer();
             await loadAscents();
             setFormVisible(false);
         } catch (error) {

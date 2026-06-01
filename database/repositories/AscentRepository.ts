@@ -34,6 +34,16 @@ export interface RouteForSelection {
     wycena: string | null;
 }
 
+export interface SyncAscentInput {
+    id_przejscia: string;
+    data: string;
+    notatka: string;
+    uri_timeline: string | null;
+    id_uzytkownika: number;
+    nazwa_stylu: string;
+    id_drogi: string;
+}
+
 export class AscentRepository {
     private db: SQLiteDatabase;
 
@@ -167,5 +177,37 @@ export class AscentRepository {
             "DELETE FROM Przejscia WHERE id_przejscia = ? AND id_uzytkownika = ?",
             [ascentId, userId],
         );
+    }
+
+    async replaceAscentsForUser(userId: number, ascents: SyncAscentInput[]) {
+        await this.db.withTransactionAsync(async () => {
+            await this.db.runAsync(
+                "DELETE FROM Przejscia WHERE id_uzytkownika = ?",
+                [userId],
+            );
+
+            for (const ascent of ascents) {
+                await this.db.runAsync(
+                    `INSERT INTO Przejscia (
+                        id_przejscia,
+                        data,
+                        notatka,
+                        uri_timeline,
+                        id_uzytkownika,
+                        nazwa_stylu,
+                        id_drogi
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        ascent.id_przejscia,
+                        ascent.data,
+                        ascent.notatka,
+                        ascent.uri_timeline,
+                        ascent.id_uzytkownika,
+                        ascent.nazwa_stylu,
+                        ascent.id_drogi,
+                    ],
+                );
+            }
+        });
     }
 }

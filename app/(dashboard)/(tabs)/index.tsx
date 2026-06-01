@@ -54,7 +54,7 @@ const Index = () => {
                             <Ionicons
                                 name="search-outline"
                                 size={26}
-                                color={theme.iconColour}
+                                color={theme.iconColourFocused}
                             />
                         </TouchableOpacity>
                     ),
@@ -97,7 +97,12 @@ const Index = () => {
                 renderItem={({ item }) => (
                     <ThemedCard style={styles.feedCard}>
                         <View style={styles.authorRow}>
-                            <View style={styles.avatar}>
+                            <View
+                                style={[
+                                    styles.avatar,
+                                    { borderColor: theme.iconColourFocused },
+                                ]}
+                            >
                                 <Ionicons
                                     name="person-outline"
                                     size={26}
@@ -167,7 +172,6 @@ const styles = StyleSheet.create({
         height: 52,
         borderRadius: 26,
         borderWidth: 2,
-        borderColor: Colors.light.iconColourFocused,
         alignItems: "center",
         justifyContent: "center",
     },

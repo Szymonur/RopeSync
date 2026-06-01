@@ -7,6 +7,7 @@ import {
     FontAwesome5,
     FontAwesome6,
 } from "@expo/vector-icons";
+import ThemedLogo from "../../../components/ThemedLogo";
 
 const TabsLayout = () => {
     const { colorScheme } = useTheme();
@@ -18,16 +19,31 @@ const TabsLayout = () => {
                 headerShown: true,
                 headerStyle: {
                     backgroundColor: theme.navBackground,
+                    borderBottomColor: theme.border,
+                    borderBottomWidth: 1,
                 },
                 headerTintColor: theme.title,
                 headerTitleStyle: {
                     fontWeight: "bold",
                 },
-                headerShadowVisible: false,
+                headerRight: () => (
+                    <ThemedLogo
+                        resizeMode="contain"
+                        style={{ width: 26, height: 26, marginRight: 12 }}
+                    />
+                ),
+                headerShadowVisible: true,
                 tabBarStyle: {
                     backgroundColor: theme.navBackground,
+                    borderTopColor: theme.border,
+                    borderTopWidth: 1,
                     paddingTop: 10,
                     height: 90,
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    fontWeight: "700",
+                    paddingBottom: 2,
                 },
                 tabBarActiveTintColor: theme.iconColourFocused,
                 tabBarInactiveTintColor: theme.iconColour,

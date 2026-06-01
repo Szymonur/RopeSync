@@ -1,7 +1,5 @@
 import {
-    StyleProp,
     TextInput,
-    TextStyle,
     TextInputProps,
 } from "react-native";
 import { Colors } from "../constants/Colors";
@@ -13,19 +11,20 @@ const ThemedTextInput = ({ style, ...rest }: TextInputProps) => {
 
     return (
         <TextInput
-            // Łączymy style domyślne z tymi przekazanymi z zewnątrz
             style={[
                 {
-                    backgroundColor: theme.uiBackground,
+                    backgroundColor: theme.inputBackground,
                     color: theme.text,
                     paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    borderRadius: 6,
-                    fontSize: 14,
+                    paddingVertical: 14,
+                    borderRadius: 999,
+                    fontSize: 15,
+                    borderWidth: 1,
+                    borderColor: theme.border,
                 },
                 style,
             ]}
-            placeholderTextColor={theme.text}
+            placeholderTextColor={theme.mutedText}
             {...rest}
         />
     );

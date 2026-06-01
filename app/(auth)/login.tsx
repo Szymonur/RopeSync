@@ -1,22 +1,27 @@
-import { StyleSheet, Alert } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, View } from "react-native";
 import { Link } from "expo-router";
 import { Colors } from "../../constants/Colors";
 
 import ThemedButton from "../../components/ThemedButton";
+import ThemedLogo from "../../components/ThemedLogo";
 import ThemedView from "../../components/ThemedView";
 import ThemedText from "../../components/ThemedText";
 import ThemedTextInput from "../../components/ThemedTextInput";
-import Spacer from "../../components/Spacer";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useNetwork } from "../../contexts/NetworkContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import { useState } from "react";
+import { createAuthStyles } from "../../theme/authStyles";
 
 const Login = () => {
     const { login } = useAuth();
     const { isConnected } = useNetwork();
+    const { colorScheme } = useTheme();
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
+    const theme = Colors[colorScheme];
+    const styles = createAuthStyles(theme, colorScheme === "dark");
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -57,60 +62,54 @@ const Login = () => {
             console.error(error);
         }
     };
+
     return (
-        <ThemedView style={styles.container} safe>
-            <Spacer />
-            <ThemedText title={true} style={styles.title}>
-                Login
-            </ThemedText>
+        <ThemedView style={styles.screen} safe>
+            <View pointerEvents="none" style={styles.topBlob} />
+            <View pointerEvents="none" style={styles.bottomBlob} />
 
-            <ThemedTextInput
-                placeholder="Login"
-                style={{ width: "80%", marginBottom: 20 }}
-                onChangeText={setUserLogin}
-                value={userLogin}
-            ></ThemedTextInput>
-            <ThemedTextInput
-                placeholder="Password"
-                style={{ width: "80%", marginBottom: 20 }}
-                keyboardType="visible-password"
-                onChangeText={setUserPassword}
-                value={userPassword}
-            ></ThemedTextInput>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : undefined}
+                style={styles.keyboardContainer}
+            >
+                <View style={styles.hero}>
+                    <ThemedLogo style={styles.logo} resizeMode="contain" />
+                </View>
 
-            <ThemedButton onPress={handleSubmit}>
-                <ThemedText style={{ textAlign: "center" }}> Login </ThemedText>
-            </ThemedButton>
-            <Spacer height={100} />
+                <View style={styles.formCard}>
+                    <ThemedTextInput
+                        placeholder="Username"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        style={styles.input}
+                        onChangeText={setUserLogin}
+                        value={userLogin}
+                    />
+                    <ThemedTextInput
+                        placeholder="Password"
+                        secureTextEntry={true}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        style={styles.input}
+                        onChangeText={setUserPassword}
+                        value={userPassword}
+                    />
 
-            <Link href="/register">
-                <ThemedText style={{ textAlign: "center" }}>
-                    Register instead
-                </ThemedText>
-            </Link>
+                    <ThemedButton onPress={handleSubmit} style={styles.button}>
+                        <ThemedText style={styles.buttonLabel}>Log in</ThemedText>
+                    </ThemedButton>
+                </View>
+
+                <Link href="/register" asChild>
+                    <Pressable style={styles.registerLink}>
+                        <ThemedText style={styles.registerText}>
+                            Don&apos;t have an account? Create one
+                        </ThemedText>
+                    </Pressable>
+                </Link>
+            </KeyboardAvoidingView>
         </ThemedView>
     );
 };
 
 export default Login;
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    title: {
-        textAlign: "center",
-        fontSize: 18,
-        marginBottom: 30,
-    },
-    btn: {
-        backgroundColor: Colors.primary,
-        padding: 15,
-        borderRadius: 25,
-    },
-    pressed: {
-        opacity: 0.8,
-    },
-});

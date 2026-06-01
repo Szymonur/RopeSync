@@ -44,6 +44,19 @@ export interface AscentRouteOption {
     wycena: string | null;
 }
 
+export interface MyAscentItem {
+    id_przejscia: string;
+    data: string;
+    notatka: string;
+    uri_timeline: string | null;
+    id_uzytkownika: number;
+    nazwa_stylu: string;
+    id_drogi: string;
+    nazwa_drogi: string | null;
+    typ_drogi: string | null;
+    wycena: string | null;
+}
+
 export const UserService = {
     // Pobiera profil użytkownika o podanym ID
     getUserProfile: async (userId: string): Promise<UserProfile> => {
@@ -99,5 +112,13 @@ export const UserService = {
         );
 
         return data.routes;
+    },
+
+    getMyAscents: async (): Promise<MyAscentItem[]> => {
+        const { data } = await api.get<{ message: string; ascents: MyAscentItem[] }>(
+            "/ascents/me",
+        );
+
+        return data.ascents;
     },
 };
