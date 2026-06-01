@@ -158,8 +158,12 @@ const AscentDetails = () => {
             <ThemedView style={styles.container}>
                 <Stack.Screen options={{ title: "Nie znaleziono" }} />
                 <Spacer />
-                <ThemedText title style={styles.title}>
-                    Przejście nie istnieje lub brak dostępu (offline)
+                <ThemedText
+                    title
+                    style={[styles.title, { textAlign: "center" }]}
+                >
+                    Podłącz się do internetu aby przejrzeć szczególy tego
+                    przejscia!
                 </ThemedText>
             </ThemedView>
         );

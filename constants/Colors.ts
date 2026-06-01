@@ -17,6 +17,7 @@ export const Colors = {
         uiBackground: "#242b27",
         iconColour: "#6b7a74",
         iconColourFocused: "#fff",
+        border: "#6b7a74",
     },
     light: {
         text: "#3a4a42",
@@ -26,5 +27,6 @@ export const Colors = {
         uiBackground: "#ffffff",
         iconColour: "#6c8174",
         iconColourFocused: "#1b4d3e",
+        border: "#6c8174",
     },
 };

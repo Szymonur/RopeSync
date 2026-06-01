@@ -8,9 +8,15 @@ import ThemedText from "../../components/ThemedText";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
 
+import {
+    UserRepository,
+    User,
+} from "../../database/repositories/UserRepository";
+import { useSQLiteContext } from "expo-sqlite";
+
 import { useAuth } from "../../contexts/AuthContext";
 import { useNetwork } from "../../contexts/NetworkContext";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const Login = () => {
     const { login } = useAuth();
@@ -20,6 +26,10 @@ const Login = () => {
 
     const [errorLogin, setErrorLogin] = useState("");
     const [errorPassword, setErrorPassword] = useState("");
+
+    const db = useSQLiteContext();
+
+    const userRepository = useMemo(() => new UserRepository(db), [db]);
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -61,6 +71,15 @@ const Login = () => {
 
             if (json.accesToken && json.refreshToken) {
                 await login(json.accesToken, json.refreshToken, json.id);
+                console.log("json: ", json);
+
+                await userRepository.setUserInfo({
+                    id_uzytkownika: json.id,
+                    login: json.username,
+                    email: json.email,
+                    imie: json.firstName,
+                    nazwisko: json.lastName,
+                });
             } else {
                 setErrorLogin("Invalid credentials");
                 setErrorPassword("Invalid credentials");
