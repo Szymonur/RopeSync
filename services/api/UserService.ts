@@ -48,6 +48,22 @@ export interface AscentRouteOption {
     wycena: string | null;
 }
 
+export interface RemoteAscentDetails {
+    id_przejscia: string;
+    data: string;
+    notatka: string;
+    timeline_data: string | null;
+    id_uzytkownika: number;
+    nazwa_stylu: string;
+    id_drogi: string | null;
+    nazwa_drogi?: string;
+    typ_drogi?: string;
+    wycena?: string | null;
+    imie?: string;
+    nazwisko?: string;
+    username?: string;
+}
+
 export const UserService = {
     // Pobiera profil użytkownika o podanym ID
     getUserProfile: async (userId: string): Promise<UserProfile> => {
@@ -109,5 +125,15 @@ export const UserService = {
 
     deleteAscent: async (ascentId: string): Promise<void> => {
         await api.delete(`/ascents/${ascentId}`);
+    },
+
+    getAscentDetails: async (
+        ascentId: string,
+    ): Promise<RemoteAscentDetails> => {
+        const { data } = await api.get<{
+            message: string;
+            ascent: RemoteAscentDetails;
+        }>(`/ascents/${ascentId}`);
+        return data.ascent;
     },
 };

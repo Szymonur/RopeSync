@@ -122,55 +122,64 @@ const Index = () => {
                     )
                 }
                 renderItem={({ item }) => (
-                    <ThemedCard style={styles.feedCard}>
-                        <View style={styles.authorRow}>
-                            <View
-                                style={[
-                                    styles.avatar,
-                                    {
-                                        borderColor: theme.text,
-                                    },
-                                ]}
-                            >
-                                <Ionicons
-                                    name="person-outline"
-                                    size={26}
-                                    color={theme.text}
-                                />
+                    <TouchableOpacity
+                        onPress={() =>
+                            router.push(`/(dashboard)/ascent/${item.ascentId}?userId=${item.userId}`)
+                        }
+                    >
+                        <ThemedCard style={styles.feedCard}>
+                            <View style={styles.authorRow}>
+                                <View
+                                    style={[
+                                        styles.avatar,
+                                        {
+                                            borderColor: theme.text,
+                                        },
+                                    ]}
+                                >
+                                    <Ionicons
+                                        name="person-outline"
+                                        size={26}
+                                        color={theme.text}
+                                    />
+                                </View>
+                                <View style={styles.authorTextBlock}>
+                                    <ThemedText style={styles.authorName}>
+                                        {item.firstName} {item.lastName}
+                                    </ThemedText>
+                                    <ThemedText style={styles.authorMeta}>
+                                        @{item.username} ·{" "}
+                                        {formatDate(item.date)}
+                                    </ThemedText>
+                                </View>
                             </View>
-                            <View style={styles.authorTextBlock}>
-                                <ThemedText style={styles.authorName}>
-                                    {item.firstName} {item.lastName}
-                                </ThemedText>
-                                <ThemedText style={styles.authorMeta}>
-                                    @{item.username} · {formatDate(item.date)}
-                                </ThemedText>
+
+                            <ThemedText style={styles.routeName}>
+                                {item.routeName}
+                            </ThemedText>
+                            {item.note && (
+                                <>
+                                    <ThemedText style={styles.routeNote}>
+                                        {item.note}
+                                    </ThemedText>
+                                </>
+                            )}
+                            <View style={styles.routeMetaRow}>
+                                {item.routeType && (
+                                    <RouteTypeBadge
+                                        route_type={item.routeType}
+                                    />
+                                )}
+
+                                {item.grade && (
+                                    <RouteGradeBadge route_grade={item.grade} />
+                                )}
+                                {item.style && (
+                                    <RouteStyleBadge route_style={item.style} />
+                                )}
                             </View>
-                        </View>
-
-                        <ThemedText style={styles.routeName}>
-                            {item.routeName}
-                        </ThemedText>
-                        {item.note && (
-                            <>
-                                <ThemedText style={styles.routeNote}>
-                                    {item.note}
-                                </ThemedText>
-                            </>
-                        )}
-                        <View style={styles.routeMetaRow}>
-                            {item.routeType && (
-                                <RouteTypeBadge route_type={item.routeType} />
-                            )}
-
-                            {item.grade && (
-                                <RouteGradeBadge route_grade={item.grade} />
-                            )}
-                            {item.style && (
-                                <RouteStyleBadge route_style={item.style} />
-                            )}
-                        </View>
-                    </ThemedCard>
+                        </ThemedCard>
+                    </TouchableOpacity>
                 )}
             />
         </ThemedView>

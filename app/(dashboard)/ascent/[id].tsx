@@ -14,7 +14,10 @@ import {
     AscentRepository,
     Ascent,
 } from "../../../database/repositories/AscentRepository";
-import { UserService } from "../../../services/api/UserService";
+import {
+    UserService,
+    RemoteAscentDetails,
+} from "../../../services/api/UserService";
 import { useNetwork } from "../../../contexts/NetworkContext";
 
 import ThemedView from "../../../components/ThemedView";
@@ -31,13 +34,25 @@ import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { Colors } from "../../../constants/Colors";
 
+import { useAuth } from "../../../contexts/AuthContext";
+
 const AscentDetails = () => {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, userId: searchUserId } = useLocalSearchParams<{
+        id: string;
+        userId?: string;
+    }>();
     const db = useSQLiteContext();
     const { isConnected } = useNetwork();
-    const [ascent, setAscent] = useState<Ascent | null>(null);
+
+    // Używamy wspólnego typu lub any, ponieważ RemoteAscentDetails ma trochę inną strukturę (np. brak 'synced')
+    const [ascent, setAscent] = useState<Ascent | RemoteAscentDetails | null>(
+        null,
+    );
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+
+    const { currentUserId: userId } = useAuth();
+    const currentUserId = Number(userId);
 
     const repository = useMemo(() => new AscentRepository(db), [db]);
 
@@ -94,8 +109,29 @@ const AscentDetails = () => {
         const fetchDetails = async () => {
             if (!id) return;
             try {
-                const data = await repository.getAscentDetails(id);
-                setAscent(data);
+                setLoading(true);
+
+                // Sprawdzamy, czy w parametrach URL mamy informację, że to nie jest nasze przejście
+                // (w index.tsx przekażemy userId z feedu, aby móc to łatwiej odróżnić zanim pobierzemy)
+                // Lub po prostu próbujemy pobrać z lokalnej bazy, a jak nie ma, to z API.
+
+                let localData = null;
+
+                // Jeśli jawnie nie szukamy kogoś innego, sprawdźmy bazę lokalną
+                if (!searchUserId || Number(searchUserId) === currentUserId) {
+                    localData = await repository.getAscentDetails(id);
+                }
+
+                if (localData) {
+                    setAscent(localData);
+                } else if (isConnected) {
+                    // Jeśli nie ma w lokalnej, lub to przejście z feedu kogoś innego
+                    const remoteData = await UserService.getAscentDetails(id);
+                    setAscent(remoteData);
+                } else {
+                    console.log("Brak danych lokalnie, a jesteś offline.");
+                    setAscent(null);
+                }
             } catch (error) {
                 console.error("Błąd ładowania szczegółów przejścia:", error);
             } finally {
@@ -104,7 +140,7 @@ const AscentDetails = () => {
         };
 
         fetchDetails();
-    }, [id]);
+    }, [id, searchUserId, currentUserId, isConnected]);
 
     if (loading) {
         return (
@@ -123,7 +159,7 @@ const AscentDetails = () => {
                 <Stack.Screen options={{ title: "Nie znaleziono" }} />
                 <Spacer />
                 <ThemedText title style={styles.title}>
-                    Przejście nie istnieje
+                    Przejście nie istnieje lub brak dostępu (offline)
                 </ThemedText>
             </ThemedView>
         );
@@ -133,18 +169,24 @@ const AscentDetails = () => {
         <ThemedView style={styles.container} scroll>
             <Stack.Screen
                 options={{
-                    headerRight: () => (
-                        <TouchableOpacity
-                            onPress={handleDelete}
-                            style={{ marginRight: 20 }}
-                        >
-                            <FontAwesome6
-                                name="trash-can"
-                                color={theme.iconColour}
-                                size={22}
-                            />
-                        </TouchableOpacity>
-                    ),
+                    title:
+                        currentUserId !== ascent.id_uzytkownika &&
+                        "username" in ascent
+                            ? `${ascent.imie} ${ascent.nazwisko}`
+                            : "Szczegóły",
+                    headerRight: () =>
+                        currentUserId === ascent.id_uzytkownika ? (
+                            <TouchableOpacity
+                                onPress={handleDelete}
+                                style={{ marginRight: 20 }}
+                            >
+                                <FontAwesome6
+                                    name="trash-can"
+                                    color={theme.iconColour}
+                                    size={22}
+                                />
+                            </TouchableOpacity>
+                        ) : null,
                 }}
             />
             <Spacer height={16} />
@@ -156,6 +198,7 @@ const AscentDetails = () => {
                 <RouteGradeBadge route_grade={ascent.wycena ?? ""} />
                 <RouteStyleBadge route_style={ascent.nazwa_stylu ?? ""} />
             </View>
+
             <Spacer height={28} />
             <ThemedText style={styles.noteLabel}>Notatka:</ThemedText>
             <ThemedText style={styles.note}>
@@ -196,8 +239,9 @@ const styles = StyleSheet.create({
     },
     noteLabel: {
         fontSize: 14,
-        fontWeight: "bold",
+        fontWeight: 600,
         marginBottom: 5,
+        opacity: 0.5,
     },
     note: {
         fontSize: 16,

@@ -190,10 +190,9 @@ export class AscentRepository {
 
     // Twarde usuwanie z bazy lokalnej
     async deleteAscentPermanently(ascentId: string) {
-        await this.db.runAsync(
-            "DELETE FROM Przejscia WHERE id_przejscia = ?",
-            [ascentId],
-        );
+        await this.db.runAsync("DELETE FROM Przejscia WHERE id_przejscia = ?", [
+            ascentId,
+        ]);
     }
 
     // Pobierz przejścia do synchronizacji (nowe)
