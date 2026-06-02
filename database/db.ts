@@ -36,6 +36,7 @@ export async function initializeDatabase(db: SQLiteDatabase) {
                 DROP TABLE IF EXISTS Skale_linowe;
                 DROP TABLE IF EXISTS Style_przejscia;
                 DROP TABLE IF EXISTS Typy_skaly;
+                DROP TABLE IF EXISTS Reakcje;
             `);
             await db.execAsync(`PRAGMA foreign_keys = ON;`);
             await db.execAsync(DATABASE_SCHEMA);
@@ -91,6 +92,57 @@ export async function initializeDatabase(db: SQLiteDatabase) {
             console.log("Migracja 8 -> 9 zakończona pomyślnie.");
         } catch (error) {
             console.error("Błąd podczas migracji 8 -> 9:", error);
+        }
+    }
+
+    // Migracja z wersji 9 do 10 (Dodanie tabeli Reakcje)
+    if (currentDbVersion === 9) {
+        console.log("Migracja bazy danych: 9 -> 10 (Dodawanie tabeli Reakcje)");
+        try {
+            await db.execAsync(`
+                CREATE TABLE IF NOT EXISTS Reakcje (
+                    id_uzytkownika INTEGER NOT NULL,
+                    id_przejscia TEXT NOT NULL,
+                    wyswietlono INTEGER DEFAULT 0,
+                    PRIMARY KEY (id_uzytkownika, id_przejscia),
+                    FOREIGN KEY (id_uzytkownika) REFERENCES Uzytkownicy(id_uzytkownika) ON DELETE CASCADE,
+                    FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
+                );
+            `);
+            currentDbVersion = 10;
+            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
+            console.log("Migracja 9 -> 10 zakończona pomyślnie.");
+        } catch (error) {
+            console.error("Błąd podczas migracji 9 -> 10:", error);
+        }
+    }
+
+    // Migracja z wersji 10 do 11 (Rozbudowa tabeli Reakcje o nowe pola do powiadomień)
+    if (currentDbVersion === 10) {
+        console.log("Migracja bazy danych: 10 -> 11 (Rozbudowa tabeli Reakcje)");
+        try {
+            await db.execAsync(`PRAGMA foreign_keys = OFF;`);
+            await db.execAsync(`DROP TABLE IF EXISTS Reakcje;`);
+            await db.execAsync(`
+                CREATE TABLE Reakcje (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_uzytkownika INTEGER NOT NULL,
+                    id_przejscia TEXT NOT NULL,
+                    imie TEXT,
+                    nazwisko TEXT,
+                    username TEXT,
+                    data_reakcji TEXT,
+                    wyswietlono INTEGER DEFAULT 0,
+                    UNIQUE(id_uzytkownika, id_przejscia),
+                    FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
+                );
+            `);
+            await db.execAsync(`PRAGMA foreign_keys = ON;`);
+            currentDbVersion = 11;
+            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
+            console.log("Migracja 10 -> 11 zakończona pomyślnie.");
+        } catch (error) {
+            console.error("Błąd podczas migracji 10 -> 11:", error);
         }
     }
 }

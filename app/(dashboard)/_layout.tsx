@@ -31,6 +31,13 @@ const DashboardLayout = () => {
                 }}
             />
             <Stack.Screen
+                name="notifications"
+                options={{
+                    title: "Powiadomienia",
+                    headerShown: true,
+                }}
+            />
+            <Stack.Screen
                 name="ascent/[id]"
                 options={{
                     title: "Ascent Details",

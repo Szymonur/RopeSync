@@ -136,6 +136,19 @@ CREATE TABLE IF NOT EXISTS Pomiary_wyciagow (
 	CHECK (max_wysokosc >= min_wysokosc),
     FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS Reakcje (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_uzytkownika INTEGER NOT NULL,
+    id_przejscia TEXT NOT NULL,
+    imie TEXT,
+    nazwisko TEXT,
+    username TEXT,
+    data_reakcji TEXT,
+    wyswietlono INTEGER DEFAULT 0,
+    UNIQUE(id_uzytkownika, id_przejscia),
+    FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
+);
 `;
 
 export const SEED_DATA = `

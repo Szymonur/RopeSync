@@ -10,13 +10,20 @@ import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 
+import { useSQLiteContext } from "expo-sqlite";
+import { ReactionRepository } from "../../../database/repositories/ReactionRepository";
+import { useAuth } from "../../../contexts/AuthContext";
+
 import ThemedCard from "../../../components/ThemedCard";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useNetwork } from "../../../contexts/NetworkContext";
-import { UserService } from "../../../services/api/UserService";
+import {
+    UserService,
+    FollowingFeedItem,
+} from "../../../services/api/UserService";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
@@ -25,6 +32,62 @@ import ThemedEmptyState from "../../../components/ThemedEmptyState";
 import OfflineHeaderIcon from "../../../components/OfflineHeaderIcon";
 
 import { useSnackbar } from "../../../contexts/SnackbarContext";
+import { useState } from "react";
+
+const LikeButton = ({
+    initialIsLiked,
+    ascentId,
+    theme,
+    isConnected,
+    showSnackbar,
+}: {
+    initialIsLiked: boolean;
+    ascentId: string;
+    theme: any;
+    isConnected: boolean;
+    showSnackbar: any;
+}) => {
+    const [isLiked, setIsLiked] = useState(initialIsLiked);
+
+    const handlePress = async () => {
+        if (!isConnected) {
+            showSnackbar({
+                message: "Musisz być online, aby polubić przejście!",
+                type: "warn",
+            });
+            return;
+        }
+
+        // Optimistic update
+        const previousIsLiked = isLiked;
+
+        setIsLiked(!isLiked);
+
+        try {
+            const data = await UserService.likeAscent(ascentId);
+            // Optional: You can sync state with the server response if you want to be perfectly accurate
+            // setIsLiked(data.isLiked);
+            // setLikesCount(data.likesCount);
+        } catch (error) {
+            // Revert on error
+            setIsLiked(previousIsLiked);
+            showSnackbar({
+                message: "Błąd podczas polubienia przejścia",
+                type: "error",
+            });
+        }
+    };
+
+    return (
+        <TouchableOpacity onPress={handlePress} style={styles.likeButton}>
+            <Ionicons
+                name={isLiked ? "heart" : "heart-outline"}
+                size={24}
+                color={isLiked ? theme.error || "red" : theme.iconColour}
+            />
+        </TouchableOpacity>
+    );
+};
 
 const Index = () => {
     const router = useRouter();
@@ -32,6 +95,8 @@ const Index = () => {
     const theme = Colors[colorScheme];
     const { isConnected } = useNetwork();
     const { showSnackbar } = useSnackbar();
+    const { currentUserId } = useAuth();
+    const db = useSQLiteContext();
 
     const {
         data: feed = [],
@@ -176,18 +241,38 @@ const Index = () => {
                                 </>
                             )}
                             <View style={styles.routeMetaRow}>
-                                {item.routeType && (
-                                    <RouteTypeBadge
-                                        route_type={item.routeType}
-                                    />
-                                )}
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        flex: 1,
+                                        gap: 4,
+                                    }}
+                                >
+                                    {item.routeType && (
+                                        <RouteTypeBadge
+                                            route_type={item.routeType}
+                                        />
+                                    )}
 
-                                {item.grade && (
-                                    <RouteGradeBadge route_grade={item.grade} />
-                                )}
-                                {item.style && (
-                                    <RouteStyleBadge route_style={item.style} />
-                                )}
+                                    {item.grade && (
+                                        <RouteGradeBadge
+                                            route_grade={item.grade}
+                                        />
+                                    )}
+                                    {item.style && (
+                                        <RouteStyleBadge
+                                            route_style={item.style}
+                                        />
+                                    )}
+                                </View>
+
+                                <LikeButton
+                                    initialIsLiked={item.isLiked}
+                                    ascentId={item.ascentId}
+                                    theme={theme}
+                                    isConnected={isConnected ? true : false}
+                                    showSnackbar={showSnackbar}
+                                />
                             </View>
                         </ThemedCard>
                     </TouchableOpacity>
@@ -247,7 +332,8 @@ const styles = StyleSheet.create({
     },
     routeMetaRow: {
         flexDirection: "row",
-        justifyContent: "flex-start",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     routeType: {
         fontSize: 15,
@@ -259,5 +345,14 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         fontSize: 12,
         opacity: 0.6,
+    },
+    likeButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+    },
+    likesCount: {
+        fontSize: 14,
+        fontWeight: "500",
     },
 });

@@ -3,6 +3,7 @@ import {
     Alert,
     TouchableOpacity,
     ActivityIndicator,
+    View,
 } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,6 +25,8 @@ import {
     UserRepository,
     User,
 } from "../../../database/repositories/UserRepository";
+
+import { ReactionRepository } from "../../../database/repositories/ReactionRepository";
 
 import ProfileStats from "../../../components/ProfileStats";
 
@@ -52,12 +55,31 @@ const Profile = () => {
     const userRepository = useMemo(() => new UserRepository(db), [db]);
     const [user, setUser] = useState<User>();
 
+    const reactionRepository = useMemo(() => new ReactionRepository(db), [db]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!currentUserId) return;
+            try {
+                const count =
+                    await reactionRepository.getUnreadCount(currentUserId);
+                console.log("count: ", count);
+
+                setUnreadCount(count);
+            } catch (e) {
+                console.error(
+                    "Błąd podczas pobierania liczby powiadomień: ",
+                    e,
+                );
+            }
+        };
+        fetchUnreadCount();
+    }, [currentUserId, reactionRepository]);
+
     useEffect(() => {
         const fetchCurrentUser = async () => {
             if (!currentUserId) {
-                console.error(
-                    "Brak id uzytkownia przed probą pobrania przejsć dla czczegółów profilu!",
-                );
                 return;
             }
             try {
@@ -74,9 +96,6 @@ const Profile = () => {
     useEffect(() => {
         const fetchAscents = async () => {
             if (!currentUserId) {
-                console.error(
-                    "Brak id uzytkownia przed probą pobrania przejsć dla czczegółów profilu!",
-                );
                 return;
             }
             try {
@@ -91,6 +110,10 @@ const Profile = () => {
         fetchAscents();
     }, [currentUserId, ascentRepository]);
 
+    const handleNotificationsPress = () => {
+        router.push("/(dashboard)/notifications");
+    };
+
     if (userLoading)
         return (
             <ThemedView style={styles.container} safe>
@@ -98,18 +121,25 @@ const Profile = () => {
                     options={{
                         tabBarLabel: "Profile",
                         headerRight: () => (
-                            <TouchableOpacity
-                                onPress={() =>
-                                    router.push("/(dashboard)/settings")
-                                }
-                                style={{ marginRight: 20 }}
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                }}
                             >
-                                <Ionicons
-                                    name="settings-outline"
-                                    color={theme.iconColour}
-                                    size={24}
-                                />
-                            </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        router.push("/(dashboard)/settings")
+                                    }
+                                    style={{ marginRight: 20 }}
+                                >
+                                    <Ionicons
+                                        name="settings-outline"
+                                        color={theme.iconColour}
+                                        size={24}
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         ),
                     }}
                 />
@@ -127,16 +157,54 @@ const Profile = () => {
                     headerTitle: `${user?.imie} ${user?.nazwisko}`,
                     tabBarLabel: "Profile",
                     headerRight: () => (
-                        <TouchableOpacity
-                            onPress={() => router.push("/(dashboard)/settings")}
-                            style={{ marginRight: 20 }}
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                            }}
                         >
-                            <Ionicons
-                                name="settings-outline"
-                                color={theme.iconColour}
-                                size={24}
-                            />
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleNotificationsPress}
+                                style={{ marginRight: 15 }}
+                            >
+                                <View>
+                                    <Ionicons
+                                        name="notifications-outline"
+                                        color={theme.iconColour}
+                                        size={24}
+                                    />
+                                    {unreadCount > 0 && (
+                                        <View
+                                            style={[
+                                                styles.badge,
+                                                {
+                                                    backgroundColor:
+                                                        Colors.error,
+                                                },
+                                            ]}
+                                        >
+                                            <ThemedText
+                                                style={styles.badgeText}
+                                            >
+                                                {unreadCount}
+                                            </ThemedText>
+                                        </View>
+                                    )}
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    router.push("/(dashboard)/settings")
+                                }
+                                style={{ marginRight: 20 }}
+                            >
+                                <Ionicons
+                                    name="settings-outline"
+                                    color={theme.iconColour}
+                                    size={24}
+                                />
+                            </TouchableOpacity>
+                        </View>
                     ),
                 }}
             />
@@ -166,5 +234,21 @@ const styles = StyleSheet.create({
         width: "100%",
         paddingVertical: 10,
         paddingHorizontal: 20,
+    },
+    badge: {
+        position: "absolute",
+        right: -6,
+        top: -3,
+        minWidth: 16,
+        height: 16,
+        borderRadius: 8,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 4,
+    },
+    badgeText: {
+        color: "white",
+        fontSize: 10,
+        fontWeight: "bold",
     },
 });

@@ -29,6 +29,16 @@ export interface FollowingFeedItem {
     username: string;
     firstName: string;
     lastName: string;
+    isLiked: boolean;
+}
+
+export interface ReactionNotification {
+    reactorId: number;
+    ascentId: string;
+    reactorFirstName: string;
+    reactorLastName: string;
+    reactorUsername: string;
+    createdAt: string;
 }
 
 export interface CreateAscentPayload {
@@ -135,5 +145,24 @@ export const UserService = {
             ascent: RemoteAscentDetails;
         }>(`/ascents/${ascentId}`);
         return data.ascent;
+    },
+
+    likeAscent: async (
+        ascentId: string,
+    ): Promise<{ isLiked: boolean; likesCount: number }> => {
+        const { data } = await api.post<{
+            message: string;
+            isLiked: boolean;
+            likesCount: number;
+        }>(`/ascents/${ascentId}/react`);
+        return data;
+    },
+
+    getUnreadReactions: async (): Promise<ReactionNotification[]> => {
+        const { data } = await api.get<{
+            message: string;
+            reactions: ReactionNotification[];
+        }>("/profile/reactions/unread");
+        return data.reactions;
     },
 };

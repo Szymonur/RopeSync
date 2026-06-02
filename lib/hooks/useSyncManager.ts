@@ -3,6 +3,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { AscentRepository } from "../../database/repositories/AscentRepository";
+import { ReactionRepository } from "../../database/repositories/ReactionRepository";
 import { UserService } from "../../services/api/UserService";
 
 export const useSyncManager = () => {
@@ -15,6 +16,7 @@ export const useSyncManager = () => {
         if (!currentUserId || !isConnected || isSyncing.current) return;
 
         const repository = new AscentRepository(db);
+        const reactionRepo = new ReactionRepository(db);
 
         try {
             isSyncing.current = true;
@@ -47,33 +49,51 @@ export const useSyncManager = () => {
                 Number(currentUserId),
             );
 
-            if (unsynced.length === 0) return;
+            if (unsynced.length > 0) {
+                console.log(
+                    `Synchronizacja: Znaleziono ${unsynced.length} przejść do wysłania.`,
+                );
 
-            console.log(
-                `Synchronizacja: Znaleziono ${unsynced.length} przejść do wysłania.`,
-            );
+                for (const ascent of unsynced) {
+                    try {
+                        await UserService.createAscent({
+                            id: ascent.id_przejscia,
+                            data: ascent.data,
+                            id_drogi: ascent.id_drogi!,
+                            timeline_data: {},
+                            notatka: ascent.notatka,
+                            nazwa_stylu: ascent.nazwa_stylu,
+                        });
 
-            for (const ascent of unsynced) {
-                try {
-                    await UserService.createAscent({
-                        id: ascent.id_przejscia,
-                        data: ascent.data,
-                        id_drogi: ascent.id_drogi!,
-                        timeline_data: {},
-                        notatka: ascent.notatka,
-                        nazwa_stylu: ascent.nazwa_stylu,
-                    });
-
-                    await repository.markAsSynced(ascent.id_przejscia);
-                    console.log(
-                        `Zsynchronizowano przejście: ${ascent.id_przejscia}`,
-                    );
-                } catch (error) {
-                    console.error(
-                        `Błąd synchronizacji przejścia ${ascent.id_przejscia}:`,
-                        error,
-                    );
+                        await repository.markAsSynced(ascent.id_przejscia);
+                        console.log(
+                            `Zsynchronizowano przejście: ${ascent.id_przejscia}`,
+                        );
+                    } catch (error) {
+                        console.error(
+                            `Błąd synchronizacji przejścia ${ascent.id_przejscia}:`,
+                            error,
+                        );
+                    }
                 }
+            }
+
+            // 3. Synchronizacja REAKCJI (Powiadomień)
+            try {
+                const reactions = await UserService.getUnreadReactions();
+                for (const reaction of reactions) {
+                    await reactionRepo.addReaction({
+                        id_uzytkownika: reaction.reactorId,
+                        id_przejscia: reaction.ascentId,
+                        imie: reaction.reactorFirstName,
+                        nazwisko: reaction.reactorLastName,
+                        username: reaction.reactorUsername,
+                        data_reakcji: reaction.createdAt,
+                        wyswietlono: 0,
+                    });
+                }
+            } catch (error) {
+                console.error("Błąd podczas pobierania reakcji:", error);
             }
         } catch (error) {
             console.error("Błąd podczas procesu synchronizacji:", error);
