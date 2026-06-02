@@ -4,8 +4,9 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     View,
+    RefreshControl,
 } from "react-native";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
@@ -32,8 +33,7 @@ import ProfileStats from "../../../components/ProfileStats";
 
 import { useAuth } from "../../../contexts/AuthContext";
 
-import { useMe } from "../../../lib/hooks/useProfile";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 const Profile = () => {
     const { logout } = useAuth();
@@ -41,6 +41,7 @@ const Profile = () => {
 
     const [userLoading, setUserLoading] = useState(true);
     const [ascentsLoading, setAscentsLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
@@ -58,57 +59,64 @@ const Profile = () => {
     const reactionRepository = useMemo(() => new ReactionRepository(db), [db]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    useEffect(() => {
-        const fetchUnreadCount = async () => {
-            if (!currentUserId) return;
-            try {
-                const count =
-                    await reactionRepository.getUnreadCount(currentUserId);
-                console.log("count: ", count);
-
-                setUnreadCount(count);
-            } catch (e) {
-                console.error(
-                    "Błąd podczas pobierania liczby powiadomień: ",
-                    e,
-                );
-            }
-        };
-        fetchUnreadCount();
+    const fetchUnreadCount = useCallback(async () => {
+        if (!currentUserId) return;
+        try {
+            const count =
+                await reactionRepository.getUnreadCount(currentUserId);
+            setUnreadCount(count);
+        } catch (e) {
+            console.error("Błąd podczas pobierania liczby powiadomień: ", e);
+        }
     }, [currentUserId, reactionRepository]);
 
-    useEffect(() => {
-        const fetchCurrentUser = async () => {
-            if (!currentUserId) {
-                return;
-            }
-            try {
-                const data = await userRepository.getUserInfo(currentUserId);
-                await setUser(data);
-                setUserLoading(false);
-            } catch (e) {
-                console.error("Błąd podczas pobierania przejść w profilu: ", e);
-            }
-        };
-        fetchCurrentUser();
-    }, [currentUserId]);
+    const fetchCurrentUser = useCallback(async () => {
+        if (!currentUserId) return;
+        try {
+            const data = await userRepository.getUserInfo(currentUserId);
+            await setUser(data);
+            setUserLoading(false);
+        } catch (e) {
+            console.error(
+                "Błąd podczas pobierania informacji o użytkowniku: ",
+                e,
+            );
+        }
+    }, [currentUserId, userRepository]);
 
-    useEffect(() => {
-        const fetchAscents = async () => {
-            if (!currentUserId) {
-                return;
-            }
-            try {
-                const data =
-                    await ascentRepository.getAscentsForUser(currentUserId);
-                await setAscents(data);
-                setAscentsLoading(false);
-            } catch (e) {
-                console.error("Błąd podczas pobierania przejść w profilu: ", e);
-            }
-        };
-        fetchAscents();
+    const fetchAscents = useCallback(async () => {
+        if (!currentUserId) return;
+        try {
+            const data =
+                await ascentRepository.getAscentsForUser(currentUserId);
+            await setAscents(data);
+            setAscentsLoading(false);
+        } catch (e) {
+            console.error("Błąd podczas pobierania przejść w profilu: ", e);
+        }
     }, [currentUserId, ascentRepository]);
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await Promise.all([
+            fetchCurrentUser(),
+            fetchAscents(),
+            fetchUnreadCount(),
+        ]);
+        setRefreshing(false);
+    };
+
+    // Initial load
+    useEffect(() => {
+        fetchCurrentUser();
+        fetchAscents();
+    }, [fetchCurrentUser, fetchAscents]);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchUnreadCount();
+        }, [fetchUnreadCount]),
+    );
 
     const handleNotificationsPress = () => {
         router.push("/(dashboard)/notifications");
@@ -214,7 +222,17 @@ const Profile = () => {
                     color={theme.iconColourFocused}
                 />
             ) : (
-                <ProfileStats ascents={ascents} />
+                <ProfileStats
+                    ascents={ascents}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            colors={[theme.iconColour]}
+                            tintColor={theme.iconColour}
+                        />
+                    }
+                />
             )}
         </ThemedView>
     );

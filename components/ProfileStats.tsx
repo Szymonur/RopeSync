@@ -5,6 +5,7 @@ import {
     LayoutChangeEvent,
     ScrollView,
     TouchableOpacity,
+    RefreshControlProps,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Svg, { Circle, Line, Polyline } from "react-native-svg";
@@ -191,9 +192,14 @@ const buildMonthlyChart = (ascents: Ascent[]): ChartPoint[] => {
 interface ProfileStatsProps {
     ascents: Ascent[];
     isLoadingAscents?: boolean;
+    refreshControl?: React.ReactElement<RefreshControlProps>;
 }
 
-const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
+const ProfileStats = ({
+    ascents,
+    isLoadingAscents,
+    refreshControl,
+}: ProfileStatsProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const [lineChartWidth, setLineChartWidth] = useState(0);
@@ -261,12 +267,13 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
     );
 
     return (
-        <ScrollView style={styles.content}>
+        <ScrollView style={styles.content} refreshControl={refreshControl}>
             <ThemedText title style={styles.sectionTitle}>
                 Życiówki
             </ThemedText>
             <View style={styles.pbSection}>
                 <TouchableOpacity
+                    style={styles.pbItemContainer}
                     onPress={() => {
                         stats.bestSport?.id_przejscia
                             ? router.push(
@@ -294,6 +301,7 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity
+                    style={styles.pbItemContainer}
                     onPress={() => {
                         stats.bestTrad?.id_przejscia
                             ? router.push(
@@ -321,6 +329,7 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity
+                    style={styles.pbItemContainer}
                     onPress={() => {
                         stats.bestBoulder?.id_przejscia
                             ? router.push(
@@ -337,7 +346,7 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                         style={[styles.pbItem, { borderColor: theme.border }]}
                     >
                         <View style={styles.pbBadge}>
-                            <RouteTypeBadge route_type={"bolulder"} />
+                            <RouteTypeBadge route_type={"boulder"} />
                         </View>
                         <ThemedText style={styles.pbValue}>
                             {stats.bestBoulder?.wycena ?? "-"}
@@ -586,12 +595,15 @@ const styles = StyleSheet.create({
         flexWrap: "wrap",
         gap: 8,
     },
+    pbItemContainer: {
+        flexGrow: 1,
+        minWidth: "30%",
+    },
     pbItem: {
         borderWidth: 1,
         borderRadius: 14,
         paddingHorizontal: 10,
         paddingVertical: 10,
-        flexGrow: 1,
     },
     pbBadge: {
         display: "flex",

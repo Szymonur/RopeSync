@@ -71,7 +71,6 @@ const Login = () => {
 
             if (json.accesToken && json.refreshToken) {
                 await login(json.accesToken, json.refreshToken, json.id);
-                console.log("json: ", json);
 
                 await userRepository.setUserInfo({
                     id_uzytkownika: json.id,
