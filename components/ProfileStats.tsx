@@ -8,6 +8,8 @@ import ThemedCard from "./ThemedCard";
 import { useTheme } from "../contexts/ThemeContext";
 import { Colors } from "../constants/Colors";
 
+import RouteTypeBadge from "../components/Badges/RouteTypeBadge";
+
 const LINEAR_GRADE_ORDER = [
     "3",
     "4",
@@ -123,7 +125,7 @@ const buildGradeChart = (ascents: Ascent[]): ChartPoint[] => {
     }
 
     return Array.from(counts.entries())
-        .map(([label, count]) => ({ label: label.toUpperCase(), count }))
+        .map(([label, count]) => ({ label: label, count }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 7);
 };
@@ -283,27 +285,45 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
             </View>
 
             <ThemedCard style={styles.summaryCard}>
-                <ThemedText style={styles.summaryTitle}>
-                    Ilość przejść
-                </ThemedText>
-                <ThemedText style={styles.summaryLine}>
-                    Łącznie: {stats.total}
-                </ThemedText>
-                <ThemedText style={styles.summaryLine}>
-                    Sportowe: {stats.sportCount}
-                </ThemedText>
-                <ThemedText style={styles.summaryLine}>
-                    Trad: {stats.tradCount}
-                </ThemedText>
-                <ThemedText style={styles.summaryLine}>
-                    Bouldery: {stats.boulderCount}
-                </ThemedText>
+                <View style={styles.summaryTitleBar}>
+                    <ThemedText style={styles.summaryTitle}>
+                        Liczba przejść
+                    </ThemedText>
+                    <ThemedText
+                        style={[
+                            styles.summaryTitleNumber,
+                            { backgroundColor: Colors.primary },
+                        ]}
+                    >
+                        {stats.total}
+                    </ThemedText>
+                </View>
+                <View style={styles.summaryTypesRow}>
+                    <View style={styles.summaryLine}>
+                        <ThemedText style={styles.summaryTypeCount}>
+                            {stats.sportCount}
+                        </ThemedText>
+                        <RouteTypeBadge route_type={"sportowa"} />
+                    </View>
+                    <View style={styles.summaryLine}>
+                        <ThemedText style={styles.summaryTypeCount}>
+                            {stats.tradCount}
+                        </ThemedText>
+                        <RouteTypeBadge route_type={"trad"} />
+                    </View>
+                    <View style={styles.summaryLine}>
+                        <ThemedText style={styles.summaryTypeCount}>
+                            {stats.boulderCount}
+                        </ThemedText>
+                        <RouteTypeBadge route_type={"boulder"} />
+                    </View>
+                </View>
             </ThemedCard>
 
             <ThemedCard style={styles.chartCard}>
-                <ThemedText style={styles.summaryTitle}>
+                {/* <ThemedText style={styles.summaryTitle}>
                     Przejścia wg skali
-                </ThemedText>
+                </ThemedText> */}
                 {stats.gradeChart.length === 0 ? (
                     <ThemedText style={styles.emptyText}>
                         Brak danych o wycenach.
@@ -324,7 +344,7 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                                     style={[
                                         styles.chartBar,
                                         {
-                                            backgroundColor: theme.background,
+                                            backgroundColor: Colors.primary,
                                             width: `${Math.max(8, (item.count / maxGradeCount) * 100)}%`,
                                         },
                                     ]}
@@ -456,14 +476,45 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         marginBottom: 8,
     },
+    summaryTitleNumber: {
+        fontSize: 22,
+        fontWeight: "700",
+        marginBottom: 8,
+        paddingVertical: 2,
+        paddingHorizontal: 6,
+        borderRadius: 10,
+    },
+    summaryTitleBar: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
     summaryLine: {
+        display: "flex",
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
         fontSize: 15,
-        marginTop: 4,
+        marginLeft: 8,
+    },
+    summaryTypesRow: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
     },
     sectionTitle: {
         fontSize: 22,
         fontWeight: "800",
         marginBottom: 8,
+    },
+    summaryTypeCount: {
+        width: "100%",
+        textAlign: "center",
+        marginRight: 8,
+        fontSize: 22,
+        fontWeight: 700,
+        marginBottom: 4,
     },
     pbSection: {
         gap: 8,
