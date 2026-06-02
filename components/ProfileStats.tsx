@@ -1,5 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { StyleSheet, View, LayoutChangeEvent, ScrollView } from "react-native";
+import {
+    StyleSheet,
+    View,
+    LayoutChangeEvent,
+    ScrollView,
+    TouchableOpacity,
+} from "react-native";
+import { useRouter } from "expo-router";
 import Svg, { Circle, Line, Polyline } from "react-native-svg";
 import Spacer from "./Spacer";
 import { Ascent } from "../database/repositories/AscentRepository";
@@ -9,6 +16,8 @@ import { useTheme } from "../contexts/ThemeContext";
 import { Colors } from "../constants/Colors";
 
 import RouteTypeBadge from "../components/Badges/RouteTypeBadge";
+
+import { useSnackbar } from "../contexts/SnackbarContext";
 
 const LINEAR_GRADE_ORDER = [
     "3",
@@ -188,6 +197,8 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const [lineChartWidth, setLineChartWidth] = useState(0);
+    const router = useRouter();
+    const { showSnackbar } = useSnackbar();
 
     const stats = useMemo(() => {
         const sportAscents = ascents.filter(
@@ -255,35 +266,88 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                 Życiówki
             </ThemedText>
             <View style={styles.pbSection}>
-                <View style={[styles.pbItem, { borderColor: theme.border }]}>
-                    <ThemedText style={styles.pbLabel}>Boulder</ThemedText>
-                    <ThemedText style={styles.pbValue}>
-                        {stats.bestBoulder?.wycena ?? "-"}
-                    </ThemedText>
-                    <ThemedText style={styles.pbRoute}>
-                        {stats.bestBoulder?.nazwa_drogi ?? "Brak danych"}
-                    </ThemedText>
-                </View>
-                <View style={[styles.pbItem, { borderColor: theme.border }]}>
-                    <ThemedText style={styles.pbLabel}>Sportowa</ThemedText>
-                    <ThemedText style={styles.pbValue}>
-                        {stats.bestSport?.wycena ?? "-"}
-                    </ThemedText>
-                    <ThemedText style={styles.pbRoute}>
-                        {stats.bestSport?.nazwa_drogi ?? "Brak danych"}
-                    </ThemedText>
-                </View>
-                <View style={[styles.pbItem, { borderColor: theme.border }]}>
-                    <ThemedText style={styles.pbLabel}>Trad</ThemedText>
-                    <ThemedText style={styles.pbValue}>
-                        {stats.bestTrad?.wycena ?? "-"}
-                    </ThemedText>
-                    <ThemedText style={styles.pbRoute}>
-                        {stats.bestTrad?.nazwa_drogi ?? "Brak danych"}
-                    </ThemedText>
-                </View>
+                <TouchableOpacity
+                    onPress={() => {
+                        stats.bestSport?.id_przejscia
+                            ? router.push(
+                                  `/(dashboard)/ascent/${stats.bestSport?.id_przejscia}?userId=${stats.bestSport?.id_uzytkownika}`,
+                              )
+                            : showSnackbar({
+                                  message:
+                                      "Ten użytkownik nie ma jeszcze przejść spotowych",
+                                  type: "warn",
+                              });
+                    }}
+                >
+                    <View
+                        style={[styles.pbItem, { borderColor: theme.border }]}
+                    >
+                        <View style={styles.pbBadge}>
+                            <RouteTypeBadge route_type={"sportowa"} />
+                        </View>
+                        <ThemedText style={styles.pbValue}>
+                            {stats.bestSport?.wycena ?? "-"}
+                        </ThemedText>
+                        <ThemedText style={styles.pbRoute}>
+                            {stats.bestSport?.nazwa_drogi ?? "Brak danych"}
+                        </ThemedText>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        stats.bestTrad?.id_przejscia
+                            ? router.push(
+                                  `/(dashboard)/ascent/${stats.bestTrad?.id_przejscia}?userId=${stats.bestTrad?.id_uzytkownika}`,
+                              )
+                            : showSnackbar({
+                                  message:
+                                      "Ten użytkownik nie ma jeszcze przejść tradowych",
+                                  type: "warn",
+                              });
+                    }}
+                >
+                    <View
+                        style={[styles.pbItem, { borderColor: theme.border }]}
+                    >
+                        <View style={styles.pbBadge}>
+                            <RouteTypeBadge route_type={"trad"} />
+                        </View>
+                        <ThemedText style={styles.pbValue}>
+                            {stats.bestTrad?.wycena ?? "-"}
+                        </ThemedText>
+                        <ThemedText style={styles.pbRoute}>
+                            {stats.bestTrad?.nazwa_drogi ?? "Brak danych"}
+                        </ThemedText>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        stats.bestBoulder?.id_przejscia
+                            ? router.push(
+                                  `/(dashboard)/ascent/${stats.bestBoulder?.id_przejscia}?userId=${stats.bestBoulder?.id_uzytkownika}`,
+                              )
+                            : showSnackbar({
+                                  message:
+                                      "Ten użytkownik nie ma jeszcze przejść boulderowych",
+                                  type: "warn",
+                              });
+                    }}
+                >
+                    <View
+                        style={[styles.pbItem, { borderColor: theme.border }]}
+                    >
+                        <View style={styles.pbBadge}>
+                            <RouteTypeBadge route_type={"bolulder"} />
+                        </View>
+                        <ThemedText style={styles.pbValue}>
+                            {stats.bestBoulder?.wycena ?? "-"}
+                        </ThemedText>
+                        <ThemedText style={styles.pbRoute}>
+                            {stats.bestBoulder?.nazwa_drogi ?? "Brak danych"}
+                        </ThemedText>
+                    </View>
+                </TouchableOpacity>
             </View>
-
             <ThemedCard style={styles.summaryCard}>
                 <View style={styles.summaryTitleBar}>
                     <ThemedText style={styles.summaryTitle}>
@@ -292,7 +356,9 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                     <ThemedText
                         style={[
                             styles.summaryTitleNumber,
-                            { backgroundColor: Colors.primary },
+                            {
+                                backgroundColor: Colors.primary,
+                            },
                         ]}
                     >
                         {stats.total}
@@ -321,9 +387,6 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
             </ThemedCard>
 
             <ThemedCard style={styles.chartCard}>
-                {/* <ThemedText style={styles.summaryTitle}>
-                    Przejścia wg skali
-                </ThemedText> */}
                 {stats.gradeChart.length === 0 ? (
                     <ThemedText style={styles.emptyText}>
                         Brak danych o wycenach.
@@ -360,7 +423,7 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
 
             <ThemedCard style={styles.chartCard}>
                 <ThemedText style={styles.summaryTitle}>
-                    Przejścia tygodniowo (8 tygodni)
+                    Przejścia tygodniowo
                 </ThemedText>
                 {stats.monthlyChart.length === 0 ? (
                     <ThemedText style={styles.emptyText}>
@@ -411,8 +474,8 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                                     <Polyline
                                         points={polylinePoints}
                                         fill="none"
-                                        stroke={theme.iconColourFocused}
-                                        strokeWidth="2.5"
+                                        stroke={Colors.primary}
+                                        strokeWidth="2"
                                     />
                                 ) : null}
 
@@ -421,9 +484,9 @@ const ProfileStats = ({ ascents, isLoadingAscents }: ProfileStatsProps) => {
                                         key={`point-${index}`}
                                         cx={point.x}
                                         cy={point.y}
-                                        r="4"
-                                        fill={theme.iconColourFocused}
-                                        stroke={theme.iconColourFocused}
+                                        r="3.5"
+                                        fill={Colors.primary}
+                                        stroke={Colors.primary}
                                         strokeWidth="1.2"
                                     />
                                 ))}
@@ -483,6 +546,7 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
         paddingHorizontal: 6,
         borderRadius: 10,
+        color: "#e9e9e9",
     },
     summaryTitleBar: {
         display: "flex",
@@ -517,13 +581,21 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     pbSection: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
         gap: 8,
     },
     pbItem: {
         borderWidth: 1,
         borderRadius: 14,
-        paddingHorizontal: 14,
+        paddingHorizontal: 10,
         paddingVertical: 10,
+        flexGrow: 1,
+    },
+    pbBadge: {
+        display: "flex",
+        alignItems: "flex-start",
     },
     pbLabel: {
         fontSize: 13,
@@ -547,7 +619,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 8,
-        marginTop: 10,
+        marginTop: 5,
+        marginBottom: 5,
     },
     chartLabel: {
         width: 56,
