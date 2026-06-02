@@ -36,6 +36,8 @@ import { Colors } from "../../../constants/Colors";
 
 import { useAuth } from "../../../contexts/AuthContext";
 
+import { useSnackbar } from "../../../contexts/SnackbarContext";
+
 const AscentDetails = () => {
     const { id, userId: searchUserId } = useLocalSearchParams<{
         id: string;
@@ -43,6 +45,7 @@ const AscentDetails = () => {
     }>();
     const db = useSQLiteContext();
     const { isConnected } = useNetwork();
+    const { showSnackbar } = useSnackbar();
 
     // Używamy wspólnego typu lub any, ponieważ RemoteAscentDetails ma trochę inną strukturę (np. brak 'synced')
     const [ascent, setAscent] = useState<Ascent | RemoteAscentDetails | null>(
@@ -95,8 +98,16 @@ const AscentDetails = () => {
                                         );
                                     }
                                 }
+                                showSnackbar({
+                                    message: `Przejscie drogi ${ascent?.nazwa_drogi} zostało usunięte`,
+                                    type: "success",
+                                });
                             }
                         } catch (error) {
+                            showSnackbar({
+                                message: "Nie duało się usunać przejscia",
+                                type: "error",
+                            });
                             console.error("Błąd podczas usuwania:", error);
                         }
                     },

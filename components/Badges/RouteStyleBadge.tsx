@@ -38,7 +38,7 @@ const RouteStyleBadge = ({ route_style }: RouteStyleBadgeProps) => {
                 <View style={styles.badge}>
                     <View
                         style={{
-                            backgroundColor: Colors.warning,
+                            backgroundColor: Colors.error,
                             height: iconSize,
                             width: iconSize,
                             borderRadius: 50,

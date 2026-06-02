@@ -71,7 +71,7 @@ const ThemedTextInput = forwardRef<TextInput, ThemedTextInputProps>(
                                 backgroundColor: theme.uiBackground,
                                 color: theme.text,
                                 borderColor: error
-                                    ? Colors.warning
+                                    ? Colors.error
                                     : "transparent",
                                 paddingRight: isPassword ? 45 : 16,
                             },
@@ -97,7 +97,7 @@ const ThemedTextInput = forwardRef<TextInput, ThemedTextInputProps>(
                     )}
                 </View>
                 <ThemedText
-                    style={[{ color: Colors.warning }, styles.errorText]}
+                    style={[{ color: Colors.error }, styles.errorText]}
                 >
                     {error ? error : ""}
                 </ThemedText>

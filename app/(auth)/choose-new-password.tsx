@@ -145,7 +145,7 @@ const ChooseNewPassword = () => {
                                         {
                                             color: isMet
                                                 ? Colors.success
-                                                : Colors.warning,
+                                                : Colors.error,
                                         },
                                     ]}
                                 >

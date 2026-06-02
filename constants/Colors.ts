@@ -2,8 +2,10 @@ export const Colors = {
     primary: "#1b4d3e",
     primaryLight: "#2d6a4f",
 
-    warning: "#e63946",
+    error: "#e63946",
     success: "#44955f",
+    warn: "#bc6120",
+    info: "#2a6f97",
 
     sport: "#2a6f97",
     trad: "#bc6120",

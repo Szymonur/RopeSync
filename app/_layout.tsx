@@ -27,10 +27,12 @@ import { initializeDatabase } from "../database/db";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { NetworkProvider } from "../contexts/NetworkContext";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
+import { SnackbarProvider } from "../contexts/SnackbarContext";
 import { useSyncManager } from "../lib/hooks/useSyncManager";
 import { Colors } from "../constants/Colors";
 
 const queryClient = new QueryClient();
+// ... (rest of imports and InitialLayout)
 
 const InitialLayout = () => {
     const { refreshToken, currentUserId, isLoading } = useAuth();
@@ -108,16 +110,18 @@ const RootLayout = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-                <NetworkProvider>
-                    <AuthProvider>
-                        <SQLiteProvider
-                            databaseName="ropesync.db"
-                            onInit={initializeDatabase}
-                        >
-                            <InitialLayout />
-                        </SQLiteProvider>
-                    </AuthProvider>
-                </NetworkProvider>
+                <SnackbarProvider>
+                    <NetworkProvider>
+                        <AuthProvider>
+                            <SQLiteProvider
+                                databaseName="ropesync.db"
+                                onInit={initializeDatabase}
+                            >
+                                <InitialLayout />
+                            </SQLiteProvider>
+                        </AuthProvider>
+                    </NetworkProvider>
+                </SnackbarProvider>
             </ThemeProvider>
         </QueryClientProvider>
     );

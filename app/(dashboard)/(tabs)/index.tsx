@@ -24,11 +24,14 @@ import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
 import OfflineHeaderIcon from "../../../components/OfflineHeaderIcon";
 
+import { useSnackbar } from "../../../contexts/SnackbarContext";
+
 const Index = () => {
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const { isConnected } = useNetwork();
+    const { showSnackbar } = useSnackbar();
 
     const {
         data: feed = [],
@@ -123,9 +126,17 @@ const Index = () => {
                 }
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        onPress={() =>
-                            router.push(`/(dashboard)/ascent/${item.ascentId}?userId=${item.userId}`)
-                        }
+                        onPress={() => {
+                            isConnected
+                                ? router.push(
+                                      `/(dashboard)/ascent/${item.ascentId}?userId=${item.userId}`,
+                                  )
+                                : showSnackbar({
+                                      message:
+                                          "Aby zobaczyć szczegóły przejscia potrzebujesz podłączenia do internetu!",
+                                      type: "warn",
+                                  });
+                        }}
                     >
                         <ThemedCard style={styles.feedCard}>
                             <View style={styles.authorRow}>

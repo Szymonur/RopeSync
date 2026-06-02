@@ -19,6 +19,8 @@ import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
 import { RouteForSelection } from "../database/repositories/AscentRepository";
 
+import { useSnackbar } from "../contexts/SnackbarContext";
+
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export interface ManualAscentFormValues {
@@ -53,6 +55,8 @@ const ManualAscentFormModal = ({
 }: ManualAscentFormModalProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+
+    const { showSnackbar } = useSnackbar();
 
     const [data, setData] = useState(getToday());
     const [note, setNote] = useState("");
@@ -142,13 +146,23 @@ const ManualAscentFormModal = ({
 
     const handleSubmit = async () => {
         if (!canSubmit) return;
-
-        await onSubmit({
-            data: data.trim(),
-            id_drogi: selectedRouteId,
-            notatka: note.trim(),
-            nazwa_stylu: ascentStyle,
-        });
+        try {
+            await onSubmit({
+                data: data.trim(),
+                id_drogi: selectedRouteId,
+                notatka: note.trim(),
+                nazwa_stylu: ascentStyle,
+            });
+            showSnackbar({
+                message: "Przejście zostało dodane",
+                type: "success",
+            });
+        } catch {
+            showSnackbar({
+                message: "Nie udało się dodać przejścia",
+                type: "error",
+            });
+        }
 
         resetForm();
     };

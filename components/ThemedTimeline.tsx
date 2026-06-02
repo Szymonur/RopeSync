@@ -136,7 +136,7 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
     const getEventColor = (type: string) => {
         switch (type) {
             case "fall":
-                return Colors.warning;
+                return Colors.error;
             case "clip":
                 return "#44AAFF";
             case "anchor":
@@ -224,11 +224,11 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
                 <Ionicons
                     name="alert-circle-outline"
                     size={40}
-                    color={Colors.warning}
+                    color={Colors.error}
                 />
                 <ThemedText
                     style={{
-                        color: Colors.warning,
+                        color: Colors.error,
                         textAlign: "center",
                         marginTop: 10,
                     }}

@@ -268,7 +268,7 @@ const Register = () => {
                                         {
                                             color: isMet
                                                 ? Colors.success
-                                                : Colors.warning,
+                                                : Colors.error,
                                         },
                                     ]}
                                 >
