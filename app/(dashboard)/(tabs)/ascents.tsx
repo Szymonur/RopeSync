@@ -13,27 +13,18 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
-import { useNetwork } from "../../../contexts/NetworkContext";
 import { useAuth } from "../../../contexts/AuthContext";
 
-import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedCard from "../../../components/ThemedCard";
-import ThemedButton from "../../../components/ThemedButton";
-import ManualAscentFormModal, {
-    ManualAscentFormValues,
-} from "../../../components/ManualAscentFormModal";
+import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
 import {
     AscentRepository,
     Ascent,
 } from "../../../database/repositories/AscentRepository";
-import {
-    UserService,
-    AscentRouteOption,
-} from "../../../services/api/UserService";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
@@ -42,47 +33,23 @@ import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 const Asce = () => {
     const db = useSQLiteContext();
     const { currentUserId: userId } = useAuth();
-    const { isConnected } = useNetwork();
     const [ascents, setAscents] = useState<Ascent[]>([]);
-    const [routes, setRoutes] = useState<AscentRouteOption[]>([]);
-    const [stylesList, setStylesList] = useState<string[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [formVisible, setFormVisible] = useState(false);
-    const [saving, setSaving] = useState(false);
     const router = useRouter();
 
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    // Inicjalizacja repozytorium
     const repository = useMemo(() => new AscentRepository(db), [db]);
 
     const loadAscents = async () => {
         if (!userId) return;
-
         try {
             const data = await repository.getAscentsForUser(Number(userId));
             setAscents(data);
         } catch (error) {
             console.error("Błąd podczas ładowania przejść:", error);
-        }
-    };
-
-    const loadRoutes = async () => {
-        try {
-            const data = await repository.getRoutesForSelection();
-            setRoutes(data);
-        } catch (error) {
-            console.error("Błąd podczas ładowania dróg:", error);
-        }
-    };
-
-    const loadStyles = async () => {
-        try {
-            const data = await repository.getStylesForSelection();
-            setStylesList(data);
-        } catch (error) {
-            console.error("Błąd podczas ładowania stylów:", error);
         }
     };
 
@@ -94,68 +61,14 @@ const Asce = () => {
 
     useEffect(() => {
         loadAscents();
-        loadRoutes();
-        loadStyles();
     }, [userId]);
-
-    const handleSaveManualAscent = async (values: ManualAscentFormValues) => {
-        if (!userId) return;
-
-        try {
-            setSaving(true);
-
-            // 1. Zapisujemy lokalnie z synced = 0
-            const localId = await repository.addManualAscent({
-                data: values.data,
-                id_drogi: values.id_drogi,
-                notatka: values.notatka,
-                id_uzytkownika: Number(userId),
-                nazwa_stylu: values.nazwa_stylu,
-                synced: 0,
-            });
-
-            // 2. Odświeżamy UI natychmiast
-            await loadAscents();
-            setFormVisible(false);
-
-            // 3. Próbujemy wysłać do API jeśli jest sieć
-            if (isConnected) {
-                try {
-                    await UserService.createAscent({
-                        id: localId,
-                        data: values.data,
-                        id_drogi: values.id_drogi,
-                        timeline_data: {},
-                        notatka: values.notatka,
-                        nazwa_stylu: values.nazwa_stylu,
-                    });
-
-                    // 4. Jeśli sukces, oznaczamy jako zsynchronizowane
-                    await repository.markAsSynced(localId);
-                    await loadAscents();
-                } catch (apiError) {
-                    console.warn(
-                        "Nie udało się zsynchronizować z API (zostaje lokalnie):",
-                        apiError,
-                    );
-                }
-            }
-        } catch (error) {
-            console.error("Błąd podczas zapisywania przejścia:", error);
-        } finally {
-            setSaving(false);
-        }
-    };
 
     return (
         <ThemedView style={styles.container}>
             <ManualAscentFormModal
                 visible={formVisible}
                 onClose={() => setFormVisible(false)}
-                onSubmit={handleSaveManualAscent}
-                saving={saving}
-                routes={routes}
-                styles={stylesList}
+                onSuccess={loadAscents}
             />
 
             <TouchableOpacity

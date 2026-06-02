@@ -7,8 +7,10 @@ import {
     View,
     Keyboard,
     KeyboardEvent,
+    ActivityIndicator,
 } from "react-native";
 import { useEffect, useMemo, useState } from "react";
+import { useSQLiteContext } from "expo-sqlite";
 
 import ThemedButton from "./ThemedButton";
 import ThemedText from "./ThemedText";
@@ -17,9 +19,15 @@ import ThemedView from "./ThemedView";
 import Spacer from "./Spacer";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
-import { RouteForSelection } from "../database/repositories/AscentRepository";
+import {
+    AscentRepository,
+    RouteForSelection,
+} from "../database/repositories/AscentRepository";
 
 import { useSnackbar } from "../contexts/SnackbarContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useNetwork } from "../contexts/NetworkContext";
+import { UserService } from "../services/api/UserService";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -33,12 +41,10 @@ export interface ManualAscentFormValues {
 interface ManualAscentFormModalProps {
     visible: boolean;
     onClose: () => void;
-    onSubmit: (values: ManualAscentFormValues) => Promise<void> | void;
-    saving?: boolean;
-    routes: RouteForSelection[];
-    styles: string[];
+    onSuccess?: () => void;
     preselectedRouteId?: string;
     hideRouteSearch?: boolean;
+    initialRoutes?: RouteForSelection[]; // Opcjonalnie, np. gdy jesteśmy na stronie konkretnej drogi
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -46,17 +52,26 @@ const getToday = () => new Date().toISOString().split("T")[0];
 const ManualAscentFormModal = ({
     visible,
     onClose,
-    onSubmit,
-    saving,
-    routes,
-    styles: stylesList,
+    onSuccess,
     preselectedRouteId,
     hideRouteSearch,
+    initialRoutes,
 }: ManualAscentFormModalProps) => {
+    const db = useSQLiteContext();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
-
+    const { currentUserId: userId } = useAuth();
+    const { isConnected } = useNetwork();
     const { showSnackbar } = useSnackbar();
+
+    // Repozytorium inicjalizowane wewnątrz
+    const repository = useMemo(() => new AscentRepository(db), [db]);
+
+    const [saving, setSaving] = useState(false);
+    const [routes, setRoutes] = useState<RouteForSelection[]>(
+        initialRoutes || [],
+    );
+    const [stylesList, setStylesList] = useState<string[]>([]);
 
     const [data, setData] = useState(getToday());
     const [note, setNote] = useState("");
@@ -67,9 +82,30 @@ const ManualAscentFormModal = ({
     );
 
     const [routeFilterError, setRouteFilterError] = useState("");
-
-    // Dodano stan dla wysokości klawiatury
     const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    // Ładowanie danych potrzebnych dla formularza
+    useEffect(() => {
+        if (!visible) return;
+
+        const loadFormData = async () => {
+            try {
+                // Ładujemy style zawsze
+                const stylesData = await repository.getStylesForSelection();
+                setStylesList(stylesData);
+
+                // Ładujemy drogi tylko jeśli nie zostały przekazane i nie są ukryte
+                if (!initialRoutes && !hideRouteSearch) {
+                    const routesData = await repository.getRoutesForSelection();
+                    setRoutes(routesData);
+                }
+            } catch (err) {
+                console.error("Błąd ładowania danych formularza:", err);
+            }
+        };
+
+        loadFormData();
+    }, [visible, repository, initialRoutes, hideRouteSearch]);
 
     useEffect(() => {
         if (preselectedRouteId) {
@@ -133,7 +169,7 @@ const ManualAscentFormModal = ({
             data.trim().length > 0 &&
             selectedRouteId.trim().length > 0 &&
             ascentStyle.length > 0,
-        [data, selectedRouteId, note, ascentStyle],
+        [data, selectedRouteId, ascentStyle],
     );
 
     const resetForm = () => {
@@ -145,26 +181,59 @@ const ManualAscentFormModal = ({
     };
 
     const handleSubmit = async () => {
-        if (!canSubmit) return;
+        if (!canSubmit || !userId) return;
+
         try {
-            await onSubmit({
+            setSaving(true);
+
+            // Zapis lokalny
+            const localId = await repository.addManualAscent({
                 data: data.trim(),
                 id_drogi: selectedRouteId,
                 notatka: note.trim(),
+                id_uzytkownika: Number(userId),
                 nazwa_stylu: ascentStyle,
+                synced: 0,
             });
+
+            // Sukces lokalny - powiadamiamy rodzica (np. żeby odświeżył listę)
+            if (onSuccess) onSuccess();
+            onClose();
+
             showSnackbar({
-                message: "Przejście zostało dodane",
+                message: "Przejście zostało zapisane",
                 type: "success",
             });
-        } catch {
+
+            // Synchronizacja w tle (jeśli jest sieć)
+            if (isConnected) {
+                try {
+                    await UserService.createAscent({
+                        id: localId,
+                        data: data.trim(),
+                        id_drogi: selectedRouteId,
+                        timeline_data: {},
+                        notatka: note.trim(),
+                        nazwa_stylu: ascentStyle,
+                    });
+
+                    await repository.markAsSynced(localId);
+                    if (onSuccess) onSuccess(); // Odświeżamy ponownie, żeby zniknęła ikonka offline
+                } catch (apiError) {
+                    console.warn("Błąd synchronizacji API:", apiError);
+                }
+            }
+
+            resetForm();
+        } catch (error) {
+            console.error("Błąd zapisu przejścia:", error);
             showSnackbar({
-                message: "Nie udało się dodać przejścia",
+                message: "Wystąpił błąd podczas zapisywania",
                 type: "error",
             });
+        } finally {
+            setSaving(false);
         }
-
-        resetForm();
     };
 
     return (
@@ -381,14 +450,31 @@ const ManualAscentFormModal = ({
                                 opacity: !canSubmit || saving ? 0.4 : 1,
                             }}
                         >
-                            <ThemedText
+                            <View
                                 style={{
-                                    textAlign: "center",
-                                    color: "white",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: 10,
                                 }}
                             >
-                                {saving ? "Zapisywanie..." : "Zapisz przejście"}
-                            </ThemedText>
+                                <ThemedText
+                                    style={{
+                                        textAlign: "center",
+                                        color: "white",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    {saving ? (
+                                        <ActivityIndicator
+                                            size="small"
+                                            color="white"
+                                        />
+                                    ) : (
+                                        "Zapisz przejście"
+                                    )}
+                                </ThemedText>
+                            </View>
                         </ThemedButton>
                     </ScrollView>
                 </ThemedView>

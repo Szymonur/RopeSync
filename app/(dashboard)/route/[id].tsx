@@ -19,16 +19,10 @@ import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import { Colors } from "../../../constants/Colors";
 
-import ManualAscentFormModal, {
-    ManualAscentFormValues,
-} from "../../../components/ManualAscentFormModal";
+import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
-
-import { useMe } from "../../../lib/hooks/useProfile";
-import { AscentRepository } from "../../../database/repositories/AscentRepository";
-import { UserService } from "../../../services/api/UserService";
 
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,13 +30,9 @@ const RouteDetail = () => {
     const [route, setRoute] = useState<RouteDetails | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const { data: user } = useMe();
     const [formVisible, setFormVisible] = useState(false);
-    const [saving, setSaving] = useState(false);
-    const [stylesList, setStylesList] = useState<string[]>([]);
 
     const repository = useMemo(() => new RouteRepository(db), [db]);
-    const ascentRepository = useMemo(() => new AscentRepository(db), [db]);
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -57,47 +47,8 @@ const RouteDetail = () => {
             }
         };
 
-        const loadStyles = async () => {
-            try {
-                const data = await ascentRepository.getStylesForSelection();
-                setStylesList(data);
-            } catch (error) {
-                console.error("Błąd podczas ładowania stylów:", error);
-            }
-        };
-
         fetchDetails();
-        loadStyles();
-    }, [id, repository, ascentRepository]);
-
-    const handleSaveManualAscent = async (values: ManualAscentFormValues) => {
-        if (!user?.id) return;
-
-        try {
-            setSaving(true);
-
-            const localId = await ascentRepository.addManualAscent({
-                data: values.data,
-                id_drogi: values.id_drogi,
-                notatka: values.notatka,
-                id_uzytkownika: Number(user.id),
-                nazwa_stylu: values.nazwa_stylu,
-            });
-            await UserService.createAscent({
-                data: values.data,
-                id: localId,
-                id_drogi: values.id_drogi,
-                timeline_data: {},
-                notatka: values.notatka,
-                nazwa_stylu: values.nazwa_stylu,
-            });
-            setFormVisible(false);
-        } catch (error) {
-            console.error("Błąd podczas zapisywania przejścia:", error);
-        } finally {
-            setSaving(false);
-        }
-    };
+    }, [id, repository]);
 
     if (loading) {
         return (
@@ -128,9 +79,7 @@ const RouteDetail = () => {
             <ManualAscentFormModal
                 visible={formVisible}
                 onClose={() => setFormVisible(false)}
-                onSubmit={handleSaveManualAscent}
-                saving={saving}
-                routes={[
+                initialRoutes={[
                     {
                         id_drogi: id,
                         nazwa_drogi: route.nazwa_drogi,
@@ -139,7 +88,6 @@ const RouteDetail = () => {
                         wycena: route.skala,
                     },
                 ]}
-                styles={stylesList}
                 preselectedRouteId={id}
                 hideRouteSearch={true}
             />
