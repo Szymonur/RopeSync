@@ -119,7 +119,9 @@ export async function initializeDatabase(db: SQLiteDatabase) {
 
     // Migracja z wersji 10 do 11 (Rozbudowa tabeli Reakcje o nowe pola do powiadomień)
     if (currentDbVersion === 10) {
-        console.log("Migracja bazy danych: 10 -> 11 (Rozbudowa tabeli Reakcje)");
+        console.log(
+            "Migracja bazy danych: 10 -> 11 (Rozbudowa tabeli Reakcje)",
+        );
         try {
             await db.execAsync(`PRAGMA foreign_keys = OFF;`);
             await db.execAsync(`DROP TABLE IF EXISTS Reakcje;`);

@@ -219,12 +219,13 @@ const AscentDetails = () => {
             <ThemedText style={styles.note}>
                 {ascent.notatka || "Brak notatki"}
             </ThemedText>
-            {ascent.timeline_data && (
-                <>
-                    <Spacer height={10} />
-                    <ThemedTimeline timelineData={ascent.timeline_data} />
-                </>
-            )}
+            {ascent.timeline_data &&
+                Object.keys(ascent.timeline_data).length > 0 && (
+                    <>
+                        <Spacer height={10} />
+                        <ThemedTimeline timelineData={ascent.timeline_data} />
+                    </>
+                )}
 
             <Spacer height={20} />
             <ThemedText style={{ opacity: 0.5, fontSize: 12 }}>
