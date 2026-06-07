@@ -28,11 +28,25 @@ import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { NetworkProvider } from "../contexts/NetworkContext";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
 import { SnackbarProvider } from "../contexts/SnackbarContext";
+import { RepositoryProvider } from "../contexts/RepositoryContext";
 import { useSyncManager } from "../lib/hooks/useSyncManager";
 import { Colors } from "../constants/Colors";
 
 const queryClient = new QueryClient();
-// ... (rest of imports and InitialLayout)
+
+const DatabaseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    // Jeśli to web, pomijamy SQLiteProvider i renderujemy same dzieci
+    if (Platform.OS === "web") {
+        return <>{children}</>;
+    }
+
+    // Dla iOS/Android uruchamiamy pełnego SQLite'a
+    return (
+        <SQLiteProvider databaseName="ropesync.db" onInit={initializeDatabase}>
+            {children}
+        </SQLiteProvider>
+    );
+};
 
 const InitialLayout = () => {
     const { refreshToken, currentUserId, isLoading } = useAuth();
@@ -42,7 +56,9 @@ const InitialLayout = () => {
     const theme = Colors[colorScheme];
 
     // Aktywacja managera synchronizacji
-    useSyncManager();
+	if (Platform.OS !== "web") {
+    	useSyncManager();
+    }
 
     useEffect(() => {
         if (isLoading) return;
@@ -82,48 +98,50 @@ const RootLayout = () => {
     if (Platform.OS === "web") {
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
+		if(token){
         const appUrl = `ropesync://choose-new-password?token=${token}`;
-        useEffect(() => {
-            window.location.replace(appUrl);
-        }, []);
+			useEffect(() => {
+				window.location.replace(appUrl);
+			}, []);
 
-        return (
-            <View style={styles.webContainer}>
-                <Text style={styles.webTitle}>Otwieranie aplikacji...</Text>
-                <Text style={styles.webText}>
-                    Jeśli aplikacja nie otworzyła się automatycznie, kliknij
-                    przycisk poniżej.
-                </Text>
-                <View style={{ marginTop: 30 }}>
-                    <Text
-                        style={styles.buttonText}
-                        onPress={() => {
-                            window.location.replace(appUrl);
-                        }}
-                    >
-                        Otwórz w aplikacji RopeSync
-                    </Text>
-                </View>
-            </View>
-        );
+			return (
+				<View style={styles.webContainer}>
+					<Text style={styles.webTitle}>Otwieranie aplikacji...</Text>
+					<Text style={styles.webText}>
+						Jeśli aplikacja nie otworzyła się automatycznie, kliknij
+						przycisk poniżej.
+					</Text>
+					<View style={{ marginTop: 30 }}>
+						<Text
+							style={styles.buttonText}
+							onPress={() => {
+								window.location.replace(appUrl);
+							}}
+						>
+							Otwórz w aplikacji RopeSync
+						</Text>
+					</View>
+				</View>
+			);
+		}
+
     }
     return (
-        <QueryClientProvider client={queryClient}>
-            <ThemeProvider>
-                <SnackbarProvider>
-                    <NetworkProvider>
-                        <AuthProvider>
-                            <SQLiteProvider
-                                databaseName="ropesync.db"
-                                onInit={initializeDatabase}
-                            >
-                                <InitialLayout />
-                            </SQLiteProvider>
-                        </AuthProvider>
-                    </NetworkProvider>
-                </SnackbarProvider>
-            </ThemeProvider>
-        </QueryClientProvider>
+			<QueryClientProvider client={queryClient}>
+				<ThemeProvider>
+					<SnackbarProvider>
+						<NetworkProvider>
+							<AuthProvider>
+								<DatabaseWrapper>
+									<RepositoryProvider>
+										<InitialLayout />
+									</RepositoryProvider>
+								</DatabaseWrapper>
+							</AuthProvider>
+						</NetworkProvider>
+					</SnackbarProvider>
+				</ThemeProvider>
+			</QueryClientProvider>
     );
 };
 

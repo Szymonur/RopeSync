@@ -7,7 +7,6 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useSQLiteContext } from "expo-sqlite";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -21,18 +20,15 @@ import ThemedCard from "../../../components/ThemedCard";
 import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
-import {
-    AscentRepository,
-    Ascent,
-} from "../../../database/repositories/AscentRepository";
+
+import { useRepositories } from "../../../contexts/RepositoryContext";
+import { Ascent } from "../../../types/ascent"
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 
 const Asce = () => {
-    const db = useSQLiteContext();
-    const { currentUserId: userId } = useAuth();
     const [ascents, setAscents] = useState<Ascent[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [formVisible, setFormVisible] = useState(false);
@@ -41,12 +37,11 @@ const Asce = () => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    const repository = useMemo(() => new AscentRepository(db), [db]);
+	const { ascentRepository } = useRepositories();
 
     const loadAscents = async () => {
-        if (!userId) return;
         try {
-            const data = await repository.getAscentsForUser(Number(userId));
+            const data = await ascentRepository.getAscents();
             setAscents(data);
         } catch (error) {
             console.error("Błąd podczas ładowania przejść:", error);
@@ -57,11 +52,11 @@ const Asce = () => {
         setRefreshing(true);
         await loadAscents();
         setRefreshing(false);
-    }, [userId, repository]);
+    }, [ascentRepository]);
 
     useEffect(() => {
         loadAscents();
-    }, [userId]);
+    }, [ascentRepository]);
 
     return (
         <ThemedView style={styles.container}>

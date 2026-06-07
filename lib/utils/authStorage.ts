@@ -1,95 +1,87 @@
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
 const ACCESS_TOKEN_KEY = "jwt_access_token";
 const REFRESH_TOKEN_KEY = "jwt_refresh_token";
 const CURRENT_USER_ID = "current_user_id";
 
-// ACCESS TOKEN
+// --- FUNKCJE POMOCNICZE ---
+
+const saveItem = async (key: string, value: string, errorMessage: string): Promise<void> => {
+    try {
+        if (Platform.OS === "web") {
+            localStorage.setItem(key, value);
+        } else {
+            await SecureStore.setItemAsync(key, value);
+        }
+    } catch (error) {
+        console.error(errorMessage, error);
+    }
+};
+
+const getItem = async (key: string, errorMessage: string): Promise<string | null> => {
+    try {
+        if (Platform.OS === "web") {
+            return localStorage.getItem(key);
+        } else {
+            return await SecureStore.getItemAsync(key);
+        }
+    } catch (error) {
+        console.error(errorMessage, error);
+        return null;
+    }
+};
+
+const removeItem = async (key: string, errorMessage: string): Promise<void> => {
+    try {
+        if (Platform.OS === "web") {
+            localStorage.removeItem(key);
+        } else {
+            await SecureStore.deleteItemAsync(key);
+        }
+    } catch (error) {
+        console.error(errorMessage, error);
+    }
+};
+
+// --- ACCESS TOKEN ---
 
 export const saveAccessToken = async (token: string): Promise<void> => {
-    try {
-        await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
-    } catch (error) {
-        console.error("Błąd podczas zapisywania Access Tokenu", error);
-    }
+    await saveItem(ACCESS_TOKEN_KEY, token, "Błąd podczas zapisywania Access Tokenu");
 };
 
 export const getAccessToken = async (): Promise<string | null> => {
-    try {
-        return await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-    } catch (error) {
-        console.error("Błąd podczas pobierania Access Tokenu", error);
-        return null;
-    }
+    return await getItem(ACCESS_TOKEN_KEY, "Błąd podczas pobierania Access Tokenu");
 };
 
 export const removeAccessToken = async (): Promise<void> => {
-    try {
-        await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    } catch (error) {
-        console.error("Błąd podczas usuwania Access Tokenu", error);
-    }
+    await removeItem(ACCESS_TOKEN_KEY, "Błąd podczas usuwania Access Tokenu");
 };
 
-// REFRESH TOKEN
+// --- REFRESH TOKEN ---
 
 export const saveRefreshToken = async (token: string): Promise<void> => {
-    try {
-        await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
-    } catch (error) {
-        console.error("Błąd podczas zapisywania Refresh Tokenu", error);
-    }
+    await saveItem(REFRESH_TOKEN_KEY, token, "Błąd podczas zapisywania Refresh Tokenu");
 };
 
 export const getRefreshToken = async (): Promise<string | null> => {
-    try {
-        return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-    } catch (error) {
-        console.error("Błąd podczas pobierania Refresh Tokenu", error);
-        return null;
-    }
+    return await getItem(REFRESH_TOKEN_KEY, "Błąd podczas pobierania Refresh Tokenu");
 };
 
 export const removeRefreshToken = async (): Promise<void> => {
-    try {
-        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-    } catch (error) {
-        console.error("Błąd podczas usuwania Refresh Tokenu", error);
-    }
+    await removeItem(REFRESH_TOKEN_KEY, "Błąd podczas usuwania Refresh Tokenu");
 };
 
-// CURRENT USER ID
+// --- CURRENT USER ID ---
 
 export const saveCurrentUserId = async (userId: string): Promise<void> => {
-    try {
-        await SecureStore.setItemAsync(CURRENT_USER_ID, String(userId));
-    } catch (error) {
-        console.error(
-            "Błąd podczas zapisywania akutlaniego id uzytkownika",
-            error,
-        );
-    }
+    await saveItem(CURRENT_USER_ID, String(userId), "Błąd podczas zapisywania akutlaniego id uzytkownika");
 };
 
 export const getCurrentUserId = async (): Promise<string | null> => {
-    try {
-        return await SecureStore.getItemAsync(CURRENT_USER_ID);
-    } catch (error) {
-        console.error(
-            "Błąd podczas pobierania akutlaniego id uzytkownika",
-            error,
-        );
-        return null;
-    }
+    return await getItem(CURRENT_USER_ID, "Błąd podczas pobierania akutlaniego id uzytkownika");
 };
 
 export const removeCurrentUserId = async (): Promise<void> => {
-    try {
-        await SecureStore.deleteItemAsync(CURRENT_USER_ID);
-    } catch (error) {
-        console.error(
-            "Błąd podczas usuwania akutlaniego id uzytkownika",
-            error,
-        );
-    }
+    await removeItem(CURRENT_USER_ID, "Błąd podczas usuwania akutlaniego id uzytkownika");
 };

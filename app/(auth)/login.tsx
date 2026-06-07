@@ -8,30 +8,22 @@ import ThemedText from "../../components/ThemedText";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import Spacer from "../../components/Spacer";
 
-import {
-    UserRepository,
-    User,
-} from "../../database/repositories/UserRepository";
-import { useSQLiteContext } from "expo-sqlite";
+import { useRepositories } from "../../contexts/RepositoryContext";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useNetwork } from "../../contexts/NetworkContext";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 
 const Login = () => {
-    const { login } = useAuth();
+    const { login: authContextLogin } = useAuth();
     const { isConnected } = useNetwork();
+	const { userRepository } = useRepositories();
+	
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
 
     const [errorLogin, setErrorLogin] = useState("");
     const [errorPassword, setErrorPassword] = useState("");
-
-    const db = useSQLiteContext();
-
-    const userRepository = useMemo(() => new UserRepository(db), [db]);
-
-    const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const handleSubmit = async () => {
         if (!isConnected) {
@@ -47,42 +39,21 @@ const Login = () => {
         const trimmedPassword = userPassword.trim();
 
         trimmedLogin ? setErrorLogin("") : setErrorLogin("Enter your login!");
-        trimmedPassword
-            ? setErrorPassword("")
-            : setErrorPassword("Enter your Password!");
+        trimmedPassword ? setErrorPassword("") : setErrorPassword("Enter your Password!");
 
         if (!trimmedLogin || !trimmedPassword) {
             return;
         }
 
         try {
-            const response = await fetch(`${API_URL}/login`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username: trimmedLogin,
-                    password: trimmedPassword,
-                }),
-            });
-            const json = await response.json();
+            const result = await userRepository.login(trimmedLogin, trimmedPassword);
+			if (result.accessToken && result.refreshToken && result.userId) {
+                await authContextLogin(result.accessToken, result.refreshToken, result.userId);
+			} else {
+				setErrorLogin("Błędne dane logowania");
+				setErrorPassword("Błędne dane logowania");	
+			}
 
-            if (json.accesToken && json.refreshToken) {
-                await login(json.accesToken, json.refreshToken, json.id);
-
-                await userRepository.setUserInfo({
-                    id_uzytkownika: json.id,
-                    login: json.username,
-                    email: json.email,
-                    imie: json.firstName,
-                    nazwisko: json.lastName,
-                });
-            } else {
-                setErrorLogin("Invalid credentials");
-                setErrorPassword("Invalid credentials");
-            }
         } catch (error) {
             Alert.alert("Something went wrong!", `${error}`, [{ text: "OK" }]);
             console.error(error);

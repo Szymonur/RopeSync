@@ -10,7 +10,7 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { useEffect, useMemo, useState } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import {randomUUID} from "expo-crypto";
 
 import ThemedButton from "./ThemedButton";
 import ThemedText from "./ThemedText";
@@ -19,10 +19,13 @@ import ThemedView from "./ThemedView";
 import Spacer from "./Spacer";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
-import {
-    AscentRepository,
-    RouteForSelection,
-} from "../database/repositories/AscentRepository";
+
+import { useRepositories } from "../contexts/RepositoryContext";
+import { Ascent, AscentStyle } from "../types/ascent";
+import { RouteListItem } from "../types/route";
+
+import { useDebounce} from "../lib/hooks/useDebounce"
+
 
 import { useSnackbar } from "../contexts/SnackbarContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -44,7 +47,7 @@ interface ManualAscentFormModalProps {
     onSuccess?: () => void;
     preselectedRouteId?: string;
     hideRouteSearch?: boolean;
-    initialRoutes?: RouteForSelection[]; // Opcjonalnie, np. gdy jesteśmy na stronie konkretnej drogi
+    initialRoutes?: RouteListItem[]; // Opcjonalnie, np. gdy jesteśmy na stronie konkretnej drogi
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -55,9 +58,7 @@ const ManualAscentFormModal = ({
     onSuccess,
     preselectedRouteId,
     hideRouteSearch,
-    initialRoutes,
 }: ManualAscentFormModalProps) => {
-    const db = useSQLiteContext();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const { currentUserId: userId } = useAuth();
@@ -65,18 +66,19 @@ const ManualAscentFormModal = ({
     const { showSnackbar } = useSnackbar();
 
     // Repozytorium inicjalizowane wewnątrz
-    const repository = useMemo(() => new AscentRepository(db), [db]);
+    const { ascentRepository, routeRepository} = useRepositories();
 
     const [saving, setSaving] = useState(false);
-    const [routes, setRoutes] = useState<RouteForSelection[]>(
-        initialRoutes || [],
-    );
-    const [stylesList, setStylesList] = useState<string[]>([]);
+    const [routes, setRoutes] = useState<RouteListItem[]>([]);
+    const [stylesList, setStylesList] = useState<AscentStyle[]>([]);
 
     const [data, setData] = useState(getToday());
     const [note, setNote] = useState("");
     const [ascentStyle, setAscentStyle] = useState("RP");
     const [routeFilter, setRouteFilter] = useState("");
+
+	const debouncedRouteFilter = useDebounce(routeFilter);
+
     const [selectedRouteId, setSelectedRouteId] = useState(
         preselectedRouteId || "",
     );
@@ -91,21 +93,16 @@ const ManualAscentFormModal = ({
         const loadFormData = async () => {
             try {
                 // Ładujemy style zawsze
-                const stylesData = await repository.getStylesForSelection();
+                const stylesData = await ascentRepository.getStyles();
                 setStylesList(stylesData);
 
-                // Ładujemy drogi tylko jeśli nie zostały przekazane i nie są ukryte
-                if (!initialRoutes && !hideRouteSearch) {
-                    const routesData = await repository.getRoutesForSelection();
-                    setRoutes(routesData);
-                }
             } catch (err) {
                 console.error("Błąd ładowania danych formularza:", err);
             }
         };
 
         loadFormData();
-    }, [visible, repository, initialRoutes, hideRouteSearch]);
+    }, [visible, ascentRepository,  hideRouteSearch]);
 
     useEffect(() => {
         if (preselectedRouteId) {
@@ -136,28 +133,37 @@ const ManualAscentFormModal = ({
     }, []);
 
     useEffect(() => {
-        if (routeFilter.length === 0 || routeFilter.length >= 2) {
+        if (debouncedRouteFilter.length === 0 || debouncedRouteFilter.length >= 2) {
             setRouteFilterError("");
             return;
         }
+    }, [debouncedRouteFilter]);
 
-        const timer = setTimeout(() => {
-            if (routeFilter.length === 1) {
-                setRouteFilterError("Min. 2 znaki są wymagane");
+	useEffect(() => {
+        const query = debouncedRouteFilter.trim().toLowerCase();
+
+		if (query.length == 1) {
+			setRouteFilterError("Wpisz przynajmniej 2 znaki!")
+		}
+    
+        if (query.length <= 2) {
+            setRoutes([]);
+            return;
+        }
+
+        const fetchFilteredRoutes = async () => {
+            try {
+                const filters = { nazwa_drogi: query };
+                const data = await routeRepository.getRoutes(filters);
+                setRoutes(data); 
+            } catch (error) {
+                console.error("Błąd podczas wyszukiwania dróg:", error);
+                setRoutes([]);
             }
-        }, 1000);
-
-        return () => clearTimeout(timer);
-    }, [routeFilter]);
-
-    const filteredRoutes = useMemo(() => {
-        const query = routeFilter.trim().toLowerCase();
-        if (query.length < 2) return [];
-
-        return routes.filter((route) =>
-            route.nazwa_drogi.toLowerCase().includes(query),
-        );
-    }, [routeFilter, routes]);
+        };
+        fetchFilteredRoutes();
+        
+    }, [debouncedRouteFilter, routeRepository]);
 
     const selectedRoute = useMemo(
         () => routes.find((route) => route.id_drogi === selectedRouteId),
@@ -187,7 +193,10 @@ const ManualAscentFormModal = ({
             setSaving(true);
 
             // Zapis lokalny
-            const localId = await repository.addManualAscent({
+            const ascentId = randomUUID();
+			await ascentRepository.addAscent({
+				id_przejscia: ascentId,
+				timeline_data: {},
                 data: data.trim(),
                 id_drogi: selectedRouteId,
                 notatka: note.trim(),
@@ -204,25 +213,6 @@ const ManualAscentFormModal = ({
                 message: "Przejście zostało zapisane",
                 type: "success",
             });
-
-            // Synchronizacja w tle (jeśli jest sieć)
-            if (isConnected) {
-                try {
-                    await UserService.createAscent({
-                        id: localId,
-                        data: data.trim(),
-                        id_drogi: selectedRouteId,
-                        timeline_data: {},
-                        notatka: note.trim(),
-                        nazwa_stylu: ascentStyle,
-                    });
-
-                    await repository.markAsSynced(localId);
-                    if (onSuccess) onSuccess(); // Odświeżamy ponownie, żeby zniknęła ikonka offline
-                } catch (apiError) {
-                    console.warn("Błąd synchronizacji API:", apiError);
-                }
-            }
 
             resetForm();
         } catch (error) {
@@ -297,22 +287,20 @@ const ManualAscentFormModal = ({
                                     error={routeFilterError}
                                 />
 
-                                <ScrollView
+
+								<ScrollView
                                     style={styles.routesList}
                                     nestedScrollEnabled={true}
                                     showsVerticalScrollIndicator={false}
                                     keyboardShouldPersistTaps="handled"
                                 >
-                                    {filteredRoutes.length === 0 &&
-                                    routeFilter.length >= 2 ? (
+                                    {routes.length === 0 && routeFilter.length >= 2 ? (
                                         <ThemedText style={{ opacity: 0.7 }}>
                                             Brak dróg pasujących do filtra.
                                         </ThemedText>
                                     ) : (
-                                        filteredRoutes.map((item) => {
-                                            const selected =
-                                                selectedRouteId ===
-                                                item.id_drogi;
+                                        routes.map((item) => {
+                                            const selected = selectedRouteId === item.id_drogi;
 
                                             return (
                                                 <TouchableOpacity
@@ -398,11 +386,11 @@ const ManualAscentFormModal = ({
                             style={styles.stylesList}
                         >
                             {stylesList.map((style) => {
-                                const selected = ascentStyle === style;
+                                const selected = style.nazwa_stylu === ascentStyle;
                                 return (
                                     <TouchableOpacity
-                                        key={style}
-                                        onPress={() => setAscentStyle(style)}
+                                        key={style.nazwa_stylu}
+                                        onPress={() => setAscentStyle(style.nazwa_stylu)}
                                         style={[
                                             styles.styleItem,
                                             {
@@ -422,7 +410,7 @@ const ManualAscentFormModal = ({
                                                 fontWeight: "700",
                                             }}
                                         >
-                                            {style}
+                                            {style.nazwa_stylu}
                                         </ThemedText>
                                     </TouchableOpacity>
                                 );

@@ -10,10 +10,6 @@ import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 
-import { useSQLiteContext } from "expo-sqlite";
-import { ReactionRepository } from "../../../database/repositories/ReactionRepository";
-import { useAuth } from "../../../contexts/AuthContext";
-
 import ThemedCard from "../../../components/ThemedCard";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
@@ -22,14 +18,12 @@ import { useTheme } from "../../../contexts/ThemeContext";
 import { useNetwork } from "../../../contexts/NetworkContext";
 import {
     UserService,
-    FollowingFeedItem,
 } from "../../../services/api/UserService";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
-import OfflineHeaderIcon from "../../../components/OfflineHeaderIcon";
 
 import { useSnackbar } from "../../../contexts/SnackbarContext";
 import { useState } from "react";
@@ -95,8 +89,6 @@ const Index = () => {
     const theme = Colors[colorScheme];
     const { isConnected } = useNetwork();
     const { showSnackbar } = useSnackbar();
-    const { currentUserId } = useAuth();
-    const db = useSQLiteContext();
 
     const {
         data: feed = [],

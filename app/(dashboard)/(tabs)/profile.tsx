@@ -25,7 +25,7 @@ import {
 import {
     UserRepository,
     User,
-} from "../../../database/repositories/UserRepository";
+} from "../../../database/repositories/mobile/UserRepository";
 
 import { ReactionRepository } from "../../../database/repositories/ReactionRepository";
 

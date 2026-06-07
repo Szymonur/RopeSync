@@ -4,16 +4,15 @@ import {
     View,
     TouchableOpacity,
     Alert,
+	Platform
 } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
-import { useSQLiteContext } from "expo-sqlite";
 import { useRouter } from "expo-router";
 
-import {
-    AscentRepository,
-    Ascent,
-} from "../../../database/repositories/AscentRepository";
+import { useRepositories } from "../../../contexts/RepositoryContext";
+import { Ascent } from "../../../types/ascent";
+
 import {
     UserService,
     RemoteAscentDetails,
@@ -43,12 +42,9 @@ const AscentDetails = () => {
         id: string;
         userId?: string;
     }>();
-    const db = useSQLiteContext();
-    const { isConnected } = useNetwork();
     const { showSnackbar } = useSnackbar();
 
-    // Używamy wspólnego typu lub any, ponieważ RemoteAscentDetails ma trochę inną strukturę (np. brak 'synced')
-    const [ascent, setAscent] = useState<Ascent | RemoteAscentDetails | null>(
+    const [ascent, setAscent] = useState<Ascent | null>(
         null,
     );
     const [loading, setLoading] = useState(true);
@@ -57,63 +53,51 @@ const AscentDetails = () => {
     const { currentUserId: userId } = useAuth();
     const currentUserId = Number(userId);
 
-    const repository = useMemo(() => new AscentRepository(db), [db]);
+    const { ascentRepository } = useRepositories();
 
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    const handleDelete = () => {
-        Alert.alert(
-            "Usuń przejście",
-            `Czy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"?`,
-            [
-                { text: "Anuluj", style: "cancel" },
-                {
-                    text: "Usuń",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            if (ascent?.id_przejscia) {
-                                // 1. Oznaczamy jako usunięte lokalnie (soft delete)
-                                await repository.markAsDeletedLocal(
-                                    ascent.id_przejscia,
-                                );
+    const handleDelete = () => { // TODO - add custom alert component ans use it here
+		if (Platform.OS === 'web') {
+		const confirmed = window.confirm(`Usuń przejście\n\nCzy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"?`);
+				if (confirmed) {
+					ascentRepository.deleteAscent(id);
+					console.log("DELETE");
+					router.back();
+				}
+		} else {
 
-                                // 2. Natychmiast wracamy do listy
-                                router.back();
-
-                                // 3. Próbujemy zsynchronizować z API jeśli jest sieć
-                                if (isConnected) {
-                                    try {
-                                        await UserService.deleteAscent(
-                                            ascent.id_przejscia,
-                                        );
-                                        await repository.deleteAscentPermanently(
-                                            ascent.id_przejscia,
-                                        );
-                                    } catch (apiError) {
-                                        console.warn(
-                                            "Błąd podczas usuwania z API (zostanie usunięte przy synchronizacji):",
-                                            apiError,
-                                        );
-                                    }
-                                }
-                                showSnackbar({
-                                    message: `Przejscie drogi ${ascent?.nazwa_drogi} zostało usunięte`,
-                                    type: "success",
-                                });
-                            }
-                        } catch (error) {
-                            showSnackbar({
-                                message: "Nie duało się usunać przejscia",
-                                type: "error",
-                            });
-                            console.error("Błąd podczas usuwania:", error);
-                        }
-                    },
-                },
-            ],
-        );
+			Alert.alert(
+				"Usuń przejście",
+				`Czy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"?`,
+				[
+					{ text: "Anuluj", style: "cancel" },
+					{
+						text: "Usuń",
+						style: "destructive",
+						onPress: async () => {
+							try {
+								if (ascent?.id_przejscia) {
+									await ascentRepository.deleteAscent(id);
+									router.back();
+									showSnackbar({
+										message: `Przejscie drogi ${ascent?.nazwa_drogi} zostało usunięte`,
+										type: "success",
+									});
+								}
+							} catch (error) {
+								showSnackbar({
+									message: "Nie duało się usunać przejscia",
+									type: "error",
+								});
+								console.error("Błąd podczas usuwania:", error);
+							}
+						},
+					},
+				],
+			);
+		};
     };
 
     useEffect(() => {
@@ -122,36 +106,22 @@ const AscentDetails = () => {
             try {
                 setLoading(true);
 
-                // Sprawdzamy, czy w parametrach URL mamy informację, że to nie jest nasze przejście
-                // (w index.tsx przekażemy userId z feedu, aby móc to łatwiej odróżnić zanim pobierzemy)
-                // Lub po prostu próbujemy pobrać z lokalnej bazy, a jak nie ma, to z API.
+				const data = await ascentRepository.getAscent(
+                    id as string, 
+                    searchUserId ? Number(searchUserId) : undefined
+                );
+				setAscent(data);
 
-                let localData = null;
-
-                // Jeśli jawnie nie szukamy kogoś innego, sprawdźmy bazę lokalną
-                if (!searchUserId || Number(searchUserId) === currentUserId) {
-                    localData = await repository.getAscentDetails(id);
-                }
-
-                if (localData) {
-                    setAscent(localData);
-                } else if (isConnected) {
-                    // Jeśli nie ma w lokalnej, lub to przejście z feedu kogoś innego
-                    const remoteData = await UserService.getAscentDetails(id);
-                    setAscent(remoteData);
-                } else {
-                    console.log("Brak danych lokalnie, a jesteś offline.");
-                    setAscent(null);
-                }
             } catch (error) {
                 console.error("Błąd ładowania szczegółów przejścia:", error);
+				setAscent(null);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchDetails();
-    }, [id, searchUserId, currentUserId, isConnected]);
+    }, [id, searchUserId, currentUserId]);
 
     if (loading) {
         return (

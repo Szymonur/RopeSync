@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useColorScheme as useSystemColorScheme, ColorSchemeName } from 'react-native';
+import { useColorScheme as useSystemColorScheme, Platform} from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 type ThemeMode = 'system' | 'light' | 'dark';
@@ -12,18 +12,49 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+
+const THEME_STORAGE_KEY = "user-theme-mode";
+
+// Helper do odczytu danych zależnie od platformy
+const getStoredTheme = async (): Promise<ThemeMode | null> => {
+    if (Platform.OS === "web") {
+        try {
+            return localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+        } catch (e) {
+            console.error("Błąd odczytu z localStorage", e);
+            return null;
+        }
+    } else {
+        const savedMode = await SecureStore.getItemAsync(THEME_STORAGE_KEY);
+        return savedMode as ThemeMode | null;
+    }
+};
+
+// Helper do zapisu danych zależnie od platformy
+const setStoredTheme = async (mode: ThemeMode): Promise<void> => {
+    if (Platform.OS === "web") {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, mode);
+        } catch (e) {
+            console.error("Błąd zapisu do localStorage", e);
+        }
+    } else {
+        await SecureStore.setItemAsync(THEME_STORAGE_KEY, mode);
+    }
+};
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useSystemColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
 
-  useEffect(() => {
-    // Załaduj zapisany motyw przy starcie
-    SecureStore.getItemAsync('user-theme-mode').then((savedMode) => {
-      if (savedMode) {
-        setThemeModeState(savedMode as ThemeMode);
-      }
-    });
-  }, []);
+useEffect(() => {
+        // Załaduj zapisany motyw przy starcie 
+        getStoredTheme().then((savedMode) => {
+            if (savedMode) {
+                setThemeModeState(savedMode);
+            }
+        });
+    }, []);
 
   const setThemeMode = async (mode: ThemeMode) => {
     setThemeModeState(mode);

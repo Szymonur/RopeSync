@@ -1,0 +1,29 @@
+import api from "../../../lib/api/client";
+import { IUserRepository } from "../interfaces/IUserRepository";
+import { LoginResponse} from '../../../types/user';
+
+export class ApiUserRepository implements IUserRepository {
+
+    async login(username: string, password: string): Promise<LoginResponse> {
+        try {
+            const response = await api.post<LoginResponse>(`/login`, { username, password });            
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                throw new Error("Błędne dane logowania!");
+            }
+            throw new Error(error.response?.data?.message || "Problem z połączeniem sieciowym");
+        }
+    }
+
+    async register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<void> {
+        try {
+            await api.post(`/register`, { username, password, email, firstName, lastName });
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                throw new Error(error.response.data.message || "Błąd podczas rejestracji.");
+            }
+            throw new Error("Brak połączenia z serwerem lub nieznany błąd.");
+        }
+    }
+}

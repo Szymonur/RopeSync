@@ -28,16 +28,20 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+		const isAuthEndpoint = originalRequest.url?.includes('/login') || originalRequest.url?.includes('/register');
 
         if (
             error.response &&
             (error.response.status === 401 || error.response.status === 403) &&
-            !originalRequest._retry
+            !originalRequest._retry && 
+			!isAuthEndpoint
         ) {
             originalRequest._retry = true;
             try {
                 const refreshToken = await authStorage.getRefreshToken();
-                if (!refreshToken) return;
+                if (!refreshToken) {
+                    return Promise.reject(error);
+                }
 
                 const response = await fetch(`${API_URL}/refresh`, {
                     method: "POST",
@@ -62,6 +66,7 @@ api.interceptors.response.use(
                     "Error during refresh access token",
                     refreshError,
                 );
+				return Promise.reject(refreshError);
             }
         }
         return Promise.reject(error);

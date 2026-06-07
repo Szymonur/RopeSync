@@ -5,6 +5,7 @@ import {
     ScrollView,
     ActivityIndicator,
     PanResponder,
+	Platform
 } from "react-native";
 import ThemedText from "./ThemedText";
 import Spacer from "../components/Spacer";
@@ -286,11 +287,19 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
                                 );
                                 contentHeightRatioRef.current = ratio; // Przeniesione do środka if'a!
 
-                                indicatorRef.current?.setNativeProps({
-                                    style: {
-                                        bottom: ratio * layoutHeightRef.current,
-                                    },
-                                });
+								const newBottomValue = ratio * layoutHeightRef.current;
+
+								if (Platform.OS === 'web') {
+									if (indicatorRef.current) {
+										(indicatorRef.current as any).style.bottom = `${newBottomValue}px`;
+									}
+								} else {
+									indicatorRef.current?.setNativeProps({
+										style: {
+											bottom: newBottomValue,
+										},
+									});
+								}
                             }
                         }
                     }}
