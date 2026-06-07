@@ -22,9 +22,10 @@ import {
     Ascent,
 } from "../../../database/repositories/AscentRepository";
 
+import { User } from "../../../types/user"
+
 import {
-    UserRepository,
-    User,
+    UserRepository
 } from "../../../database/repositories/mobile/UserRepository";
 
 import { ReactionRepository } from "../../../database/repositories/ReactionRepository";

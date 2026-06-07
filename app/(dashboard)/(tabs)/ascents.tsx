@@ -6,13 +6,12 @@ import {
     RefreshControl,
     ActivityIndicator,
 } from "react-native";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
-import { useAuth } from "../../../contexts/AuthContext";
 
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
@@ -21,49 +20,30 @@ import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
 
-import { useRepositories } from "../../../contexts/RepositoryContext";
-import { Ascent } from "../../../types/ascent"
+import { useAscents } from "../../../lib/hooks/useAscents";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 
-const Asce = () => {
-    const [ascents, setAscents] = useState<Ascent[]>([]);
-    const [refreshing, setRefreshing] = useState(false);
+const Ascents = () => {
+    const { data: ascents, isLoading, refetch, isRefetching } = useAscents();
     const [formVisible, setFormVisible] = useState(false);
     const router = useRouter();
 
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-	const { ascentRepository } = useRepositories();
-
-    const loadAscents = async () => {
-        try {
-            const data = await ascentRepository.getAscents();
-            setAscents(data);
-        } catch (error) {
-            console.error("Błąd podczas ładowania przejść:", error);
-        }
-    };
-
     const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await loadAscents();
-        setRefreshing(false);
-    }, [ascentRepository]);
-
-    useEffect(() => {
-        loadAscents();
-    }, [ascentRepository]);
+        await refetch();
+    }, [refetch]);
 
     return (
         <ThemedView style={styles.container}>
             <ManualAscentFormModal
                 visible={formVisible}
                 onClose={() => setFormVisible(false)}
-                onSuccess={loadAscents}
+                onSuccess={() => refetch()}
             />
 
             <TouchableOpacity
@@ -82,7 +62,7 @@ const Asce = () => {
                 style={{ width: "100%", paddingVertical: 7 }}
                 refreshControl={
                     <RefreshControl
-                        refreshing={refreshing}
+                        refreshing={isRefetching}
                         onRefresh={onRefresh}
                         colors={[theme.iconColour]}
                         tintColor={theme.iconColour}
@@ -138,7 +118,7 @@ const Asce = () => {
                     </TouchableOpacity>
                 )}
                 ListEmptyComponent={
-                    refreshing ? (
+                    isLoading ? (
                         <ActivityIndicator
                             size="large"
                             color={theme.iconColourFocused}
@@ -160,7 +140,7 @@ const Asce = () => {
     );
 };
 
-export default Asce;
+export default Ascents;
 
 const styles = StyleSheet.create({
     container: {

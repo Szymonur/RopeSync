@@ -5,10 +5,11 @@ import { RouteListItem, RouteFilters } from '../../../types/route';
 
 export class ApiRouteRepository implements IRouteRepository {
 
-    async getRoutes(filters?: RouteFilters): Promise<RouteListItem[]> {
+    async getRoutes(filters?: RouteFilters, signal?: AbortSignal): Promise<RouteListItem[]> {
         try {
             const response = await api.get<RouteListItem[]>('/routes', {
-                params: filters 
+                params: filters,
+                signal
             });
             return response.data;
         } catch (error: any) {

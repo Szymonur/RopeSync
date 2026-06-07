@@ -20,17 +20,14 @@ import Spacer from "./Spacer";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
 
-import { useRepositories } from "../contexts/RepositoryContext";
-import { Ascent, AscentStyle } from "../types/ascent";
-import { RouteListItem } from "../types/route";
-
+import { useAscentStyles, useAddAscent } from "../lib/hooks/useAscents";
+import { useRoutes } from "../lib/hooks/useRoutes";
 import { useDebounce} from "../lib/hooks/useDebounce"
 
 
 import { useSnackbar } from "../contexts/SnackbarContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useNetwork } from "../contexts/NetworkContext";
-import { UserService } from "../services/api/UserService";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -47,7 +44,6 @@ interface ManualAscentFormModalProps {
     onSuccess?: () => void;
     preselectedRouteId?: string;
     hideRouteSearch?: boolean;
-    initialRoutes?: RouteListItem[]; // Opcjonalnie, np. gdy jesteśmy na stronie konkretnej drogi
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -62,15 +58,10 @@ const ManualAscentFormModal = ({
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const { currentUserId: userId } = useAuth();
-    const { isConnected } = useNetwork();
     const { showSnackbar } = useSnackbar();
 
-    // Repozytorium inicjalizowane wewnątrz
-    const { ascentRepository, routeRepository} = useRepositories();
-
-    const [saving, setSaving] = useState(false);
-    const [routes, setRoutes] = useState<RouteListItem[]>([]);
-    const [stylesList, setStylesList] = useState<AscentStyle[]>([]);
+    const { data: stylesList = [] } = useAscentStyles();
+    const addAscentMutation = useAddAscent();
 
     const [data, setData] = useState(getToday());
     const [note, setNote] = useState("");
@@ -79,30 +70,17 @@ const ManualAscentFormModal = ({
 
 	const debouncedRouteFilter = useDebounce(routeFilter);
 
+    const { data: routes = [] } = useRoutes(
+        { nazwa_drogi: debouncedRouteFilter.trim() },
+        { enabled: visible && !hideRouteSearch && debouncedRouteFilter.trim().length >= 2 }
+    );
+
     const [selectedRouteId, setSelectedRouteId] = useState(
         preselectedRouteId || "",
     );
 
     const [routeFilterError, setRouteFilterError] = useState("");
     const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-    // Ładowanie danych potrzebnych dla formularza
-    useEffect(() => {
-        if (!visible) return;
-
-        const loadFormData = async () => {
-            try {
-                // Ładujemy style zawsze
-                const stylesData = await ascentRepository.getStyles();
-                setStylesList(stylesData);
-
-            } catch (err) {
-                console.error("Błąd ładowania danych formularza:", err);
-            }
-        };
-
-        loadFormData();
-    }, [visible, ascentRepository,  hideRouteSearch]);
 
     useEffect(() => {
         if (preselectedRouteId) {
@@ -133,37 +111,13 @@ const ManualAscentFormModal = ({
     }, []);
 
     useEffect(() => {
-        if (debouncedRouteFilter.length === 0 || debouncedRouteFilter.length >= 2) {
+        const query = debouncedRouteFilter.trim();
+        if (query.length === 1) {
+            setRouteFilterError("Wpisz przynajmniej 2 znaki!");
+        } else {
             setRouteFilterError("");
-            return;
         }
     }, [debouncedRouteFilter]);
-
-	useEffect(() => {
-        const query = debouncedRouteFilter.trim().toLowerCase();
-
-		if (query.length == 1) {
-			setRouteFilterError("Wpisz przynajmniej 2 znaki!")
-		}
-    
-        if (query.length <= 2) {
-            setRoutes([]);
-            return;
-        }
-
-        const fetchFilteredRoutes = async () => {
-            try {
-                const filters = { nazwa_drogi: query };
-                const data = await routeRepository.getRoutes(filters);
-                setRoutes(data); 
-            } catch (error) {
-                console.error("Błąd podczas wyszukiwania dróg:", error);
-                setRoutes([]);
-            }
-        };
-        fetchFilteredRoutes();
-        
-    }, [debouncedRouteFilter, routeRepository]);
 
     const selectedRoute = useMemo(
         () => routes.find((route) => route.id_drogi === selectedRouteId),
@@ -190,13 +144,9 @@ const ManualAscentFormModal = ({
         if (!canSubmit || !userId) return;
 
         try {
-            setSaving(true);
-
-            // Zapis lokalny
-            const ascentId = randomUUID();
-			await ascentRepository.addAscent({
-				id_przejscia: ascentId,
-				timeline_data: {},
+            await addAscentMutation.mutateAsync({
+                id_przejscia: randomUUID(),
+                timeline_data: {},
                 data: data.trim(),
                 id_drogi: selectedRouteId,
                 notatka: note.trim(),
@@ -205,7 +155,6 @@ const ManualAscentFormModal = ({
                 synced: 0,
             });
 
-            // Sukces lokalny - powiadamiamy rodzica (np. żeby odświeżył listę)
             if (onSuccess) onSuccess();
             onClose();
 
@@ -221,8 +170,6 @@ const ManualAscentFormModal = ({
                 message: "Wystąpił błąd podczas zapisywania",
                 type: "error",
             });
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -294,7 +241,7 @@ const ManualAscentFormModal = ({
                                     showsVerticalScrollIndicator={false}
                                     keyboardShouldPersistTaps="handled"
                                 >
-                                    {routes.length === 0 && routeFilter.length >= 2 ? (
+                                    {routes.length === 0 && debouncedRouteFilter.length >= 2 ? (
                                         <ThemedText style={{ opacity: 0.7 }}>
                                             Brak dróg pasujących do filtra.
                                         </ThemedText>
@@ -433,9 +380,9 @@ const ManualAscentFormModal = ({
                         <Spacer height={18} />
                         <ThemedButton
                             onPress={handleSubmit}
-                            disabled={!canSubmit || !!saving}
+                            disabled={!canSubmit || addAscentMutation.isPending}
                             style={{
-                                opacity: !canSubmit || saving ? 0.4 : 1,
+                                opacity: !canSubmit || addAscentMutation.isPending ? 0.4 : 1,
                             }}
                         >
                             <View
@@ -453,7 +400,7 @@ const ManualAscentFormModal = ({
                                         fontWeight: "bold",
                                     }}
                                 >
-                                    {saving ? (
+                                    {addAscentMutation.isPending ? (
                                         <ActivityIndicator
                                             size="small"
                                             color="white"
@@ -472,6 +419,7 @@ const ManualAscentFormModal = ({
 };
 
 export default ManualAscentFormModal;
+
 
 const styles = StyleSheet.create({
     backdrop: {

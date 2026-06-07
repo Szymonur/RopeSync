@@ -1,5 +1,5 @@
 import { Route, RouteListItem, RouteFilters } from '../../../types/route';
 
 export interface IRouteRepository {
-	getRoutes(filters: RouteFilters): Promise<RouteListItem[]>;
+	getRoutes(filters?: RouteFilters, signal?: AbortSignal): Promise<RouteListItem[]>;
 }

@@ -4,9 +4,9 @@ import { Ascent, AscentStyle } from '../../../types/ascent';
 
 
 export class ApiAscentRepository implements IAscentRepository {
-	async getAscents(): Promise<Ascent[]> {
+	async getAscents(signal?: AbortSignal): Promise<Ascent[]> {
         try {
-            const response = await api.get<{ message: string; ascents: Ascent[] }>(`/ascents`);   
+            const response = await api.get<{ message: string; ascents: Ascent[] }>(`/ascents`, { signal });   
             return response.data.ascents;
         } catch (error: any) {
             if (error.response) {
@@ -15,14 +15,14 @@ export class ApiAscentRepository implements IAscentRepository {
             throw new Error("Problem z połączeniem sieciowym.");
         }
     }
-	async getAscent(ascentId: string): Promise<Ascent> {
+	async getAscent(ascentId: string, ownerId?: number, signal?: AbortSignal): Promise<Ascent> {
 		try {
-			const response = await api.get<{message: string; ascent: Ascent; }>(`/ascents/${ascentId}`);
+			const response = await api.get<{message: string; ascent: Ascent; }>(`/ascents/${ascentId}`, { signal });
 			return response.data.ascent;
 		} catch (error: any) {
             if (error.response) {
                 throw new Error("Wystąpił błąd podczas pobierania szczegułów przejscia.");
-            }
+            }1
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}

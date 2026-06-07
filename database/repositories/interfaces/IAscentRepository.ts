@@ -1,9 +1,8 @@
 import { Ascent, AscentStyle } from "../../../types/ascent";
 
-
 export interface IAscentRepository {
-	getAscents(): Promise<Ascent[]>;
-	getAscent(ascentId: string, ownerId?: number): Promise<Ascent>;
+	getAscents(signal?: AbortSignal): Promise<Ascent[]>;
+	getAscent(ascentId: string, ownerId?: number, signal?: AbortSignal): Promise<Ascent>;
 	getStyles(): Promise<AscentStyle[]>;
 	deleteAscent(ascentId: string): Promise<void>;
 	addAscent(ascent: Ascent): Promise<void>;
