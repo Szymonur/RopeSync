@@ -1,10 +1,12 @@
 import api from "../../../lib/api/client";
 import { ApiAscentRepository  } from "../api/APIAscentRepository";
-import { Ascent, AscentStyle } from '../../../types/ascent';
+import { Ascent, AscentStyle, UserStats } from '../../../types/ascent';
 import { getCurrentUserId } from "../../../lib/utils/authStorage"
 import { SQLiteDatabase } from "expo-sqlite";
 
 
+const LINEAR_GRADE_ORDER = ["3","4","4+","5a","5a+","5b","5b+","5c","5c+","6a","6a+","6b","6b+","6c","6c+","7a","7a+","7b","7b+","7c","7c+","8a","8a+","8b","8b+","8c","8c+","9a","9a+"];
+const BOULDER_GRADE_ORDER = ["4","4+","5","5+","6a","6a+","6b","6b+","6c","6c+","7a","7a+","7b","7b+","7c","7c+","8a","8a+"];
 
 export class MobileAscentRepository extends ApiAscentRepository  {
     private db: SQLiteDatabase;
@@ -22,6 +24,140 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         }
         return this.currentUserId;
     }
+
+	async getUserStats(userId: number, signal?: AbortSignal): Promise<UserStats> {
+		try {
+			// 1. Ogólne liczniki
+			const counts = await this.db.getFirstAsync<{
+				total: number, 
+				sport: number, 
+				trad: number, 
+				boulder: number
+			}>(
+				`SELECT 
+					COUNT(*) as total,
+					COUNT(CASE WHEN d.typ_drogi = 'sportowa' THEN 1 END) as sport,
+					COUNT(CASE WHEN d.typ_drogi = 'trad' THEN 1 END) as trad,
+					COUNT(CASE WHEN d.typ_drogi = 'boulder' THEN 1 END) as boulder
+				 FROM Przejscia p
+				 JOIN Drogi d ON p.id_drogi = d.id_drogi
+				 WHERE p.id_uzytkownika = ? AND p.deleted = 0`,
+				[userId]
+			);
+
+			// 2. Najlepsze przejścia (pobieramy potencjalnych kandydatów i wybieramy w TS)
+			const bestSport = await this.getBestAscentLocal(userId, 'sportowa', LINEAR_GRADE_ORDER);
+			const bestTrad = await this.getBestAscentLocal(userId, 'trad', LINEAR_GRADE_ORDER);
+			const bestBoulder = await this.getBestAscentLocal(userId, 'boulder', BOULDER_GRADE_ORDER);
+
+			// 3. Dane do wykresu wycen (Top 7)
+			const gradeChart = await this.db.getAllAsync<{label: string, count: number}>(
+				`SELECT 
+					COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) as label,
+					COUNT(*) as count
+				 FROM Przejscia p
+				 JOIN Drogi d ON p.id_drogi = d.id_drogi
+				 LEFT JOIN Drogi_sportowe_szczegoly ds ON ds.id_drogi = d.id_drogi AND d.typ_drogi = 'sportowa'
+				 LEFT JOIN Trady_szczegoly dt ON dt.id_drogi = d.id_drogi AND d.typ_drogi = 'trad'
+				 LEFT JOIN Bouldery_szczegoly db ON db.id_drogi = d.id_drogi AND d.typ_drogi = 'boulder'
+				 WHERE p.id_uzytkownika = ? AND p.deleted = 0
+				 GROUP BY label
+				 ORDER BY count DESC, label DESC
+				 LIMIT 7`,
+				[userId]
+			);
+
+			// 4. Dane do wykresu tygodniowego (ostatnie 8 tygodni)
+			// SQLite nie ma tak prostych funkcji daty, więc pobieramy surowe dane z ostatnich 60 dni i grupujemy w TS
+			const weeklyChartRaw = await this.db.getAllAsync<{data: string}>(
+				`SELECT data FROM Przejscia 
+				 WHERE id_uzytkownika = ? AND deleted = 0 
+				 AND data >= date('now', '-60 days')`,
+				[userId]
+			);
+			
+			const weeklyChart = this.processWeeklyChart(weeklyChartRaw.map(r => r.data));
+
+			return {
+				totalCount: counts?.total || 0,
+				sportCount: counts?.sport || 0,
+				tradCount: counts?.trad || 0,
+				boulderCount: counts?.boulder || 0,
+				bestSport: bestSport || undefined,
+				bestTrad: bestTrad || undefined,
+				bestBoulder: bestBoulder || undefined,
+				gradeChart: gradeChart,
+				weeklyChart: weeklyChart
+			};
+		} catch (error) {
+			console.error("Błąd podczas generowania statystyk lokalnych:", error);
+			// Jeśli błąd lokalny, spróbuj pobrać z API
+			return await super.getUserStats(userId, signal);
+		}
+	}
+
+	private async getBestAscentLocal(userId: number, type: string, order: string[]): Promise<Ascent | null> {
+		const candidates = await this.db.getAllAsync<Ascent>(
+			`SELECT p.*, d.nazwa_drogi, d.typ_drogi,
+				COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) as wycena
+			 FROM Przejscia p
+			 JOIN Drogi d ON p.id_drogi = d.id_drogi
+			 LEFT JOIN Drogi_sportowe_szczegoly ds ON ds.id_drogi = d.id_drogi AND d.typ_drogi = 'sportowa'
+			 LEFT JOIN Trady_szczegoly dt ON dt.id_drogi = d.id_drogi AND d.typ_drogi = 'trad'
+			 LEFT JOIN Bouldery_szczegoly db ON db.id_drogi = d.id_drogi AND d.typ_drogi = 'boulder'
+			 WHERE p.id_uzytkownika = ? AND d.typ_drogi = ? AND p.deleted = 0`,
+			[userId, type]
+		);
+
+		if (candidates.length === 0) return null;
+
+		return candidates.reduce((best, current) => {
+			const bestIdx = order.indexOf(best.wycena || "");
+			const currentIdx = order.indexOf(current.wycena || "");
+			
+			if (currentIdx > bestIdx) return current;
+			if (currentIdx === bestIdx && current.data > best.data) return current;
+			return best;
+		}, candidates[0]);
+	}
+
+	private processWeeklyChart(dates: string[]) {
+		const now = new Date();
+		const day = now.getDay();
+		const mondayShift = day === 0 ? -6 : 1 - day;
+		const thisWeekStart = new Date(now);
+		thisWeekStart.setHours(0, 0, 0, 0);
+		thisWeekStart.setDate(thisWeekStart.getDate() + mondayShift);
+
+		const weekStarts: Date[] = [];
+		for (let i = 7; i >= 0; i -= 1) {
+			const start = new Date(thisWeekStart);
+			start.setDate(start.getDate() - i * 7);
+			weekStarts.push(start);
+		}
+
+		const toWeekKey = (date: Date) => date.toISOString().slice(0, 10);
+		const allowedWeekKeys = new Set(weekStarts.map(d => toWeekKey(d)));
+		const weeklyCounts = new Map<string, number>();
+
+		dates.forEach(dateStr => {
+			const d = new Date(dateStr);
+			const dDay = d.getDay();
+			const dShift = dDay === 0 ? -6 : 1 - dDay;
+			const ws = new Date(d);
+			ws.setHours(0, 0, 0, 0);
+			ws.setDate(ws.getDate() + dShift);
+			const key = toWeekKey(ws);
+			if (allowedWeekKeys.has(key)) {
+				weeklyCounts.set(key, (weeklyCounts.get(key) || 0) + 1);
+			}
+		});
+
+		return weekStarts.map(ws => ({
+			label: `${String(ws.getDate()).padStart(2, '0')}.${String(ws.getMonth() + 1).padStart(2, '0')}`,
+			count: weeklyCounts.get(toWeekKey(ws)) || 0
+		}));
+	}
 
 	async getAscents(): Promise<Ascent[]> {
         try {    

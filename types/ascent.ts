@@ -16,6 +16,22 @@ export interface Ascent {
 	username?: string;
 }
 
-export interface AscentStyle {
+export interface AscenFeedItem extends Ascent {
+	isLiked: boolean;
+}
+
+export interface AscentStyle{
 	nazwa_stylu: string;
+}
+
+export interface UserStats {
+    totalCount: number;
+    sportCount: number;
+    tradCount: number;
+    boulderCount: number;
+    bestSport?: Ascent;
+    bestTrad?: Ascent;
+    bestBoulder?: Ascent;
+    gradeChart: { label: string; count: number }[];
+    weeklyChart: { label: string; count: number }[];
 }

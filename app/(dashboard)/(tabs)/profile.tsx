@@ -1,6 +1,5 @@
 import {
     StyleSheet,
-    Alert,
     TouchableOpacity,
     ActivityIndicator,
     View,
@@ -8,31 +7,20 @@ import {
 } from "react-native";
 import { Tabs, useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
-import ThemedButton from "../../../components/ThemedButton";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { Colors } from "../../../constants/Colors";
 
-import { useSQLiteContext } from "expo-sqlite";
-
-import {
-    AscentRepository,
-    Ascent,
-} from "../../../database/repositories/AscentRepository";
-
 import { User } from "../../../types/user"
 
-import {
-    UserRepository
-} from "../../../database/repositories/mobile/UserRepository";
 
 import { ReactionRepository } from "../../../database/repositories/ReactionRepository";
 
 import ProfileStats from "../../../components/ProfileStats";
 
 import { useAuth } from "../../../contexts/AuthContext";
+import { useUserStats } from "../../../lib/hooks/useAscents";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 
@@ -40,9 +28,6 @@ const Profile = () => {
     const { logout } = useAuth();
     const router = useRouter();
 
-    const [userLoading, setUserLoading] = useState(true);
-    const [ascentsLoading, setAscentsLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
 
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
@@ -50,80 +35,45 @@ const Profile = () => {
     const { currentUserId: userId } = useAuth();
     const currentUserId = Number(userId);
 
-    const db = useSQLiteContext();
-    const ascentRepository = useMemo(() => new AscentRepository(db), [db]);
-    const [ascents, setAscents] = useState<Ascent[]>([]);
+    // Nowy hook statystyk
+    const { data: stats, isLoading: statsLoading, refetch: refetchStats, isRefetching } = useUserStats(currentUserId);
 
-    const userRepository = useMemo(() => new UserRepository(db), [db]);
+    // const db = useSQLiteContext();
     const [user, setUser] = useState<User>();
 
-    const reactionRepository = useMemo(() => new ReactionRepository(db), [db]);
+    // const reactionRepository = useMemo(() => new ReactionRepository(db), [db]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const fetchUnreadCount = useCallback(async () => {
-        if (!currentUserId) return;
-        try {
-            const count =
-                await reactionRepository.getUnreadCount(currentUserId);
-            setUnreadCount(count);
-        } catch (e) {
-            console.error("Błąd podczas pobierania liczby powiadomień: ", e);
-        }
-    }, [currentUserId, reactionRepository]);
+    // const fetchUnreadCount = useCallback(async () => {
+    //     if (!currentUserId) return;
+    //     try {
+    //         const count =
+    //             await reactionRepository.getUnreadCount(currentUserId);
+    //         setUnreadCount(count);
+    //     } catch (e) {
+    //         console.error("Błąd podczas pobierania liczby powiadomień: ", e);
+    //     }
+    // }, [currentUserId, reactionRepository]);
 
-    const fetchCurrentUser = useCallback(async () => {
-        if (!currentUserId) return;
-        try {
-            const data = await userRepository.getUserInfo(currentUserId);
-            await setUser(data);
-            setUserLoading(false);
-        } catch (e) {
-            console.error(
-                "Błąd podczas pobierania informacji o użytkowniku: ",
-                e,
-            );
-        }
-    }, [currentUserId, userRepository]);
-
-    const fetchAscents = useCallback(async () => {
-        if (!currentUserId) return;
-        try {
-            const data =
-                await ascentRepository.getAscentsForUser(currentUserId);
-            await setAscents(data);
-            setAscentsLoading(false);
-        } catch (e) {
-            console.error("Błąd podczas pobierania przejść w profilu: ", e);
-        }
-    }, [currentUserId, ascentRepository]);
 
     const handleRefresh = async () => {
-        setRefreshing(true);
         await Promise.all([
-            fetchCurrentUser(),
-            fetchAscents(),
-            fetchUnreadCount(),
+            refetchStats(),
+            // fetchUnreadCount(),
         ]);
-        setRefreshing(false);
     };
 
-    // Initial load
-    useEffect(() => {
-        fetchCurrentUser();
-        fetchAscents();
-    }, [fetchCurrentUser, fetchAscents]);
-
-    useFocusEffect(
-        useCallback(() => {
-            fetchUnreadCount();
-        }, [fetchUnreadCount]),
-    );
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         fetchUnreadCount();
+    //     }, [fetchUnreadCount]),
+    // );
 
     const handleNotificationsPress = () => {
         router.push("/(dashboard)/notifications");
     };
 
-    if (userLoading)
+    if (statsLoading)
         return (
             <ThemedView style={styles.container} safe>
                 <Tabs.Screen
@@ -163,7 +113,7 @@ const Profile = () => {
         <ThemedView style={styles.container}>
             <Tabs.Screen
                 options={{
-                    headerTitle: `${user?.imie} ${user?.nazwisko}`,
+                    headerTitle: "Profile", // TODO - add firstName and lastName od current login user
                     tabBarLabel: "Profile",
                     headerRight: () => (
                         <View
@@ -217,23 +167,26 @@ const Profile = () => {
                     ),
                 }}
             />
-            {ascentsLoading ? (
+            {statsLoading && !stats ? (
                 <ActivityIndicator
                     size="large"
                     color={theme.iconColourFocused}
                 />
-            ) : (
+            ) : stats ? (
                 <ProfileStats
-                    ascents={ascents}
+                    stats={stats}
+                    isLoading={isRefetching}
                     refreshControl={
                         <RefreshControl
-                            refreshing={refreshing}
+                            refreshing={isRefetching}
                             onRefresh={handleRefresh}
                             colors={[theme.iconColour]}
                             tintColor={theme.iconColour}
                         />
                     }
                 />
+            ) : (
+                <ThemedText>Błąd ładowania statystyk</ThemedText>
             )}
         </ThemedView>
     );

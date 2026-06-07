@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useQuery } from "@tanstack/react-query";
 
 import ThemedCard from "../../../components/ThemedCard";
 import ThemedText from "../../../components/ThemedText";
@@ -16,72 +15,17 @@ import ThemedView from "../../../components/ThemedView";
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useNetwork } from "../../../contexts/NetworkContext";
-import {
-    UserService,
-} from "../../../services/api/UserService";
 
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
+import LikeButton from "../../../components/LikeButton";
 
 import { useSnackbar } from "../../../contexts/SnackbarContext";
 import { useState } from "react";
+import { useFollowingFeed } from "../../../lib/hooks/useAscents";
 
-const LikeButton = ({
-    initialIsLiked,
-    ascentId,
-    theme,
-    isConnected,
-    showSnackbar,
-}: {
-    initialIsLiked: boolean;
-    ascentId: string;
-    theme: any;
-    isConnected: boolean;
-    showSnackbar: any;
-}) => {
-    const [isLiked, setIsLiked] = useState(initialIsLiked);
-
-    const handlePress = async () => {
-        if (!isConnected) {
-            showSnackbar({
-                message: "Musisz być online, aby polubić przejście!",
-                type: "warn",
-            });
-            return;
-        }
-
-        // Optimistic update
-        const previousIsLiked = isLiked;
-
-        setIsLiked(!isLiked);
-
-        try {
-            const data = await UserService.likeAscent(ascentId);
-            // Optional: You can sync state with the server response if you want to be perfectly accurate
-            // setIsLiked(data.isLiked);
-            // setLikesCount(data.likesCount);
-        } catch (error) {
-            // Revert on error
-            setIsLiked(previousIsLiked);
-            showSnackbar({
-                message: "Błąd podczas polubienia przejścia",
-                type: "error",
-            });
-        }
-    };
-
-    return (
-        <TouchableOpacity onPress={handlePress} style={styles.likeButton}>
-            <Ionicons
-                name={isLiked ? "heart" : "heart-outline"}
-                size={24}
-                color={isLiked ? theme.error || "red" : theme.iconColour}
-            />
-        </TouchableOpacity>
-    );
-};
 
 const Index = () => {
     const router = useRouter();
@@ -95,12 +39,7 @@ const Index = () => {
         isLoading,
         refetch,
         isRefetching,
-    } = useQuery({
-        queryKey: ["following-feed"],
-        queryFn: UserService.getFollowingFeed,
-        staleTime: 1000 * 60 * 5,
-        enabled: isConnected !== false, // Nie próbuj pobierać jeśli wiemy że nie ma neta
-    });
+    } = useFollowingFeed();
 
     const formatDate = (value: string) => {
         const date = new Date(value);
@@ -135,7 +74,7 @@ const Index = () => {
             />
             <FlatList
                 data={feed}
-                keyExtractor={(item) => item.ascentId}
+                keyExtractor={(item) => item.id_przejscia}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -186,7 +125,7 @@ const Index = () => {
                         onPress={() => {
                             isConnected
                                 ? router.push(
-                                      `/(dashboard)/ascent/${item.ascentId}?userId=${item.userId}`,
+                                      `/(dashboard)/ascent/${item.id_przejscia}?userId=${item.id_uzytkownika}`,
                                   )
                                 : showSnackbar({
                                       message:
@@ -213,22 +152,22 @@ const Index = () => {
                                 </View>
                                 <View style={styles.authorTextBlock}>
                                     <ThemedText style={styles.authorName}>
-                                        {item.firstName} {item.lastName}
+                                        {item.imie} {item.nazwisko}
                                     </ThemedText>
                                     <ThemedText style={styles.authorMeta}>
                                         @{item.username} ·{" "}
-                                        {formatDate(item.date)}
+                                        {formatDate(item.data)}
                                     </ThemedText>
                                 </View>
                             </View>
 
                             <ThemedText style={styles.routeName}>
-                                {item.routeName}
+                                {item.nazwa_drogi}
                             </ThemedText>
-                            {item.note && (
+                            {item.notatka && (
                                 <>
                                     <ThemedText style={styles.routeNote}>
-                                        {item.note}
+                                        {item.notatka}
                                     </ThemedText>
                                 </>
                             )}
@@ -240,27 +179,27 @@ const Index = () => {
                                         gap: 4,
                                     }}
                                 >
-                                    {item.routeType && (
+                                    {item.typ_drogi && (
                                         <RouteTypeBadge
-                                            route_type={item.routeType}
+                                            route_type={item.typ_drogi}
                                         />
                                     )}
 
-                                    {item.grade && (
+                                    {item.wycena && (
                                         <RouteGradeBadge
-                                            route_grade={item.grade}
+                                            route_grade={item.wycena}
                                         />
                                     )}
-                                    {item.style && (
+                                    {item.nazwa_stylu && (
                                         <RouteStyleBadge
-                                            route_style={item.style}
+                                            route_style={item.nazwa_stylu}
                                         />
                                     )}
                                 </View>
 
                                 <LikeButton
-                                    initialIsLiked={item.isLiked}
-                                    ascentId={item.ascentId}
+                                    isLiked={item.isLiked}
+                                    ascentId={item.id_przejscia}
                                     theme={theme}
                                     isConnected={isConnected ? true : false}
                                     showSnackbar={showSnackbar}

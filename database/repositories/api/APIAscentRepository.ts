@@ -1,7 +1,6 @@
 import api from "../../../lib/api/client";
 import { IAscentRepository } from "../interfaces/IAscentRepository";
-import { Ascent, AscentStyle } from '../../../types/ascent';
-
+import { Ascent, AscentStyle, UserStats, AscenFeedItem } from '../../../types/ascent';
 
 export class ApiAscentRepository implements IAscentRepository {
 	async getAscents(signal?: AbortSignal): Promise<Ascent[]> {
@@ -22,7 +21,7 @@ export class ApiAscentRepository implements IAscentRepository {
 		} catch (error: any) {
             if (error.response) {
                 throw new Error("Wystąpił błąd podczas pobierania szczegułów przejscia.");
-            }1
+            }
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}
@@ -57,5 +56,39 @@ export class ApiAscentRepository implements IAscentRepository {
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}
+	async getUserStats(userId: number, signal?: AbortSignal): Promise<UserStats>{
+		try {
+			const response = await api.get<{message: string; stats: UserStats; }>(`/profile/${userId}/stats`, { signal });
+			return response.data.stats;
+		} catch (error: any) {
+            if (error.response) {
+                throw new Error("Wystąpił błąd podczas pobierania statystyk uzytkownika.");
+            }
+        	throw new Error("Problem z połączeniem sieciowym.");
+        }
+	}
+	async getFollowingFeed(signal?: AbortSignal): Promise<AscenFeedItem[]> {
+		try {
+			const response = await api.get<{message: string; feed: AscenFeedItem[]; }>("/follow/feed",  { signal });
+			return response.data.feed;
+		} catch (error: any) {
+            if (error.response) {
+                throw new Error("Wystąpił błąd podczas pobierania feedu");
+            }
+        	throw new Error("Problem z połączeniem sieciowym.");
+        }
+	}
+	async toggleReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
+		try {
+			await api.post<{message: string}>(`/ascents/${ascentId}/toggle-reaction`, { signal });
+		} catch (error: any) {
+            if (error.response) {
+                throw new Error("Wystąpił błąd podczas pobierania feedu");
+            }
+        	throw new Error("Problem z połączeniem sieciowym.");
+        }
+	}
+
+	
 	
 }

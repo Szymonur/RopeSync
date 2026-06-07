@@ -10,7 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import Svg, { Circle, Line, Polyline } from "react-native-svg";
 import Spacer from "./Spacer";
-import { Ascent } from "../database/repositories/AscentRepository";
+import { UserStats } from "../types/ascent";
 import ThemedText from "./ThemedText";
 import ThemedCard from "./ThemedCard";
 import { useTheme } from "../contexts/ThemeContext";
@@ -20,184 +20,15 @@ import RouteTypeBadge from "../components/Badges/RouteTypeBadge";
 
 import { useSnackbar } from "../contexts/SnackbarContext";
 
-const LINEAR_GRADE_ORDER = [
-    "3",
-    "4",
-    "4+",
-    "5a",
-    "5a+",
-    "5b",
-    "5b+",
-    "5c",
-    "5c+",
-    "6a",
-    "6a+",
-    "6b",
-    "6b+",
-    "6c",
-    "6c+",
-    "7a",
-    "7a+",
-    "7b",
-    "7b+",
-    "7c",
-    "7c+",
-    "8a",
-    "8a+",
-    "8b",
-    "8b+",
-    "8c",
-    "8c+",
-    "9a",
-    "9a+",
-] as const;
-
-const BOULDER_GRADE_ORDER = [
-    "4",
-    "4+",
-    "5",
-    "5+",
-    "6a",
-    "6a+",
-    "6b",
-    "6b+",
-    "6c",
-    "6c+",
-    "7a",
-    "7a+",
-    "7b",
-    "7b+",
-    "7c",
-    "7c+",
-    "8a",
-    "8a+",
-] as const;
-
-const linearGradeIndex: Map<string, number> = new Map(
-    LINEAR_GRADE_ORDER.map((grade, index) => [grade, index]),
-);
-const boulderGradeIndex: Map<string, number> = new Map(
-    BOULDER_GRADE_ORDER.map((grade, index) => [grade, index]),
-);
-
-const normalizeGrade = (grade?: string | null) =>
-    grade?.trim().toLowerCase() ?? "";
-
-const getGradeRank = (
-    grade: string | null | undefined,
-    routeType: string | undefined,
-) => {
-    const normalized = normalizeGrade(grade);
-    if (!normalized) return -1;
-
-    if (routeType === "boulder") {
-        return boulderGradeIndex.get(normalized) ?? -1;
-    }
-
-    return linearGradeIndex.get(normalized) ?? -1;
-};
-
-const getBestAscentForType = (
-    ascents: Ascent[],
-    routeType: "boulder" | "sportowa" | "trad",
-) => {
-    const candidates = ascents.filter(
-        (ascent) =>
-            ascent.typ_drogi === routeType &&
-            getGradeRank(ascent.wycena, ascent.typ_drogi) >= 0,
-    );
-
-    if (candidates.length === 0) return null;
-
-    return candidates.reduce((best, current) => {
-        const bestRank = getGradeRank(best.wycena, best.typ_drogi);
-        const currentRank = getGradeRank(current.wycena, current.typ_drogi);
-
-        if (currentRank > bestRank) return current;
-        if (currentRank < bestRank) return best;
-
-        return current.data > best.data ? current : best;
-    });
-};
-
-interface ChartPoint {
-    label: string;
-    count: number;
-}
-
-const buildGradeChart = (ascents: Ascent[]): ChartPoint[] => {
-    const counts = new Map<string, number>();
-
-    for (const ascent of ascents) {
-        const grade = normalizeGrade(ascent.wycena);
-        if (!grade) continue;
-        counts.set(grade, (counts.get(grade) ?? 0) + 1);
-    }
-
-    return Array.from(counts.entries())
-        .map(([label, count]) => ({ label: label, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 7);
-};
-
-const buildMonthlyChart = (ascents: Ascent[]): ChartPoint[] => {
-    const now = new Date();
-    const day = now.getDay();
-    const mondayShift = day === 0 ? -6 : 1 - day;
-    const thisWeekStart = new Date(now);
-    thisWeekStart.setHours(0, 0, 0, 0);
-    thisWeekStart.setDate(thisWeekStart.getDate() + mondayShift);
-
-    const weekStarts: Date[] = [];
-    for (let i = 7; i >= 0; i -= 1) {
-        const start = new Date(thisWeekStart);
-        start.setDate(start.getDate() - i * 7);
-        weekStarts.push(start);
-    }
-
-    const toWeekKey = (date: Date) => date.toISOString().slice(0, 10);
-    const allowedWeekKeys = new Set(weekStarts.map((date) => toWeekKey(date)));
-
-    const weeklyCounts = new Map<string, number>();
-
-    for (const ascent of ascents) {
-        if (!ascent.data) continue;
-        const ascentDate = new Date(ascent.data);
-        if (Number.isNaN(ascentDate.getTime())) continue;
-
-        const ascentDay = ascentDate.getDay();
-        const ascentMondayShift = ascentDay === 0 ? -6 : 1 - ascentDay;
-        const weekStart = new Date(ascentDate);
-        weekStart.setHours(0, 0, 0, 0);
-        weekStart.setDate(weekStart.getDate() + ascentMondayShift);
-
-        const weekKey = toWeekKey(weekStart);
-        if (!allowedWeekKeys.has(weekKey)) continue;
-
-        weeklyCounts.set(weekKey, (weeklyCounts.get(weekKey) ?? 0) + 1);
-    }
-
-    return weekStarts.map((weekStart) => {
-        const weekKey = toWeekKey(weekStart);
-        const dd = String(weekStart.getDate()).padStart(2, "0");
-        const mm = String(weekStart.getMonth() + 1).padStart(2, "0");
-
-        return {
-            label: `${dd}.${mm}`,
-            count: weeklyCounts.get(weekKey) ?? 0,
-        };
-    });
-};
-
 interface ProfileStatsProps {
-    ascents: Ascent[];
-    isLoadingAscents?: boolean;
+    stats: UserStats;
+    isLoading?: boolean;
     refreshControl?: React.ReactElement<RefreshControlProps>;
 }
 
 const ProfileStats = ({
-    ascents,
-    isLoadingAscents,
+    stats,
+    isLoading,
     refreshControl,
 }: ProfileStatsProps) => {
     const { colorScheme } = useTheme();
@@ -206,37 +37,13 @@ const ProfileStats = ({
     const router = useRouter();
     const { showSnackbar } = useSnackbar();
 
-    const stats = useMemo(() => {
-        const sportAscents = ascents.filter(
-            (item) => item.typ_drogi === "sportowa",
-        );
-        const tradAscents = ascents.filter((item) => item.typ_drogi === "trad");
-        const boulderAscents = ascents.filter(
-            (item) => item.typ_drogi === "boulder",
-        );
-        const gradeChart = buildGradeChart(ascents);
-        const monthlyChart = buildMonthlyChart(ascents);
-
-        return {
-            total: ascents.length,
-            sportCount: sportAscents.length,
-            tradCount: tradAscents.length,
-            boulderCount: boulderAscents.length,
-            bestSport: getBestAscentForType(ascents, "sportowa"),
-            bestTrad: getBestAscentForType(ascents, "trad"),
-            bestBoulder: getBestAscentForType(ascents, "boulder"),
-            gradeChart,
-            monthlyChart,
-        };
-    }, [ascents]);
-
     const maxGradeCount = useMemo(
         () => Math.max(1, ...stats.gradeChart.map((item) => item.count)),
         [stats.gradeChart],
     );
-    const maxMonthlyCount = useMemo(
-        () => Math.max(1, ...stats.monthlyChart.map((item) => item.count)),
-        [stats.monthlyChart],
+    const maxWeeklyCount = useMemo(
+        () => Math.max(1, ...stats.weeklyChart.map((item) => item.count)),
+        [stats.weeklyChart],
     );
 
     const linePoints = useMemo(() => {
@@ -244,7 +51,7 @@ const ProfileStats = ({
         const topPadding = 12;
         const bottomPadding = 12;
         const sidePadding = 12;
-        const count = stats.monthlyChart.length;
+        const count = stats.weeklyChart.length;
         if (count === 0 || lineChartWidth <= 0) {
             return [] as Array<{ x: number; y: number }>;
         }
@@ -252,14 +59,14 @@ const ProfileStats = ({
         const usableWidth = Math.max(1, lineChartWidth - sidePadding * 2);
         const usableHeight = chartHeight - topPadding - bottomPadding;
 
-        return stats.monthlyChart.map((item, index) => {
+        return stats.weeklyChart.map((item, index) => {
             const xRatio = count === 1 ? 0 : index / (count - 1);
             const x = sidePadding + usableWidth * xRatio;
-            const yRatio = item.count / maxMonthlyCount;
+            const yRatio = item.count / maxWeeklyCount;
             const y = topPadding + (1 - yRatio) * usableHeight;
             return { x, y };
         });
-    }, [lineChartWidth, maxMonthlyCount, stats.monthlyChart]);
+    }, [lineChartWidth, maxWeeklyCount, stats.weeklyChart]);
 
     const polylinePoints = useMemo(
         () => linePoints.map((point) => `${point.x},${point.y}`).join(" "),
@@ -281,7 +88,7 @@ const ProfileStats = ({
                               )
                             : showSnackbar({
                                   message:
-                                      "Ten użytkownik nie ma jeszcze przejść spotowych",
+                                      "Ten użytkownik nie ma jeszcze przejść sportowych",
                                   type: "warn",
                               });
                     }}
@@ -370,7 +177,7 @@ const ProfileStats = ({
                             },
                         ]}
                     >
-                        {stats.total}
+                        {stats.totalCount}
                     </ThemedText>
                 </View>
                 <View style={styles.summaryTypesRow}>
@@ -434,7 +241,7 @@ const ProfileStats = ({
                 <ThemedText style={styles.summaryTitle}>
                     Przejścia tygodniowo
                 </ThemedText>
-                {stats.monthlyChart.length === 0 ? (
+                {stats.weeklyChart.length === 0 ? (
                     <ThemedText style={styles.emptyText}>
                         Brak danych czasowych.
                     </ThemedText>
@@ -503,7 +310,7 @@ const ProfileStats = ({
                         </View>
 
                         <View style={styles.weeklyLabelsRow}>
-                            {stats.monthlyChart.map((item) => (
+                            {stats.weeklyChart.map((item) => (
                                 <View
                                     key={item.label}
                                     style={styles.weeklyLabelCell}
@@ -521,7 +328,7 @@ const ProfileStats = ({
                 )}
             </ThemedCard>
 
-            {isLoadingAscents ? (
+            {isLoading ? (
                 <ThemedText style={styles.loading}>
                     Synchronizacja przejść...
                 </ThemedText>
@@ -586,7 +393,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginRight: 8,
         fontSize: 22,
-        fontWeight: 700,
+        fontWeight: "700",
         marginBottom: 4,
     },
     pbSection: {
