@@ -27,4 +27,5 @@ export interface RouteFilters {
     nazwa_drogi?: string;
     skala?: string;
     typ_drogi?: string;
+	id_sektoru?: number;
 }

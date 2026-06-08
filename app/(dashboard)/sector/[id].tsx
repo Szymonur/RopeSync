@@ -1,16 +1,10 @@
 import { StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import { useEffect, useState } from "react";
+import { useRepositories } from "../../../contexts/RepositoryContext";
 
-import {
-    RouteRepository,
-    RouteListItem,
-} from "../../../database/repositories/RouteRepository";
-import {
-    SectorRepository,
-    Sector,
-} from "../../../database/repositories/SectorRepository";
+import { RouteListItem } from "../../../types/route";
+import { Sector } from "../../../types/location";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
@@ -18,26 +12,25 @@ import RouteCard from "../../../components/Explore/RouteCard";
 
 const SectorRoutes = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const db = useSQLiteContext();
+    const { routeRepository, locationRepository } = useRepositories();
     const [routes, setRoutes] = useState<RouteListItem[]>([]);
     const [sector, setSector] = useState<Sector | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const routeRepo = useMemo(() => new RouteRepository(db), [db]);
-    const sectorRepo = useMemo(() => new SectorRepository(db), [db]);
-
     useEffect(() => {
+        const controller = new AbortController();
         const fetchData = async () => {
             if (!id) return;
             try {
                 const sectorId = parseInt(id);
                 const [routesData, sectorData] = await Promise.all([
-                    routeRepo.getRoutesBySector(sectorId),
-                    sectorRepo.getSectorById(sectorId),
+                    routeRepository.getRoutesBySector(sectorId, controller.signal),
+                    locationRepository.getSectorById(sectorId, controller.signal),
                 ]);
                 setRoutes(routesData);
                 setSector(sectorData);
-            } catch (error) {
+            } catch (error: any) {
+                if (error.name === 'AbortError') return;
                 console.error("Błąd ładowania danych sektora:", error);
             } finally {
                 setLoading(false);
@@ -45,7 +38,8 @@ const SectorRoutes = () => {
         };
 
         fetchData();
-    }, [id]);
+        return () => controller.abort();
+    }, [id, routeRepository, locationRepository]);
 
     if (loading) {
         return (

@@ -5,17 +5,10 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, Stack, useRouter } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import { useEffect, useState } from "react";
+import { useRepositories } from "../../../contexts/RepositoryContext";
 
-import {
-    SectorRepository,
-    Sector,
-} from "../../../database/repositories/SectorRepository";
-import {
-    RegionRepository,
-    Region,
-} from "../../../database/repositories/RegionRepository";
+import { Sector, Region } from "../../../types/location";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import ThemedCard from "../../../components/ThemedCard";
@@ -23,27 +16,26 @@ import Spacer from "../../../components/Spacer";
 
 const RegionSectors = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const db = useSQLiteContext();
+    const { locationRepository } = useRepositories();
     const router = useRouter();
     const [sectors, setSectors] = useState<Sector[]>([]);
     const [region, setRegion] = useState<Region | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const sectorRepo = useMemo(() => new SectorRepository(db), [db]);
-    const regionRepo = useMemo(() => new RegionRepository(db), [db]);
-
     useEffect(() => {
+        const controller = new AbortController();
         const fetchData = async () => {
             if (!id) return;
             try {
                 const regionId = parseInt(id);
                 const [sectorsData, regionData] = await Promise.all([
-                    sectorRepo.getSectorsByRegion(regionId),
-                    regionRepo.getRegionById(regionId),
+                    locationRepository.getSectorsByRegion(regionId, controller.signal),
+                    locationRepository.getRegionById(regionId, controller.signal),
                 ]);
                 setSectors(sectorsData);
                 setRegion(regionData);
-            } catch (error) {
+            } catch (error: any) {
+                if (error.name === 'AbortError') return;
                 console.error("Błąd ładowania danych regionu:", error);
             } finally {
                 setLoading(false);
@@ -51,7 +43,8 @@ const RegionSectors = () => {
         };
 
         fetchData();
-    }, [id]);
+        return () => controller.abort();
+    }, [id, locationRepository]);
 
     if (loading) {
         return (

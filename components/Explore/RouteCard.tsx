@@ -2,10 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
-import { RouteListItem } from "../../database/repositories/RouteRepository";
-import { Colors } from "../../constants/Colors";
-import Spacer from "../Spacer";
-
+import { RouteListItem } from "../../types/route";
 import RouteTypeBadge from "../Badges/RouteTypeBadge";
 import RouteGradeBadge from "../Badges/RouteGradeBadge";
 
@@ -15,6 +12,9 @@ interface Props {
 
 const RouteCard = ({ route }: Props) => {
     const router = useRouter();
+
+    // Use wycena if skala is not available, but usually one of them should be there
+    const grade = route.wycena || (route as any).skala;
 
     return (
         <TouchableOpacity
@@ -37,7 +37,7 @@ const RouteCard = ({ route }: Props) => {
                     </View>
 
                     <RouteTypeBadge route_type={route.typ_drogi} />
-                    <RouteGradeBadge route_grade={route.skala} />
+                    <RouteGradeBadge route_grade={grade} />
                 </View>
             </ThemedCard>
         </TouchableOpacity>
@@ -64,15 +64,5 @@ const styles = StyleSheet.create({
         fontSize: 13,
         opacity: 0.7,
         marginTop: 2,
-    },
-    badge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    gradeText: {
-        color: "white",
-        fontWeight: "bold",
-        fontSize: 12,
     },
 });

@@ -1,4 +1,4 @@
-import { ApiAscentRepository } from "../api/APIAscentRepository";
+import { ApiAscentRepository} from "../api/APIAscentRepository";
 
 export class WebAscentRepository extends ApiAscentRepository  {
 }

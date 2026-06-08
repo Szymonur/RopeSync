@@ -1,20 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSQLiteContext } from "expo-sqlite";
-import {
-    RegionRepository,
-    Region,
-} from "../../database/repositories/RegionRepository";
-import {
-    SectorRepository,
-    Sector,
-} from "../../database/repositories/SectorRepository";
-import {
-    RouteRepository,
-    RouteListItem,
-} from "../../database/repositories/RouteRepository";
+import { useRepositories } from "../../contexts/RepositoryContext";
+import { Region } from "../../types/location";
+import { RouteListItem } from "../../types/route";
+import { Sector } from "../../types/location";
 
 export const useExploreSearch = (query: string) => {
-    const db = useSQLiteContext();
+    const { locationRepository, routeRepository } = useRepositories();
     const [regions, setRegions] = useState<Region[]>([]);
     const [searchResults, setSearchResults] = useState<{
         regions: Region[];
@@ -22,23 +13,20 @@ export const useExploreSearch = (query: string) => {
         routes: RouteListItem[];
     }>({ regions: [], sectors: [], routes: [] });
 
-    const regionRepo = useMemo(() => new RegionRepository(db), [db]);
-    const sectorRepo = useMemo(() => new SectorRepository(db), [db]);
-    const routeRepo = useMemo(() => new RouteRepository(db), [db]);
-
     useEffect(() => {
         const loadInitial = async () => {
             try {
-                const data = await regionRepo.getAllRegions();
+                const data = await locationRepository.getRegions();
                 setRegions(data);
             } catch (error) {
                 console.error("Błąd ładowania regionów:", error);
             }
         };
         loadInitial();
-    }, [regionRepo]);
+    }, [locationRepository]);
 
     useEffect(() => {
+        const controller = new AbortController();
         const performSearch = async () => {
             if (query.length < 2) {
                 setSearchResults({ regions: [], sectors: [], routes: [] });
@@ -46,19 +34,25 @@ export const useExploreSearch = (query: string) => {
             }
             try {
                 const [r, s, d] = await Promise.all([
-                    regionRepo.searchRegions(query),
-                    sectorRepo.searchSectors(query),
-                    routeRepo.searchRoutes(query),
+                    locationRepository.searchRegions(query, controller.signal),
+                    locationRepository.searchSectors(query, controller.signal),
+                    routeRepository.searchRoutes(query, controller.signal),
                 ]);
+				console.log("r, s, d", r, s, d);
+				
                 setSearchResults({ regions: r, sectors: s, routes: d });
-            } catch (error) {
+            } catch (error: any) {
+                if (error.name === 'AbortError') return;
                 console.error("Błąd wyszukiwania:", error);
             }
         };
 
         const timer = setTimeout(performSearch, 300);
-        return () => clearTimeout(timer);
-    }, [query, regionRepo, sectorRepo, routeRepo]);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [query, locationRepository, routeRepository]);
 
     const sections = useMemo(() => {
         const results = [];

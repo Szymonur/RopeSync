@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
-import { Region } from "../../database/repositories/RegionRepository";
+import { Region } from "../../types/location";
 
 interface Props {
     region: Region;

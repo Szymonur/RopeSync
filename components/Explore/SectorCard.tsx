@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
-import { Sector } from "../../database/repositories/SectorRepository";
+import { Sector } from "../../types/location";
 
 interface Props {
     sector: Sector & { nazwa_rejonu: string };

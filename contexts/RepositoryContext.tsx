@@ -7,22 +7,25 @@ import { useSQLiteContext } from "expo-sqlite";
 import { IUserRepository } from "../database/repositories/interfaces/IUserRepository";
 import { IAscentRepository } from "../database/repositories/interfaces/IAscentRepository";
 import { IRouteRepository } from "../database/repositories/interfaces/IRouteRepository";
+import { ILocationRepository } from "../database/repositories/interfaces/IlocationRepository";
 
 // Implementations
 import { WebUserRepository } from "../database/repositories/web/UserRepository";
 import { WebAscentRepository } from "../database/repositories/web/AscentRepository";
 import { WebRouteRepository } from "../database/repositories/web/RouteRepository";
+import { WebLocationRepository } from "../database/repositories/web/LocationRepository";
 
 import { MobileUserRepository } from "../database/repositories/mobile/UserRepository";
 import { MobileAscentRepository } from "../database/repositories/mobile/AscentRepository";
 import { MobileRouteRepository } from "../database/repositories/mobile/RouteRepository";
+import { MobileLocationRepository } from "../database/repositories/mobile/LocationRepository";
 
 
 interface RepositoryContextType {
     userRepository: IUserRepository;
-	ascentRepository: IAscentRepository
-	routeRepository: IRouteRepository
-
+	ascentRepository: IAscentRepository;
+	routeRepository: IRouteRepository;
+    locationRepository: ILocationRepository;
 }
 
 const RepositoryContext = createContext<RepositoryContextType | null>(null);
@@ -44,12 +47,14 @@ export const RepositoryProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 userRepository: new WebUserRepository(),
 				ascentRepository: new WebAscentRepository(),
 				routeRepository: new WebRouteRepository(),
+                locationRepository: new WebLocationRepository(),
             };
         } else {
             return {
                 userRepository: new MobileUserRepository(db),
                 ascentRepository: new  MobileAscentRepository(db),
                 routeRepository: new  MobileRouteRepository(db),
+                locationRepository: new MobileLocationRepository(db),
             };
         }
     }, [db]);

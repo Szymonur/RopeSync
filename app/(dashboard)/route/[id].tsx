@@ -9,15 +9,14 @@ import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 
-import {
-    RouteRepository,
-    RouteDetails,
-} from "../../../database/repositories/RouteRepository";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import { Colors } from "../../../constants/Colors";
+
+import { useRepositories } from "../../../contexts/RepositoryContext";
+import { RouteDetails } from "../../../types/route"
 
 import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 
@@ -26,19 +25,18 @@ import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const db = useSQLiteContext();
     const [route, setRoute] = useState<RouteDetails | null>(null);
     const [loading, setLoading] = useState(true);
 
     const [formVisible, setFormVisible] = useState(false);
-
-    const repository = useMemo(() => new RouteRepository(db), [db]);
+	
+	const { routeRepository } = useRepositories();
 
     useEffect(() => {
         const fetchDetails = async () => {
             if (!id) return;
             try {
-                const data = await repository.getRouteDetails(id);
+                const data = await routeRepository.getRouteDetails(id);
                 setRoute(data);
             } catch (error) {
                 console.error("Błąd ładowania szczegółów drogi:", error);
@@ -48,7 +46,7 @@ const RouteDetail = () => {
         };
 
         fetchDetails();
-    }, [id, repository]);
+    }, [id, routeRepository]);
 
     if (loading) {
         return (
@@ -79,15 +77,6 @@ const RouteDetail = () => {
             <ManualAscentFormModal
                 visible={formVisible}
                 onClose={() => setFormVisible(false)}
-                initialRoutes={[
-                    {
-                        id_drogi: id,
-                        nazwa_drogi: route.nazwa_drogi,
-                        nazwa_rejonu: route.nazwa_rejonu,
-                        typ_drogi: route.typ_drogi,
-                        wycena: route.skala,
-                    },
-                ]}
                 preselectedRouteId={id}
                 hideRouteSearch={true}
             />
