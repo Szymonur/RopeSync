@@ -10,3 +10,11 @@ export interface LoginResponse extends User {
 	refreshToken: string;
 	accessToken: string;
 }
+
+export interface SearchUser {
+    id: number;
+    username: string;
+    firstName: string;
+    lastName: string;
+    isFollowing: boolean;
+}

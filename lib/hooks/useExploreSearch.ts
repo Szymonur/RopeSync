@@ -1,84 +1,49 @@
-import { useState, useEffect, useMemo } from "react";
-import { useRepositories } from "../../contexts/RepositoryContext";
-import { Region } from "../../types/location";
-import { RouteListItem } from "../../types/route";
-import { Sector } from "../../types/location";
+import { useMemo } from "react";
+import { useRegions, useSearchRegions, useSearchSectors } from "./useLocations";
+import { useSearchRoutes } from "./useRoutes";
 
 export const useExploreSearch = (query: string) => {
-    const { locationRepository, routeRepository } = useRepositories();
-    const [regions, setRegions] = useState<Region[]>([]);
-    const [searchResults, setSearchResults] = useState<{
-        regions: Region[];
-        sectors: (Sector & { nazwa_rejonu: string })[];
-        routes: RouteListItem[];
-    }>({ regions: [], sectors: [], routes: [] });
+    // Initial regions load
+    const { data: regions = [] } = useRegions();
 
-    useEffect(() => {
-        const loadInitial = async () => {
-            try {
-                const data = await locationRepository.getRegions();
-                setRegions(data);
-            } catch (error) {
-                console.error("Błąd ładowania regionów:", error);
-            }
-        };
-        loadInitial();
-    }, [locationRepository]);
-
-    useEffect(() => {
-        const controller = new AbortController();
-        const performSearch = async () => {
-            if (query.length < 2) {
-                setSearchResults({ regions: [], sectors: [], routes: [] });
-                return;
-            }
-            try {
-                const [r, s, d] = await Promise.all([
-                    locationRepository.searchRegions(query, controller.signal),
-                    locationRepository.searchSectors(query, controller.signal),
-                    routeRepository.searchRoutes(query, controller.signal),
-                ]);
-				console.log("r, s, d", r, s, d);
-				
-                setSearchResults({ regions: r, sectors: s, routes: d });
-            } catch (error: any) {
-                if (error.name === 'AbortError') return;
-                console.error("Błąd wyszukiwania:", error);
-            }
-        };
-
-        const timer = setTimeout(performSearch, 300);
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [query, locationRepository, routeRepository]);
+    // Search results
+    const isSearchEnabled = query.length >= 2;
+    
+    const { data: searchRegions = [], isLoading: isSearchRegionsLoading } = useSearchRegions(query, { enabled: isSearchEnabled });
+    const { data: searchSectors = [], isLoading: isSearchSectorsLoading } = useSearchSectors(query, { enabled: isSearchEnabled });
+    const { data: searchRoutes = [], isLoading: isSearchRoutesLoading } = useSearchRoutes(query, { enabled: isSearchEnabled });
 
     const sections = useMemo(() => {
+        if (!isSearchEnabled) return [];
+
         const results = [];
-        if (searchResults.regions.length > 0) {
+        if (searchRegions.length > 0) {
             results.push({
                 title: "Regions",
-                data: searchResults.regions,
+                data: searchRegions,
                 type: "region" as const,
             });
         }
-        if (searchResults.sectors.length > 0) {
+        if (searchSectors.length > 0) {
             results.push({
                 title: "Sectors",
-                data: searchResults.sectors,
+                data: searchSectors,
                 type: "sector" as const,
             });
         }
-        if (searchResults.routes.length > 0) {
+        if (searchRoutes.length > 0) {
             results.push({
                 title: "Routes",
-                data: searchResults.routes,
+                data: searchRoutes,
                 type: "route" as const,
             });
         }
         return results;
-    }, [searchResults]);
+    }, [isSearchEnabled, searchRegions, searchSectors, searchRoutes]);
 
-    return { regions, sections };
+    return { 
+        regions, 
+        sections,
+        isLoading: isSearchRegionsLoading || isSearchSectorsLoading || isSearchRoutesLoading
+    };
 };

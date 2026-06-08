@@ -6,17 +6,14 @@ import {
     ScrollView,
 } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import { useState } from "react";
+import { useRouteDetails } from "../../../lib/hooks/useRoutes";
 
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
 import { Colors } from "../../../constants/Colors";
-
-import { useRepositories } from "../../../contexts/RepositoryContext";
-import { RouteDetails } from "../../../types/route"
 
 import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 
@@ -25,30 +22,10 @@ import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 
 const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const [route, setRoute] = useState<RouteDetails | null>(null);
-    const [loading, setLoading] = useState(true);
-
+    const { data: route, isLoading } = useRouteDetails(id!);
     const [formVisible, setFormVisible] = useState(false);
-	
-	const { routeRepository } = useRepositories();
 
-    useEffect(() => {
-        const fetchDetails = async () => {
-            if (!id) return;
-            try {
-                const data = await routeRepository.getRouteDetails(id);
-                setRoute(data);
-            } catch (error) {
-                console.error("Błąd ładowania szczegółów drogi:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDetails();
-    }, [id, routeRepository]);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <ThemedView
                 style={[styles.container, { justifyContent: "center" }]}

@@ -5,10 +5,8 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, Stack, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { useRepositories } from "../../../contexts/RepositoryContext";
+import { useRegionById, useSectorsByRegion } from "../../../lib/hooks/useLocations";
 
-import { Sector, Region } from "../../../types/location";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import ThemedCard from "../../../components/ThemedCard";
@@ -16,37 +14,15 @@ import Spacer from "../../../components/Spacer";
 
 const RegionSectors = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { locationRepository } = useRepositories();
+    const regionId = parseInt(id);
     const router = useRouter();
-    const [sectors, setSectors] = useState<Sector[]>([]);
-    const [region, setRegion] = useState<Region | null>(null);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const controller = new AbortController();
-        const fetchData = async () => {
-            if (!id) return;
-            try {
-                const regionId = parseInt(id);
-                const [sectorsData, regionData] = await Promise.all([
-                    locationRepository.getSectorsByRegion(regionId, controller.signal),
-                    locationRepository.getRegionById(regionId, controller.signal),
-                ]);
-                setSectors(sectorsData);
-                setRegion(regionData);
-            } catch (error: any) {
-                if (error.name === 'AbortError') return;
-                console.error("Błąd ładowania danych regionu:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { data: region, isLoading: isRegionLoading } = useRegionById(regionId);
+    const { data: sectors, isLoading: isSectorsLoading } = useSectorsByRegion(regionId);
 
-        fetchData();
-        return () => controller.abort();
-    }, [id, locationRepository]);
+    const isLoading = isRegionLoading || isSectorsLoading;
 
-    if (loading) {
+    if (isLoading) {
         return (
             <ThemedView
                 style={[styles.container, { justifyContent: "center" }]}

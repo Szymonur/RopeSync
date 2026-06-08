@@ -7,17 +7,9 @@ import {
 	Platform
 } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "expo-router";
 
-import { useRepositories } from "../../../contexts/RepositoryContext";
-import { Ascent } from "../../../types/ascent";
-
-import {
-    UserService,
-    RemoteAscentDetails,
-} from "../../../services/api/UserService";
-import { useNetwork } from "../../../contexts/NetworkContext";
+import { useAscentDetails, useDeleteAscent } from "../../../lib/hooks/useAscents";
 
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
@@ -43,31 +35,28 @@ const AscentDetails = () => {
         userId?: string;
     }>();
     const { showSnackbar } = useSnackbar();
-
-    const [ascent, setAscent] = useState<Ascent | null>(
-        null,
-    );
-    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     const { currentUserId: userId } = useAuth();
     const currentUserId = Number(userId);
 
-    const { ascentRepository } = useRepositories();
+    const { data: ascent, isLoading } = useAscentDetails(id, searchUserId ? Number(searchUserId) : undefined);
+    const { mutate: deleteAscent } = useDeleteAscent();
 
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    const handleDelete = () => { // TODO - add custom alert component ans use it here
+    const handleDelete = () => {
 		if (Platform.OS === 'web') {
 		const confirmed = window.confirm(`Usuń przejście\n\nCzy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"?`);
 				if (confirmed) {
-					ascentRepository.deleteAscent(id);
-					console.log("DELETE");
-					router.back();
+					deleteAscent(id, {
+                        onSuccess: () => {
+                            router.back();
+                        }
+                    });
 				}
 		} else {
-
 			Alert.alert(
 				"Usuń przejście",
 				`Czy na pewno chcesz usunąć przejście "${ascent?.nazwa_drogi}"?`,
@@ -77,22 +66,23 @@ const AscentDetails = () => {
 						text: "Usuń",
 						style: "destructive",
 						onPress: async () => {
-							try {
-								if (ascent?.id_przejscia) {
-									await ascentRepository.deleteAscent(id);
-									router.back();
-									showSnackbar({
-										message: `Przejscie drogi ${ascent?.nazwa_drogi} zostało usunięte`,
-										type: "success",
-									});
-								}
-							} catch (error) {
-								showSnackbar({
-									message: "Nie duało się usunać przejscia",
-									type: "error",
-								});
-								console.error("Błąd podczas usuwania:", error);
-							}
+                            if (ascent?.id_przejscia) {
+                                deleteAscent(id, {
+                                    onSuccess: () => {
+                                        router.back();
+                                        showSnackbar({
+                                            message: `Przejscie drogi ${ascent?.nazwa_drogi} zostało usunięte`,
+                                            type: "success",
+                                        });
+                                    },
+                                    onError: () => {
+                                        showSnackbar({
+                                            message: "Nie udało się usunąć przejścia",
+                                            type: "error",
+                                        });
+                                    }
+                                });
+                            }
 						},
 					},
 				],
@@ -100,30 +90,7 @@ const AscentDetails = () => {
 		};
     };
 
-    useEffect(() => {
-        const fetchDetails = async () => {
-            if (!id) return;
-            try {
-                setLoading(true);
-
-				const data = await ascentRepository.getAscent(
-                    id as string, 
-                    searchUserId ? Number(searchUserId) : undefined
-                );
-				setAscent(data);
-
-            } catch (error) {
-                console.error("Błąd ładowania szczegółów przejścia:", error);
-				setAscent(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDetails();
-    }, [id, searchUserId, currentUserId]);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <ThemedView
                 style={[styles.container, { justifyContent: "center" }]}
@@ -225,7 +192,7 @@ const styles = StyleSheet.create({
     },
     noteLabel: {
         fontSize: 14,
-        fontWeight: 600,
+        fontWeight: "bold",
         marginBottom: 5,
         opacity: 0.5,
     },

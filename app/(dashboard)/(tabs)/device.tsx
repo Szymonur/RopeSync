@@ -7,16 +7,13 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedButton from "../../../components/ThemedButton";
 
 import { useBLE } from "../../../lib/hooks/useBLE";
-import { useRepositories } from "../../../contexts/RepositoryContext";
-
-
-import { UserService } from "../../../services/api/UserService";
+import { useAddAscent } from "../../../lib/hooks/useAscents";
 
 import { useAuth } from "../../../contexts/AuthContext";
 
 const DeviceScreen = () => {
     const { currentUserId: userId } = useAuth();
-    const { ascentRepository } = useRepositories();
+    const { mutateAsync: addAscent } = useAddAscent();
 
     const {
         scanForPeripherals,
@@ -119,7 +116,7 @@ const DeviceScreen = () => {
                 ],
             };
 
-            await ascentRepository.addAscent({
+            await addAscent({
                 id_przejscia: mockId,
                 data: new Date().toISOString().split("T")[0],
                 notatka: "Automatycznie wygenerowany mock timeline",

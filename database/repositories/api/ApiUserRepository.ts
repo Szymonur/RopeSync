@@ -1,6 +1,6 @@
 import api from "../../../lib/api/client";
 import { IUserRepository } from "../interfaces/IUserRepository";
-import { LoginResponse} from '../../../types/user';
+import { LoginResponse, SearchUser } from '../../../types/user';
 
 export class ApiUserRepository implements IUserRepository {
 
@@ -25,5 +25,24 @@ export class ApiUserRepository implements IUserRepository {
             }
             throw new Error("Brak połączenia z serwerem lub nieznany błąd.");
         }
+    }
+
+    async followUser(userId: number): Promise<void> {
+        await api.post(`/follow/${userId}`);
+    }
+
+    async unfollowUser(userId: number): Promise<void> {
+        await api.delete(`/unfollow/${userId}`);
+    }
+
+    async searchUsers(phrase: string): Promise<SearchUser[]> {
+        const { data } = await api.get<{
+            message: string;
+            users: SearchUser[];
+        }>("/profile/search/users", {
+            params: { q: phrase },
+        });
+
+        return data.users;
     }
 }

@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useQueryClient } from "@tanstack/react-query";
 
 import ThemedView from "../../components/ThemedView";
 import ThemedText from "../../components/ThemedText";
@@ -22,13 +21,13 @@ import ThemedEmptyState from "../../components/ThemedEmptyState";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useNetwork } from "../../contexts/NetworkContext";
-import { SearchUser, UserService } from "../../services/api/UserService";
+import { SearchUser } from "../../types/user";
 
 import { useDebounce } from "../../lib/hooks/useDebounce";
+import { useFollowUser, useSearchUsers, useUnfollowUser } from "../../lib/hooks/useUsers";
 
 const SearchUsers = () => {
     const router = useRouter();
-    const queryClient = useQueryClient();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const { isConnected } = useNetwork();
@@ -36,31 +35,17 @@ const SearchUsers = () => {
     const [phrase, setPhrase] = useState("");
     const debouncedPhrase = useDebounce(phrase);
     const [phraseError, setPhraseError] = useState("");
-    const [users, setUsers] = useState<SearchUser[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [busyUserId, setBusyUserId] = useState<number | null>(null);
-
-    const loadUsers = async (query: string) => {
-        if (!isConnected) return;
-
-        const trimmed = query.trim();
-
-        if (trimmed.length < 2) {
-            setUsers([]);
-            return;
-        }
-        try {
-            setLoading(true);
-            const result = await UserService.searchUsers(trimmed);
-            setUsers(result);
-        } catch (error) {
-            console.error("Błąd wyszukiwania użytkowników:", error);
-            setUsers([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+    
+    // Hooks
+    const { 
+        data: searchedUsers = [], 
+        isLoading, 
+        refetch, 
+        isRefetching 
+    } = useSearchUsers(debouncedPhrase);
+    
+    const { mutateAsync: followUser, isPending: isFollowingPending, variables: followingId } = useFollowUser();
+    const { mutateAsync: unfollowUser, isPending: isUnfollowingPending, variables: unfollowingId } = useUnfollowUser();
 
     useEffect(() => {
         if (phrase.length === 0 || phrase.length >= 2) {
@@ -77,43 +62,17 @@ const SearchUsers = () => {
         return () => clearTimeout(timer);
     }, [phrase]);
 
-    useEffect(() => {
-        loadUsers(debouncedPhrase);
-    }, [debouncedPhrase, isConnected]);
-
-    const onRefresh = async () => {
-        setRefreshing(true);
-        await loadUsers(phrase);
-        setRefreshing(false);
-    };
-
     const onToggleFollow = async (user: SearchUser) => {
         if (!isConnected) return;
 
         try {
-            setBusyUserId(user.id);
-
             if (user.isFollowing) {
-                await UserService.unfollowUser(user.id);
+                await unfollowUser(user.id);
             } else {
-                await UserService.followUser(user.id);
+                await followUser(user.id);
             }
-
-            await queryClient.invalidateQueries({
-                queryKey: ["following-feed"],
-            });
-
-            setUsers((prev) =>
-                prev.map((item) =>
-                    item.id === user.id
-                        ? { ...item, isFollowing: !item.isFollowing }
-                        : item,
-                ),
-            );
         } catch (error) {
             console.error("Błąd podczas zmiany obserwacji:", error);
-        } finally {
-            setBusyUserId(null);
         }
     };
 
@@ -161,36 +120,37 @@ const SearchUsers = () => {
                     />
                     <Spacer height={10} />
 
-                    {loading && (
+                    {isLoading && (
                         <ActivityIndicator
                             size="small"
                             color={theme.iconColour}
                         />
                     )}
 
-                    {!loading &&
+                    {!isLoading &&
                         debouncedPhrase.trim().length >= 2 &&
                         phrase === debouncedPhrase &&
-                        users.length === 0 && (
+                        searchedUsers.length === 0 && (
                             <ThemedText style={styles.emptyText}>
                                 Nic nie wiemy o takim wspinaczu.
                             </ThemedText>
                         )}
 
                     <FlatList
-                        data={users}
+                        data={searchedUsers}
                         keyExtractor={(item) => String(item.id)}
                         style={{ width: "100%" }}
                         refreshControl={
                             <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={onRefresh}
+                                refreshing={isRefetching}
+                                onRefresh={refetch}
                                 colors={[theme.iconColour]}
                                 tintColor={theme.iconColour}
                             />
                         }
                         renderItem={({ item }) => {
-                            const isBusy = busyUserId === item.id;
+                            const isBusy = (isFollowingPending && followingId === item.id) || 
+                                           (isUnfollowingPending && unfollowingId === item.id);
 
                             return (
                                 <ThemedCard style={styles.userCard}>
@@ -229,8 +189,8 @@ const SearchUsers = () => {
                                             >
                                                 {isBusy ? (
                                                     <ActivityIndicator
-                                                        size="small"
-                                                        color={theme.text}
+														size={14}
+                                                        color={item.isFollowing ? theme.text : "white"}
                                                     />
                                                 ) : item.isFollowing ? (
                                                     "Obserwujesz"

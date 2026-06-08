@@ -1,10 +1,8 @@
 import { StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
-import { useEffect, useState } from "react";
-import { useRepositories } from "../../../contexts/RepositoryContext";
+import { useSectorById } from "../../../lib/hooks/useLocations";
+import { useRoutesBySector } from "../../../lib/hooks/useRoutes";
 
-import { RouteListItem } from "../../../types/route";
-import { Sector } from "../../../types/location";
 import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
@@ -12,36 +10,14 @@ import RouteCard from "../../../components/Explore/RouteCard";
 
 const SectorRoutes = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { routeRepository, locationRepository } = useRepositories();
-    const [routes, setRoutes] = useState<RouteListItem[]>([]);
-    const [sector, setSector] = useState<Sector | null>(null);
-    const [loading, setLoading] = useState(true);
+    const sectorId = parseInt(id);
 
-    useEffect(() => {
-        const controller = new AbortController();
-        const fetchData = async () => {
-            if (!id) return;
-            try {
-                const sectorId = parseInt(id);
-                const [routesData, sectorData] = await Promise.all([
-                    routeRepository.getRoutesBySector(sectorId, controller.signal),
-                    locationRepository.getSectorById(sectorId, controller.signal),
-                ]);
-                setRoutes(routesData);
-                setSector(sectorData);
-            } catch (error: any) {
-                if (error.name === 'AbortError') return;
-                console.error("Błąd ładowania danych sektora:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { data: sector, isLoading: isSectorLoading } = useSectorById(sectorId);
+    const { data: routes, isLoading: isRoutesLoading } = useRoutesBySector(sectorId);
 
-        fetchData();
-        return () => controller.abort();
-    }, [id, routeRepository, locationRepository]);
+    const isLoading = isSectorLoading || isRoutesLoading;
 
-    if (loading) {
+    if (isLoading) {
         return (
             <ThemedView
                 style={[styles.container, { justifyContent: "center" }]}

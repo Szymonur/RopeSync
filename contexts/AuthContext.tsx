@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as authStorage from "../lib/utils/authStorage";
-import { UserService } from "../services/api/UserService";
 
 // 1. Definiujemy kształt danych w naszym kontekście
 interface AuthContextData {
