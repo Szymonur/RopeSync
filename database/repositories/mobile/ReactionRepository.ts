@@ -1,33 +1,28 @@
 import { SQLiteDatabase } from "expo-sqlite";
+import { IReactionRepository } from "../interfaces/IReactionRepository";
+import { Reaction, ReactionNotification } from "../../../types/reaction";
 
-export interface Reaction {
-    id?: number;
-    id_uzytkownika: number;
-    id_przejscia: string;
-    imie?: string;
-    nazwisko?: string;
-    username?: string;
-    data_reakcji?: string;
-    wyswietlono: number; // 0 = unread, 1 = read
-}
-
-export interface NotificationItem {
-    id: number;
-    id_uzytkownika: number;
-    id_przejscia: string;
-    imie: string;
-    nazwisko: string;
-    username: string;
-    data_reakcji: string;
-    wyswietlono: number;
-    nazwa_drogi: string;
-}
-
-export class ReactionRepository {
+export class MobileReactionRepository implements IReactionRepository {
     private db: SQLiteDatabase;
 
     constructor(db: SQLiteDatabase) {
         this.db = db;
+    }
+
+    async toggleReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
+        throw new Error("Toggle reaction not implemented for Mobile repository yet. Use API or implement sync queue.");
+    }
+
+    async getUnreadReactions(): Promise<ReactionNotification[]> {
+        // Zwracamy reakcje, które mają wyswietlono = 0
+        return await this.db.getAllAsync<ReactionNotification>(
+            `SELECT r.*, d.nazwa_drogi 
+             FROM Reakcje r
+             JOIN Przejscia p ON r.id_przejscia = p.id_przejscia
+             JOIN Drogi d ON p.id_drogi = d.id_drogi
+             WHERE r.wyswietlono = 0
+             ORDER BY r.data_reakcji DESC`,
+        );
     }
 
     async addReaction(reaction: Reaction) {
@@ -72,8 +67,8 @@ export class ReactionRepository {
         );
     }
 
-    async getNotifications(currentUserId: number): Promise<NotificationItem[]> {
-        return await this.db.getAllAsync<NotificationItem>(
+    async getNotifications(currentUserId: number): Promise<ReactionNotification[]> {
+        return await this.db.getAllAsync<ReactionNotification>(
             `SELECT r.*, d.nazwa_drogi 
              FROM Reakcje r
              JOIN Przejscia p ON r.id_przejscia = p.id_przejscia

@@ -8,5 +8,4 @@ export interface IAscentRepository {
 	addAscent(ascent: Ascent): Promise<void>;
 	getUserStats(userId: number, signal?: AbortSignal): Promise<UserStats>
 	getFollowingFeed(signal?: AbortSignal): Promise<AscenFeedItem[]>;
-	toggleReaction(ascentId: string, signal?: AbortSignal): Promise<void>;
 }

@@ -78,17 +78,4 @@ export class ApiAscentRepository implements IAscentRepository {
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}
-	async toggleReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
-		try {
-			await api.post<{message: string}>(`/ascents/${ascentId}/toggle-reaction`, { signal });
-		} catch (error: any) {
-            if (error.response) {
-                throw new Error("Wystąpił błąd podczas pobierania feedu");
-            }
-        	throw new Error("Problem z połączeniem sieciowym.");
-        }
-	}
-
-	
-	
 }

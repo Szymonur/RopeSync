@@ -3,7 +3,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { AscentRepository } from "../../database/repositories/AscentRepository";
-import { ReactionRepository } from "../../database/repositories/ReactionRepository";
+import { MobileReactionRepository } from "../../database/repositories/mobile/ReactionRepository";
 import { UserService } from "../../services/api/UserService";
 
 export const useSyncManager = () => {
@@ -16,7 +16,7 @@ export const useSyncManager = () => {
         if (!currentUserId || !isConnected || isSyncing.current) return;
 
         const repository = new AscentRepository(db);
-        const reactionRepo = new ReactionRepository(db);
+        const reactionRepo = new MobileReactionRepository(db);
 
         try {
             isSyncing.current = true;

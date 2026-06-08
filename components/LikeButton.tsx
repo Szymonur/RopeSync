@@ -4,7 +4,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { useToggleReaction } from "../lib/hooks/useAscents"
+import { useToggleReaction } from "../lib/hooks/useReactions"
 
 const LikeButton = ({
     isLiked,

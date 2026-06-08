@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
+import { useRepositories } from "../../contexts/RepositoryContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Colors } from "../../constants/Colors";
@@ -9,20 +9,16 @@ import ThemedText from "../../components/ThemedText";
 import ThemedView from "../../components/ThemedView";
 import ThemedCard from "../../components/ThemedCard";
 import { Ionicons } from "@expo/vector-icons";
-import {
-    ReactionRepository,
-    NotificationItem,
-} from "../../database/repositories/ReactionRepository";
+import { ReactionNotification } from "../../types/reaction";
 
 export default function NotificationsScreen() {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const { currentUserId } = useAuth();
-    const db = useSQLiteContext();
-    const repo = useMemo(() => new ReactionRepository(db), [db]);
+    const { reactionRepository: repo } = useRepositories();
     const router = useRouter();
 
-    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [notifications, setNotifications] = useState<ReactionNotification[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
