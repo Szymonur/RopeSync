@@ -14,15 +14,12 @@ import { Colors } from "../../../constants/Colors";
 
 import { User } from "../../../types/user"
 
-
-import { ReactionRepository } from "../../../database/repositories/ReactionRepository";
-
 import ProfileStats from "../../../components/ProfileStats";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import { useUserStats } from "../../../lib/hooks/useAscents";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState } from "react";
 
 const Profile = () => {
     const { logout } = useAuth();

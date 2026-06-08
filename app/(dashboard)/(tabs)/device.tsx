@@ -1,6 +1,4 @@
-import { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, View, Alert } from "react-native";
-import { useSQLiteContext } from "expo-sqlite";
 import { useNetwork } from "../../../contexts/NetworkContext";
 
 import Spacer from "../../../components/Spacer";
@@ -9,17 +7,16 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedButton from "../../../components/ThemedButton";
 
 import { useBLE } from "../../../lib/hooks/useBLE";
-import { AscentRepository } from "../../../database/repositories/AscentRepository";
+import { useRepositories } from "../../../contexts/RepositoryContext";
+
 
 import { UserService } from "../../../services/api/UserService";
 
 import { useAuth } from "../../../contexts/AuthContext";
 
 const DeviceScreen = () => {
-    const db = useSQLiteContext();
-    const repository = useMemo(() => new AscentRepository(db), [db]);
     const { currentUserId: userId } = useAuth();
-    const { isConnected } = useNetwork();
+    const { ascentRepository } = useRepositories();
 
     const {
         scanForPeripherals,
@@ -33,7 +30,6 @@ const DeviceScreen = () => {
 
     const createMockTimeline = async () => {
         try {
-            // 1. Przygotowanie danych mock
             const mockId = `mock_${Date.now()}`;
 
             const mockData = {
@@ -123,40 +119,17 @@ const DeviceScreen = () => {
                 ],
             };
 
-            const timelineJson = JSON.stringify(mockData);
-
-            await repository.addAscent({
+            await ascentRepository.addAscent({
                 id_przejscia: mockId,
                 data: new Date().toISOString().split("T")[0],
                 notatka: "Automatycznie wygenerowany mock timeline",
-                timeline_data: timelineJson,
+                timeline_data: mockData,
                 id_uzytkownika: Number(userId),
                 synced: 0,
                 deleted: 0,
                 nazwa_stylu: "RP",
                 id_drogi: "d_s1", // Istniejąca droga w SEED_DATA
             });
-
-            if (isConnected) {
-                try {
-                    await UserService.createAscent({
-                        id: mockId,
-                        data: new Date().toISOString().split("T")[0],
-                        id_drogi: "d_s1",
-                        timeline_data: mockData, // Wysyłamy obiekt JSON
-                        notatka: "Automatycznie wygenerowany mock timeline",
-                        nazwa_stylu: "RP",
-                    });
-
-                    // 4. Jeśli sukces, oznaczamy jako zsynchronizowane
-                    await repository.markAsSynced(mockId);
-                } catch (apiError) {
-                    console.warn(
-                        "Nie udało się zsynchronizować z API (zostaje lokalnie):",
-                        apiError,
-                    );
-                }
-            }
 
             Alert.alert(
                 "Sukces",

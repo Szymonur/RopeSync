@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
 import {
@@ -74,6 +75,7 @@ const TabsLayout = () => {
                 name="device"
                 options={{
                     title: "Device",
+                    href: Platform.OS === "web" ? null : "/device",
                     tabBarIcon: ({ focused }) => (
                         <Foundation
                             size={24}
