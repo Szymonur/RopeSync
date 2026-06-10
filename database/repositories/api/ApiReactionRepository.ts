@@ -3,17 +3,26 @@ import { IReactionRepository } from "../interfaces/IReactionRepository";
 import { Reaction, ReactionNotification } from "../../../types/reaction";
 
 export class ApiReactionRepository implements IReactionRepository {
-	async toggleReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
+	async addReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
 		try {
-			await api.post<{message: string}>(`/ascents/${ascentId}/toggle-reaction`, { signal });
+			await api.post<{message: string}>(`/ascents/${ascentId}/reactions`, { signal });
 		} catch (error: any) {
             if (error.response) {
-                throw new Error("Wystąpił błąd podczas przełączania reakcji.");
+                throw new Error("Wystąpił błąd podczas dodawnia reakcji.");
             }
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}
-
+	async deleteReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
+		try {
+			await api.delete<{message: string}>(`/ascents/${ascentId}/reactions`, { signal });
+		} catch (error: any) {
+            if (error.response) {
+                throw new Error("Wystąpił błąd podczas usuwania reakcji.");
+            }
+        	throw new Error("Problem z połączeniem sieciowym.");
+        }
+	}
 	async getUnreadReactions(): Promise<ReactionNotification[]> {
 		try {
 			const { data } = await api.get<{ 
@@ -28,15 +37,22 @@ export class ApiReactionRepository implements IReactionRepository {
 			throw new Error("Problem z połączeniem sieciowym.");
 		}
 	}
-
-	async getUnreadCount(currentUserId: number): Promise<number> {
-		// Ta metoda w wersji API może pobierać dane z profilu lub dedykowanego endpointu
-		// Na razie implementujemy to jako getUnreadReactions().length lub rzucamy błąd jeśli nie ma endpointu
-		const reactions = await this.getUnreadReactions();
-		return reactions.length;
+// /unread/count
+	async getUnreadCount(): Promise<number> {
+		try {
+			const { data } = await api.get<{ 
+				count: number; }>
+				("/notifications/unread/count");
+			return data.count;
+		} catch (error: any) {
+			if (error.response) {
+				throw new Error("Wystąpił błąd podczas pobierania nieprzeczytanych reakcji.");
+			}
+			throw new Error("Problem z połączeniem sieciowym.");
+		}
 	}
 
-	async markAllAsRead(currentUserId: number): Promise<void> {
+	async markAllAsRead(): Promise<void> {
 		try {
 			await api.patch("/notifications");
 		} catch (error: any) {
@@ -47,7 +63,7 @@ export class ApiReactionRepository implements IReactionRepository {
 		}
 	}
 
-	async getNotifications(currentUserId: number): Promise<ReactionNotification[]> {
+	async getNotifications(): Promise<ReactionNotification[]> {
 		try {
 			const { data } = await api.get<{
 				message: string;

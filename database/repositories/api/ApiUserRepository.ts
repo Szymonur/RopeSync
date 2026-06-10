@@ -1,6 +1,6 @@
 import api from "../../../lib/api/client";
 import { IUserRepository } from "../interfaces/IUserRepository";
-import { LoginResponse, SearchUser } from '../../../types/user';
+import { LoginResponse, SearchUser, User } from '../../../types/user';
 
 export class ApiUserRepository implements IUserRepository {
 
@@ -45,4 +45,12 @@ export class ApiUserRepository implements IUserRepository {
 
         return data.users;
     }
+	async getCurrentUser(): Promise<User>{
+		const { data } = await api.get<{
+            message: string;
+            user: User;
+        }>("/users/me");
+
+		return data.user;	
+	}
 }

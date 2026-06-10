@@ -25,14 +25,13 @@ export default function NotificationsScreen() {
         const fetchAndMark = async () => {
             if (!currentUserId) return;
             try {
-                // Fetch latest notifications
-                const items = await repo.getNotifications(
-                    Number(currentUserId),
-                );
+                const items = await repo.getNotifications();
                 setNotifications(items);
 
-                // Mark them as read locally so the badge clears
-                await repo.markAllAsRead(Number(currentUserId));
+				const containsUnreadNotifications: boolean = items.some(obiekt => obiekt.wyswietlono === 0);
+				if(containsUnreadNotifications){
+					await repo.markAllAsRead();
+				}
             } catch (error) {
                 console.error("Error fetching notifications:", error);
             } finally {

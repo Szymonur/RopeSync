@@ -40,3 +40,13 @@ export const useSearchUsers = (query: string, options?: { enabled?: boolean }) =
         ...options,
     });
 };
+
+export const useCurrentUser = () =>{
+    const { userRepository } = useRepositories();
+
+    return useQuery({
+        queryKey: ['current-user'],
+        queryFn: () => userRepository.getCurrentUser(),
+		staleTime: 1000 * 60 * 60,
+    });
+}

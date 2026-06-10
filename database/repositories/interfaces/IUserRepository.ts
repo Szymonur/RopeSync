@@ -1,4 +1,4 @@
-import { LoginResponse, SearchUser } from '../../../types/user';
+import { LoginResponse, SearchUser, User } from '../../../types/user';
 
 export interface IUserRepository {
 	login(username: string, password: string): Promise<LoginResponse>;
@@ -6,4 +6,5 @@ export interface IUserRepository {
 	followUser(userId: number): Promise<void>;
 	unfollowUser(userId: number): Promise<void>;
 	searchUsers(query: string): Promise<SearchUser[]>;
+	getCurrentUser(): Promise<User>;
 }

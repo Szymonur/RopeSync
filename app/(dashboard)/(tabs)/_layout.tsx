@@ -40,7 +40,7 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Home",
+                    title: "Start",
                     tabBarIcon: ({ focused }) => (
                         <FontAwesome6
                             size={24}
@@ -57,7 +57,7 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="profile"
                 options={{
-                    title: "Profile",
+                    title: "Ty",
                     tabBarIcon: ({ focused }) => (
                         <Ionicons
                             size={24}
@@ -74,7 +74,7 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="device"
                 options={{
-                    title: "Device",
+                    title: "Urządzenie",
                     href: Platform.OS === "web" ? null : "/device",
                     tabBarIcon: ({ focused }) => (
                         <Foundation
@@ -92,7 +92,7 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="routes"
                 options={{
-                    title: "Routes",
+                    title: "Drogi",
                     tabBarIcon: ({ focused }) => (
                         <FontAwesome5
                             size={24}
@@ -109,7 +109,7 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="ascents"
                 options={{
-                    title: "Ascents",
+                    title: "Przejścia",
                     tabBarIcon: ({ focused }) => (
                         <FontAwesome5
                             size={24}

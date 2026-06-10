@@ -16,9 +16,7 @@ export const useReactions = () => {
     const notifications = useQuery({
         queryKey: ['notifications'],
         queryFn: () => {
-            // Zakładamy że mamy dostęp do userId, np. z innego hooka lub kontekstu
-            // Tutaj uproszczone wywołanie (id_uzytkownika powinno być przekazane)
-            return reactionRepository.getNotifications(0); 
+            return reactionRepository.getNotifications(); 
         },
     });
 
@@ -35,8 +33,9 @@ export const useToggleReaction = () => {
 
 
     const mutation = useMutation({
-        mutationFn: (ascentId: string) => reactionRepository.toggleReaction(ascentId),
-        onError: (err, ascentId) => {
+        mutationFn: ({ ascentId, shouldLike }: { ascentId: string; shouldLike: boolean }) => 
+            shouldLike ? reactionRepository.addReaction(ascentId) : reactionRepository.deleteReaction(ascentId),
+        onError: (err, { ascentId }) => {
             queryClient.setQueryData<AscenFeedItem[]>(['following-feed'], (oldFeed) => {
                 if (!oldFeed) return [];
                 return oldFeed.map((item) =>
@@ -49,13 +48,17 @@ export const useToggleReaction = () => {
     });
 
     const toggleReaction = useCallback((ascentId: string, options?: { onError?: () => void }) => {
+            let finalLikeState = false;
+
             queryClient.setQueryData<AscenFeedItem[]>(['following-feed'], (oldFeed) => {
                 if (!oldFeed) return [];
-                return oldFeed.map((item) =>
-                    item.id_przejscia === ascentId
-                        ? { ...item, isLiked: !item.isLiked }
-                        : item
-                );
+                return oldFeed.map((item) => {
+                    if (item.id_przejscia === ascentId) {
+                        finalLikeState = !item.isLiked;
+                        return { ...item, isLiked: finalLikeState };
+                    }
+                    return item;
+                });
             });
 
             clickCounts.current[ascentId] = (clickCounts.current[ascentId] || 0) + 1;
@@ -67,7 +70,7 @@ export const useToggleReaction = () => {
             timeoutRefs.current[ascentId] = setTimeout(() => {
                 const totalClicks = clickCounts.current[ascentId];
                 if (totalClicks % 2 !== 0) {
-                    mutation.mutate(ascentId, {
+                    mutation.mutate({ ascentId, shouldLike: finalLikeState }, {
                         onError: () => {
                             if (options?.onError) options.onError();
                         },
@@ -87,7 +90,7 @@ export const useUnreadReactionsCount = (userId: number) => {
 
     return useQuery({
         queryKey: ['unread-reactions-count', userId],
-        queryFn: () => reactionRepository.getUnreadCount(userId),
+        queryFn: () => reactionRepository.getUnreadCount(),
         enabled: !!userId,
         refetchInterval: 1000 * 60 * 2, // co 2 minuty
     });

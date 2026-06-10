@@ -73,8 +73,7 @@ const Routes = () => {
         <ThemedView style={styles.container}>
             <Tabs.Screen
                 options={{
-                    headerTitle: "Sectors",
-                    tabBarLabel: "Routes",
+                    headerTitle: "Rejony",
                     headerRight: () => (
                         <TouchableOpacity
                             onPress={() => {

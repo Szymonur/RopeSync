@@ -31,18 +31,18 @@ const Settings = () => {
     };
 
     const modes = [
-        { id: "system", label: "System", icon: "settings-outline" },
-        { id: "light", label: "Light", icon: "sunny-outline" },
-        { id: "dark", label: "Dark", icon: "moon-outline" },
+        { id: "system", label: "Systemowy", icon: "settings-outline" },
+        { id: "light", label: "Jasny", icon: "sunny-outline" },
+        { id: "dark", label: "Ciemny", icon: "moon-outline" },
     ] as const;
 
     return (
         <ThemedView style={styles.container} safe scroll>
-            <Stack.Screen options={{ title: "Settings" }} />
+            <Stack.Screen options={{ title: "Ustawienia" }} />
 
             <Spacer />
             <ThemedText title style={styles.title}>
-                Settings
+                Ustawienia
             </ThemedText>
 
             <Spacer height={30} />
@@ -94,7 +94,7 @@ const Settings = () => {
 
             <ThemedButton onPress={handleLogout}>
                 <ThemedText style={{ textAlign: "center", color: "white" }}>
-                    Logout
+                    Wyloguj
                 </ThemedText>
             </ThemedButton>
 

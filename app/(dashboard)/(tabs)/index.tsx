@@ -55,7 +55,6 @@ const Index = () => {
         <ThemedView style={{ flex: 1 }}>
             <Tabs.Screen
                 options={{
-                    title: "Home",
                     headerRight: () => (
                         <TouchableOpacity
                             onPress={() =>

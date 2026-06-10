@@ -18,6 +18,7 @@ import ProfileStats from "../../../components/ProfileStats";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import { useUserStats } from "../../../lib/hooks/useAscents";
+import { useCurrentUser} from "../../../lib/hooks/useUsers";
 import { useUnreadReactionsCount } from "../../../lib/hooks/useReactions";
 
 import { useState } from "react";
@@ -33,10 +34,10 @@ const Profile = () => {
     const currentUserId = Number(userId);
 
     // Nowy hook statystyk
-    const { data: stats, isLoading: statsLoading, refetch: refetchStats, isRefetching } = useUserStats(currentUserId);
+    const { data: stats, isLoading: statsLoading, refetch: refetchStats, isRefetching } = useUserStats(currentUserId); 
+    const { data: user, isLoading: userLoading } = useCurrentUser();
     const { data: unreadCount = 0, refetch: refetchUnreadCount } = useUnreadReactionsCount(currentUserId);
 
-    const [user, setUser] = useState<User>();
 
     const handleRefresh = async () => {
         await Promise.all([
@@ -89,8 +90,8 @@ const Profile = () => {
         <ThemedView style={styles.container}>
             <Tabs.Screen
                 options={{
-                    headerTitle: "Profile", // TODO - add firstName and lastName od current login user
-                    tabBarLabel: "Profile",
+                    headerTitle: userLoading ? "Profile" : `${user?.firstName} ${user?.lastName}`,
+                    tabBarLabel: "Ty",
                     headerRight: () => (
                         <View
                             style={{
