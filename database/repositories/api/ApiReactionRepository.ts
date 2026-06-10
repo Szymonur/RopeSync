@@ -16,10 +16,10 @@ export class ApiReactionRepository implements IReactionRepository {
 
 	async getUnreadReactions(): Promise<ReactionNotification[]> {
 		try {
-			const { data } = await api.get<{
-				message: string;
-				reactions: ReactionNotification[];
-			}>("/profile/reactions/unread");
+			const { data } = await api.get<{ 
+				message: string; 
+				reactions: ReactionNotification[];}>
+				("/notifications", { params: { unread: true } });
 			return data.reactions;
 		} catch (error: any) {
 			if (error.response) {
@@ -38,7 +38,7 @@ export class ApiReactionRepository implements IReactionRepository {
 
 	async markAllAsRead(currentUserId: number): Promise<void> {
 		try {
-			await api.post("/profile/reactions/mark-as-read");
+			await api.patch("/notifications");
 		} catch (error: any) {
 			if (error.response) {
 				throw new Error("Wystąpił błąd podczas oznaczania reakcji jako przeczytane.");
@@ -52,7 +52,9 @@ export class ApiReactionRepository implements IReactionRepository {
 			const { data } = await api.get<{
 				message: string;
 				notifications: ReactionNotification[];
-			}>("/profile/reactions/notifications");
+			}>("/notifications");
+			console.log(data);
+			
 			return data.notifications;
 		} catch (error: any) {
 			if (error.response) {
@@ -75,13 +77,5 @@ export class ApiReactionRepository implements IReactionRepository {
 			}
 			throw new Error("Problem z połączeniem sieciowym.");
 		}
-	}
-
-	async addReaction(reaction: Reaction): Promise<void> {
-		throw new Error("Method addReaction not implemented for API repository.");
-	}
-
-	async removeReaction(userId: number, ascentId: string): Promise<void> {
-		throw new Error("Method removeReaction not implemented for API repository.");
 	}
 }

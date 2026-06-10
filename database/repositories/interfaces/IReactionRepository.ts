@@ -7,6 +7,4 @@ export interface IReactionRepository {
 	markAllAsRead(currentUserId: number): Promise<void>;
 	getNotifications(currentUserId: number): Promise<ReactionNotification[]>;
 	getReactionsForAscent(ascentId: string): Promise<Reaction[]>;
-	addReaction(reaction: Reaction): Promise<void>;
-	removeReaction(userId: number, ascentId: string): Promise<void>;
 }

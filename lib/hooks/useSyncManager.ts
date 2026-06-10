@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { AscentRepository } from "../../database/repositories/AscentRepository";
+import { MobileAscentRepository } from "../../database/repositories/mobile/AscentRepository";
 import { MobileReactionRepository } from "../../database/repositories/mobile/ReactionRepository";
 import { UserService } from "../../services/api/UserService";
 
@@ -15,8 +15,8 @@ export const useSyncManager = () => {
     const syncAscents = useCallback(async () => {
         if (!currentUserId || !isConnected || isSyncing.current) return;
 
-        const repository = new AscentRepository(db);
-        const reactionRepo = new MobileReactionRepository(db);
+        const repository = new MobileAscentRepository(db);
+        const reactionRepo = new MobileReactionRepository();
 
         try {
             isSyncing.current = true;
@@ -78,20 +78,20 @@ export const useSyncManager = () => {
                 }
             }
 
-            // 3. Synchronizacja REAKCJI (Powiadomień)
+            // 3. Synchronizacja REAKCJI (Powiadomień) TODO
             try {
-                const reactions = await UserService.getUnreadReactions();
-                for (const reaction of reactions) {
-                    await reactionRepo.addReaction({
-                        id_uzytkownika: reaction.reactorId,
-                        id_przejscia: reaction.ascentId,
-                        imie: reaction.reactorFirstName,
-                        nazwisko: reaction.reactorLastName,
-                        username: reaction.reactorUsername,
-                        data_reakcji: reaction.createdAt,
-                        wyswietlono: 0,
-                    });
-                }
+                // const reactions = await UserService.getUnreadReactions();
+                // for (const reaction of reactions) {
+                //     await reactionRepo.addReaction({
+                //         id_uzytkownika: reaction.reactorId,
+                //         id_przejscia: reaction.ascentId,
+                //         imie: reaction.reactorFirstName,
+                //         nazwisko: reaction.reactorLastName,
+                //         username: reaction.reactorUsername,
+                //         data_reakcji: reaction.createdAt,
+                //         wyswietlono: 0,
+                //     });
+                // }
             } catch (error) {
                 console.error("Błąd podczas pobierania reakcji:", error);
             }

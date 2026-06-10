@@ -6,7 +6,7 @@ export class ApiUserRepository implements IUserRepository {
 
     async login(username: string, password: string): Promise<LoginResponse> {
         try {
-            const response = await api.post<LoginResponse>(`/login`, { username, password });            
+            const response = await api.post<LoginResponse>(`/auth/login`, { username, password });            
             return response.data;
         } catch (error: any) {
             if (error.response?.status === 401 || error.response?.status === 403) {
@@ -18,7 +18,7 @@ export class ApiUserRepository implements IUserRepository {
 
     async register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<void> {
         try {
-            await api.post(`/register`, { username, password, email, firstName, lastName });
+            await api.post(`/auth/register`, { username, password, email, firstName, lastName });
         } catch (error: any) {
             if (error.response && error.response.data) {
                 throw new Error(error.response.data.message || "Błąd podczas rejestracji.");
@@ -28,18 +28,18 @@ export class ApiUserRepository implements IUserRepository {
     }
 
     async followUser(userId: number): Promise<void> {
-        await api.post(`/follow/${userId}`);
+        await api.post(`/users/${userId}/followers`);
     }
 
     async unfollowUser(userId: number): Promise<void> {
-        await api.delete(`/unfollow/${userId}`);
+        await api.delete(`/users/${userId}/followers`);
     }
 
     async searchUsers(phrase: string): Promise<SearchUser[]> {
         const { data } = await api.get<{
             message: string;
             users: SearchUser[];
-        }>("/profile/search/users", {
+        }>("/users", {
             params: { q: phrase },
         });
 

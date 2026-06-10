@@ -86,7 +86,7 @@ export default function NotificationsScreen() {
             ) : (
                 <FlatList
                     data={notifications}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => `${item.id_uzytkownika.toString()}-${item.id_przejscia.toString()}`}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (

@@ -60,7 +60,7 @@ export const RepositoryProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 ascentRepository: new  MobileAscentRepository(db),
                 routeRepository: new  MobileRouteRepository(db),
                 locationRepository: new MobileLocationRepository(db),
-				reactionRepository: new MobileReactionRepository(db),
+				reactionRepository: new MobileReactionRepository(),
             };
         }
     }, [db]);

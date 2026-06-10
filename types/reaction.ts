@@ -10,7 +10,6 @@ export interface Reaction {
 }
 
 export interface ReactionNotification {
-    id: number;
     id_uzytkownika: number;
     id_przejscia: string;
     imie: string;

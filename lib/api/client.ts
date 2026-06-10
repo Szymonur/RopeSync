@@ -43,7 +43,7 @@ api.interceptors.response.use(
                     return Promise.reject(error);
                 }
 
-                const response = await fetch(`${API_URL}/refresh`, {
+                const response = await fetch(`${API_URL}/auth/refresh`, {
                     method: "POST",
                     headers: {
                         Accept: "application/json",

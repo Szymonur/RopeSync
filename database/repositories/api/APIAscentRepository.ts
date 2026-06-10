@@ -27,7 +27,7 @@ export class ApiAscentRepository implements IAscentRepository {
 	}
 	async getStyles(): Promise<AscentStyle[]> {
 		try {
-			const response = await api.get<{message: string; styles: AscentStyle[]; }>(`/ascents/styles`);
+			const response = await api.get<{message: string; styles: AscentStyle[]; }>(`/dictionaries/styles`);
 			return response.data.styles;
 		} catch (error: any) {
             if (error.response) {
@@ -58,7 +58,7 @@ export class ApiAscentRepository implements IAscentRepository {
 	}
 	async getUserStats(userId: number, signal?: AbortSignal): Promise<UserStats>{
 		try {
-			const response = await api.get<{message: string; stats: UserStats; }>(`/profile/${userId}/stats`, { signal });
+			const response = await api.get<{message: string; stats: UserStats; }>(`/users/${userId}/stats`, { signal });
 			return response.data.stats;
 		} catch (error: any) {
             if (error.response) {
@@ -69,7 +69,7 @@ export class ApiAscentRepository implements IAscentRepository {
 	}
 	async getFollowingFeed(signal?: AbortSignal): Promise<AscenFeedItem[]> {
 		try {
-			const response = await api.get<{message: string; feed: AscenFeedItem[]; }>("/follow/feed",  { signal });
+			const response = await api.get<{message: string; feed: AscenFeedItem[]; }>("/users/me/feed",  { signal });
 			return response.data.feed;
 		} catch (error: any) {
             if (error.response) {

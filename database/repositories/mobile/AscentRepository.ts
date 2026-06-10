@@ -279,11 +279,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
             [ascentId],
         );
     }
-    private async deleteAscentPermanently(ascentId: string) {
-        await this.db.runAsync("DELETE FROM Przejscia WHERE id_przejscia = ?", [
-            ascentId,
-        ]);
-    }
+
 	private async addAscentLocal(ascent: Ascent) {
         await this.db.runAsync(
             "INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -300,14 +296,21 @@ export class MobileAscentRepository extends ApiAscentRepository  {
             ],
         );
     }
-	private async markAsSynced(ascentId: string) {
+
+	// public helpers
+
+    async markAsSynced(ascentId: string) {
         await this.db.runAsync(
             "UPDATE Przejscia SET synced = 1 WHERE id_przejscia = ?",
             [ascentId],
         );
     }
 
-	// piblic helpers
+    async deleteAscentPermanently(ascentId: string) {
+        await this.db.runAsync("DELETE FROM Przejscia WHERE id_przejscia = ?", [
+            ascentId,
+        ]);
+    }
 
 	async getUnsyncedAscents(userId: number): Promise<Ascent[]> {
 		return await this.db.getAllAsync<Ascent>(

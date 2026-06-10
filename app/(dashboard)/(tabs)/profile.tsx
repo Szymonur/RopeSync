@@ -5,7 +5,7 @@ import {
     View,
     RefreshControl,
 } from "react-native";
-import { Tabs, useRouter, useFocusEffect } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
@@ -18,11 +18,11 @@ import ProfileStats from "../../../components/ProfileStats";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import { useUserStats } from "../../../lib/hooks/useAscents";
+import { useUnreadReactionsCount } from "../../../lib/hooks/useReactions";
 
 import { useState } from "react";
 
 const Profile = () => {
-    const { logout } = useAuth();
     const router = useRouter();
 
 
@@ -34,37 +34,16 @@ const Profile = () => {
 
     // Nowy hook statystyk
     const { data: stats, isLoading: statsLoading, refetch: refetchStats, isRefetching } = useUserStats(currentUserId);
+    const { data: unreadCount = 0, refetch: refetchUnreadCount } = useUnreadReactionsCount(currentUserId);
 
-    // const db = useSQLiteContext();
     const [user, setUser] = useState<User>();
-
-    // const reactionRepository = useMemo(() => new ReactionRepository(db), [db]);
-    const [unreadCount, setUnreadCount] = useState(0);
-
-    // const fetchUnreadCount = useCallback(async () => {
-    //     if (!currentUserId) return;
-    //     try {
-    //         const count =
-    //             await reactionRepository.getUnreadCount(currentUserId);
-    //         setUnreadCount(count);
-    //     } catch (e) {
-    //         console.error("Błąd podczas pobierania liczby powiadomień: ", e);
-    //     }
-    // }, [currentUserId, reactionRepository]);
-
 
     const handleRefresh = async () => {
         await Promise.all([
             refetchStats(),
-            // fetchUnreadCount(),
+            refetchUnreadCount(),
         ]);
     };
-
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         fetchUnreadCount();
-    //     }, [fetchUnreadCount]),
-    // );
 
     const handleNotificationsPress = () => {
         router.push("/(dashboard)/notifications");
