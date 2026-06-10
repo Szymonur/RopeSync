@@ -62,8 +62,7 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
                     jsonContent = JSON.parse(propTimelineData);
                 } else {
                     jsonContent = propTimelineData;
-                }
-
+                }				
                 setTimelineData(jsonContent);
 
                 // Dynamiczne obliczanie max wysokości

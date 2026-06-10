@@ -81,22 +81,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         userId: string,
     ) => {
         queryClient.clear();
-        await authStorage.saveAccessToken(accesToken);
-        await authStorage.saveRefreshToken(refreshToken);
-        await authStorage.saveCurrentUserId(userId);
+		try {
+			await Promise.all([
+        		authStorage.saveAccessToken(accesToken),
+        		authStorage.saveRefreshToken(refreshToken),
+        		authStorage.saveCurrentUserId(userId)
+        	]);
+		} catch (error) {
+            console.error("Błąd podczas dodawania danych autoryzacji:", error);
+		}
         setAccessToken(accesToken);
         setRefreshToken(refreshToken);
         setCurrentUserId(userId);
     };
 
     const logout = async () => {
-        await authStorage.removeAccessToken();
-        await authStorage.removeRefreshToken();
-        await authStorage.removeCurrentUserId();
         setAccessToken(null);
         setRefreshToken(null);
         setCurrentUserId(null);
         queryClient.clear();
+        try {
+            await Promise.all([
+                authStorage.removeAccessToken(),
+                authStorage.removeRefreshToken(),
+                authStorage.removeCurrentUserId(),
+            ]);
+        } catch (e) {
+            console.error("Błąd podczas usuwania danych autoryzacji:", e);
+        }
     };
 
     return (

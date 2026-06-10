@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View, Alert } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Alert, Platform } from "react-native";
 import { Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ThemedView from "../../components/ThemedView";
@@ -15,6 +15,16 @@ const Settings = () => {
     const theme = Colors[colorScheme];
 
     const handleLogout = () => {
+        if (Platform.OS === "web") {
+            const confirmed = window.confirm(
+                "Czy na pewno chcesz się wylogować?\n\nUWAGA: aby zalogować się ponownie musisz być podłączony do internetu!",
+            );
+            if (confirmed) {
+                logout();
+            }
+            return;
+        }
+
         Alert.alert(
             "Czy na pewno chcesz się wylogować?",
             "UWAGA: aby zalogować się ponownie musisz być podłączony do internetu!",
@@ -31,7 +41,7 @@ const Settings = () => {
     };
 
     const modes = [
-        { id: "system", label: "Systemowy", icon: "settings-outline" },
+        { id: "system", label: "System", icon: "settings-outline" },
         { id: "light", label: "Jasny", icon: "sunny-outline" },
         { id: "dark", label: "Ciemny", icon: "moon-outline" },
     ] as const;
@@ -46,7 +56,7 @@ const Settings = () => {
             </ThemedText>
 
             <Spacer height={30} />
-            <ThemedText style={styles.sectionTitle}>Appearance</ThemedText>
+            <ThemedText style={styles.sectionTitle}>Wygląd</ThemedText>
             <Spacer height={10} />
 
             <View
@@ -55,7 +65,6 @@ const Settings = () => {
                     { backgroundColor: theme.uiBackground },
                 ]}
             >
-                {/* ... reszta kodu bez zmian ... */}
                 {modes.map((mode) => (
                     <TouchableOpacity
                         key={mode.id}

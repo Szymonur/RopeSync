@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRepositories } from "../../contexts/RepositoryContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export const useFollowUser = () => {
     const { userRepository } = useRepositories();
@@ -41,12 +42,13 @@ export const useSearchUsers = (query: string, options?: { enabled?: boolean }) =
     });
 };
 
-export const useCurrentUser = () =>{
+export const useCurrentUser = (userId: number) =>{
     const { userRepository } = useRepositories();
 
     return useQuery({
-        queryKey: ['current-user'],
+        queryKey: ['current-user', userId],
         queryFn: () => userRepository.getCurrentUser(),
 		staleTime: 1000 * 60 * 60,
+        enabled: !!userId,
     });
 }

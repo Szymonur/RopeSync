@@ -1,26 +1,14 @@
-import api from "../../../lib/api/client";
 import { SQLiteDatabase } from "expo-sqlite";
 import { LoginResponse, User } from '../../../types/user';
 import { ApiUserRepository } from "../api/ApiUserRepository";
 import { getCurrentUserId } from "../../../lib/utils/authStorage"
-import { Use } from "react-native-svg";
-
 
 export class MobileUserRepository extends ApiUserRepository{
 	private db: SQLiteDatabase;
-	private currentUserId: string | null = null;
 
 	constructor(db: SQLiteDatabase) {
 		super();
 		this.db = db;
-	}
-	private async getUserId(): Promise<string> {
-		if (!this.currentUserId) {
-			const id = await getCurrentUserId();
-			if (!id) throw new Error("Brak zalogowanego użytkownika.");
-			this.currentUserId = id;
-		}
-		return this.currentUserId;
 	}
 
     async login(username: string, password: string): Promise<LoginResponse> {
@@ -41,7 +29,7 @@ export class MobileUserRepository extends ApiUserRepository{
 		return responseData;
     }
 	async getCurrentUser(): Promise<User> {
-		const userId = await this.getUserId();
+		const userId= await getCurrentUserId();
 		try {           
             const query = `SELECT 
 								id_uzytkownika AS userId,

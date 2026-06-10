@@ -35,7 +35,7 @@ const Profile = () => {
 
     // Nowy hook statystyk
     const { data: stats, isLoading: statsLoading, refetch: refetchStats, isRefetching } = useUserStats(currentUserId); 
-    const { data: user, isLoading: userLoading } = useCurrentUser();
+    const { data: user, isLoading: userLoading } = useCurrentUser(currentUserId );
     const { data: unreadCount = 0, refetch: refetchUnreadCount } = useUnreadReactionsCount(currentUserId);
 
 
