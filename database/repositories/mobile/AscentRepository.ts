@@ -58,12 +58,12 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 				[userId]
 			);
 
-			// 4. Dane do wykresu tygodniowego (ostatnie 8 tygodni)
-			// SQLite nie ma tak prostych funkcji daty, więc pobieramy surowe dane z ostatnich 60 dni i grupujemy w TS
+			// 4. Dane do wykresu tygodniowego (ostatnie 12 tygodni)
+			// SQLite nie ma tak prostych funkcji daty, więc pobieramy surowe dane z ostatnich 84 dni i grupujemy w TS
 			const weeklyChartRaw = await this.db.getAllAsync<{data: string}>(
 				`SELECT data FROM Przejscia 
 				 WHERE id_uzytkownika = ? AND deleted = 0 
-				 AND data >= date('now', '-60 days')`,
+				 AND data >= date('now', '-84 days')`,
 				[userId]
 			);
 			
@@ -121,7 +121,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 		thisWeekStart.setDate(thisWeekStart.getDate() + mondayShift);
 
 		const weekStarts: Date[] = [];
-		for (let i = 7; i >= 0; i -= 1) {
+		for (let i = 11; i >= 0; i -= 1) {
 			const start = new Date(thisWeekStart);
 			start.setDate(start.getDate() - i * 7);
 			weekStarts.push(start);

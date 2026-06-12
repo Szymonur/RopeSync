@@ -36,7 +36,8 @@ const ProfileStats = ({
     const [lineChartWidth, setLineChartWidth] = useState(0);
     const router = useRouter();
     const { showSnackbar } = useSnackbar();
-
+	console.log(stats);
+	
     const maxGradeCount = useMemo(
         () => Math.max(1, ...stats.gradeChart.map((item) => item.count)),
         [stats.gradeChart],
@@ -50,7 +51,7 @@ const ProfileStats = ({
         const chartHeight = 120;
         const topPadding = 12;
         const bottomPadding = 12;
-        const sidePadding = 12;
+        const sidePadding = 18;
         const count = stats.weeklyChart.length;
         if (count === 0 || lineChartWidth <= 0) {
             return [] as Array<{ x: number; y: number }>;
@@ -237,7 +238,7 @@ const ProfileStats = ({
                 )}
             </ThemedCard>
 
-            <ThemedCard style={styles.chartCard}>
+            <ThemedCard style={[styles.chartCard]}>
                 <ThemedText style={styles.summaryTitle}>
                     Przejścia tygodniowo
                 </ThemedText>
@@ -246,85 +247,91 @@ const ProfileStats = ({
                         Brak danych czasowych.
                     </ThemedText>
                 ) : (
-                    <>
-                        <View
-                            style={[
-                                styles.lineChartWrap,
-                                { backgroundColor: theme.background },
-                            ]}
-                            onLayout={(event: LayoutChangeEvent) =>
-                                setLineChartWidth(
-                                    event.nativeEvent.layout.width,
-                                )
-                            }
-                        >
-                            <Svg width="100%" height={120}>
-                                <Line
-                                    x1="12"
-                                    y1="108"
-                                    x2={Math.max(12, lineChartWidth - 12)}
-                                    y2="108"
-                                    stroke={theme.border}
-                                    strokeWidth="1"
-                                />
-                                <Line
-                                    x1="12"
-                                    y1="60"
-                                    x2={Math.max(12, lineChartWidth - 12)}
-                                    y2="60"
-                                    stroke={theme.border}
-                                    strokeWidth="1"
-                                    opacity="0.5"
-                                />
-                                <Line
-                                    x1="12"
-                                    y1="12"
-                                    x2={Math.max(12, lineChartWidth - 12)}
-                                    y2="12"
-                                    stroke={theme.border}
-                                    strokeWidth="1"
-                                    opacity="0.25"
-                                />
-
-                                {linePoints.length > 1 ? (
-                                    <Polyline
-                                        points={polylinePoints}
-                                        fill="none"
-                                        stroke={Colors.primary}
-                                        strokeWidth="2"
+					<>
+                        <View>
+                            <View
+                                style={[
+                                    styles.lineChartWrap,
+                                    { backgroundColor: theme.background, width: "100%" },
+                                ]}
+                                onLayout={(event: LayoutChangeEvent) =>
+                                    setLineChartWidth(
+                                        event.nativeEvent.layout.width,
+                                    )
+                                }
+                            >
+                                <Svg width="100%" height={120}>
+                                    <Line
+                                        x1="12"
+                                        y1="108"
+                                        x2={Math.max(12, lineChartWidth - 12)}
+                                        y2="108"
+                                        stroke={theme.border}
+                                        strokeWidth="1"
                                     />
-                                ) : null}
+                                    <Line
+                                        x1="12"
+                                        y1="60"
+                                        x2={Math.max(12, lineChartWidth - 12)}
+                                        y2="60"
+                                        stroke={theme.border}
+                                        strokeWidth="1"
+                                        opacity="0.5"
+                                    />
+                                    <Line
+                                        x1="12"
+                                        y1="12"
+                                        x2={Math.max(12, lineChartWidth - 12)}
+                                        y2="12"
+                                        stroke={theme.border}
+                                        strokeWidth="1"
+                                        opacity="0.25"
+                                    />
 
+                                    {linePoints.length > 1 ? (
+                                        <Polyline
+                                            points={polylinePoints}
+                                            fill="none"
+                                            stroke={Colors.primary}
+                                            strokeWidth="2"
+                                        />
+                                    ) : null}
+
+                                    {linePoints.map((point, index) => (
+                                        <Circle
+                                            key={`point-${index}`}
+                                            cx={point.x}
+                                            cy={point.y}
+                                            r="3.5"
+                                            fill={Colors.primary}
+                                            stroke={Colors.primary}
+                                            strokeWidth="1.2"
+                                        />
+                                    ))}
+                                </Svg>
+                            </View>
+                            <View style={styles.weeklyLabelsRow}>
                                 {linePoints.map((point, index) => (
-                                    <Circle
-                                        key={`point-${index}`}
-                                        cx={point.x}
-                                        cy={point.y}
-                                        r="3.5"
-                                        fill={Colors.primary}
-                                        stroke={Colors.primary}
-                                        strokeWidth="1.2"
-                                    />
+                                    <View
+                                        key={stats.weeklyChart[index].label}
+                                        style={{
+                                            position: "absolute",
+                                            left: point.x - 35,
+                                            width: 70,
+                                            alignItems: "center",
+                                        }}
+                                    >
+                                        {/* <ThemedText style={styles.weeklyLabel}>
+                                            {stats.weeklyChart[index].label}
+                                        </ThemedText> */}
+                                        <ThemedText style={styles.weeklyCount}>
+                                            {stats.weeklyChart[index].count}
+                                        </ThemedText>
+                                    </View>
                                 ))}
-                            </Svg>
+                            </View>
                         </View>
-
-                        <View style={styles.weeklyLabelsRow}>
-                            {stats.weeklyChart.map((item) => (
-                                <View
-                                    key={item.label}
-                                    style={styles.weeklyLabelCell}
-                                >
-                                    <ThemedText style={styles.weeklyLabel}>
-                                        {item.label}
-                                    </ThemedText>
-                                    <ThemedText style={styles.weeklyCount}>
-                                        {item.count}
-                                    </ThemedText>
-                                </View>
-                            ))}
-                        </View>
-                    </>
+					</>
                 )}
             </ThemedCard>
 
@@ -432,7 +439,6 @@ const styles = StyleSheet.create({
     },
     chartCard: {
         marginTop: 12,
-        paddingVertical: 16,
     },
     chartRow: {
         flexDirection: "row",
@@ -469,8 +475,8 @@ const styles = StyleSheet.create({
     },
     weeklyLabelsRow: {
         marginTop: 8,
-        flexDirection: "row",
-        justifyContent: "space-between",
+        minHeight: 45,
+        position: "relative",
     },
     weeklyLabelCell: {
         alignItems: "center",

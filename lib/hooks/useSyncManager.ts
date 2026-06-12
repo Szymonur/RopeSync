@@ -4,7 +4,6 @@ import { useNetwork } from "../../contexts/NetworkContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { MobileAscentRepository } from "../../database/repositories/mobile/AscentRepository";
 import { MobileReactionRepository } from "../../database/repositories/mobile/ReactionRepository";
-import { UserService } from "../../services/api/UserService";
 
 export const useSyncManager = () => {
     const db = useSQLiteContext();
@@ -31,7 +30,7 @@ export const useSyncManager = () => {
                 );
                 for (const ascent of deletions) {
                     try {
-                        await UserService.deleteAscent(ascent.id_przejscia);
+                        await repository.deleteAscent(ascent.id_przejscia);
                         await repository.deleteAscentPermanently(
                             ascent.id_przejscia,
                         );
@@ -56,8 +55,9 @@ export const useSyncManager = () => {
 
                 for (const ascent of unsynced) {
                     try {
-                        await UserService.createAscent({
-                            id: ascent.id_przejscia,
+                        await repository.addAscent({
+                            id_przejscia: ascent.id_przejscia,
+							id_uzytkownika: Number(currentUserId),
                             data: ascent.data,
                             id_drogi: ascent.id_drogi!,
                             timeline_data: {},

@@ -2,7 +2,7 @@ export interface Ascent {
     id_przejscia: string;
     data: string;
     notatka: string;
-    timeline_data: object;
+    timeline_data?: object;
     id_uzytkownika: number;
     nazwa_stylu: string;
     id_drogi: string;

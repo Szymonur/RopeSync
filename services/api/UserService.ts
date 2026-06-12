@@ -1,168 +1,168 @@
-import api from "../../lib/api/client";
+// import api from "../../lib/api/client";
 
-export interface UserProfile {
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-}
+// export interface UserProfile {
+//     id: string;
+//     username: string;
+//     firstName: string;
+//     lastName: string;
+//     email: string;
+// }
 
-export interface SearchUser {
-    id: number;
-    username: string;
-    firstName: string;
-    lastName: string;
-    isFollowing: boolean;
-}
+// export interface SearchUser {
+//     id: number;
+//     username: string;
+//     firstName: string;
+//     lastName: string;
+//     isFollowing: boolean;
+// }
 
-export interface FollowingFeedItem {
-    ascentId: string;
-    date: string;
-    style: string;
-    routeId: string;
-    routeName: string;
-    routeType: string;
-    note: string;
-    grade: string | null;
-    userId: number;
-    username: string;
-    firstName: string;
-    lastName: string;
-    isLiked: boolean;
-}
+// export interface FollowingFeedItem {
+//     ascentId: string;
+//     date: string;
+//     style: string;
+//     routeId: string;
+//     routeName: string;
+//     routeType: string;
+//     note: string;
+//     grade: string | null;
+//     userId: number;
+//     username: string;
+//     firstName: string;
+//     lastName: string;
+//     isLiked: boolean;
+// }
 
-export interface ReactionNotification {
-    reactorId: number;
-    ascentId: string;
-    reactorFirstName: string;
-    reactorLastName: string;
-    reactorUsername: string;
-    createdAt: string;
-}
+// export interface ReactionNotification {
+//     reactorId: number;
+//     ascentId: string;
+//     reactorFirstName: string;
+//     reactorLastName: string;
+//     reactorUsername: string;
+//     createdAt: string;
+// }
 
-export interface CreateAscentPayload {
-    id: string;
-    data: string;
-    id_drogi: string;
-    timeline_data: any;
-    notatka: string;
-    nazwa_stylu?: string;
-}
+// export interface CreateAscentPayload {
+//     id: string;
+//     data: string;
+//     id_drogi: string;
+//     timeline_data: any;
+//     notatka: string;
+//     nazwa_stylu?: string;
+// }
 
-export interface AscentRouteOption {
-    id_drogi: string;
-    nazwa_drogi: string;
-    typ_drogi: string;
-    nazwa_rejonu: string;
-    wycena: string | null;
-}
+// export interface AscentRouteOption {
+//     id_drogi: string;
+//     nazwa_drogi: string;
+//     typ_drogi: string;
+//     nazwa_rejonu: string;
+//     wycena: string | null;
+// }
 
-export interface RemoteAscentDetails {
-    id_przejscia: string;
-    data: string;
-    notatka: string;
-    timeline_data: string | null;
-    id_uzytkownika: number;
-    nazwa_stylu: string;
-    id_drogi: string | null;
-    nazwa_drogi?: string;
-    typ_drogi?: string;
-    wycena?: string | null;
-    imie?: string;
-    nazwisko?: string;
-    username?: string;
-}
+// export interface RemoteAscentDetails {
+//     id_przejscia: string;
+//     data: string;
+//     notatka: string;
+//     timeline_data: string | null;
+//     id_uzytkownika: number;
+//     nazwa_stylu: string;
+//     id_drogi: string | null;
+//     nazwa_drogi?: string;
+//     typ_drogi?: string;
+//     wycena?: string | null;
+//     imie?: string;
+//     nazwisko?: string;
+//     username?: string;
+// }
 
-export const UserService = {
-    // Pobiera profil użytkownika o podanym ID
-    getUserProfile: async (userId: string): Promise<UserProfile> => {
-        const { data } = await api.get<{ message: string; user: UserProfile }>(
-            `/profile/${userId}`,
-        );
-        return data.user;
-    },
+// export const UserService = {
+//     // Pobiera profil użytkownika o podanym ID
+//     getUserProfile: async (userId: string): Promise<UserProfile> => {
+//         const { data } = await api.get<{ message: string; user: UserProfile }>(
+//             `/profile/${userId}`,
+//         );
+//         return data.user;
+//     },
 
-    // Pobiera profil aktualnie zalogowanego użytkownika
+//     // Pobiera profil aktualnie zalogowanego użytkownika
 
-    getCurrentUser: async (): Promise<UserProfile> => {
-        const { data } = await api.get<{ message: string; user: UserProfile }>(
-            "/profile",
-        );
-        return data.user;
-    },
+//     getCurrentUser: async (): Promise<UserProfile> => {
+//         const { data } = await api.get<{ message: string; user: UserProfile }>(
+//             "/profile",
+//         );
+//         return data.user;
+//     },
 
-    searchUsers: async (phrase: string): Promise<SearchUser[]> => {
-        const { data } = await api.get<{
-            message: string;
-            users: SearchUser[];
-        }>("/profile/search/users", {
-            params: { q: phrase },
-        });
+//     searchUsers: async (phrase: string): Promise<SearchUser[]> => {
+//         const { data } = await api.get<{
+//             message: string;
+//             users: SearchUser[];
+//         }>("/profile/search/users", {
+//             params: { q: phrase },
+//         });
 
-        return data.users;
-    },
+//         return data.users;
+//     },
 
-    followUser: async (userId: number): Promise<void> => {
-        await api.post(`/follow/${userId}`);
-    },
+//     followUser: async (userId: number): Promise<void> => {
+//         await api.post(`/follow/${userId}`);
+//     },
 
-    unfollowUser: async (userId: number): Promise<void> => {
-        await api.delete(`/unfollow/${userId}`);
-    },
+//     unfollowUser: async (userId: number): Promise<void> => {
+//         await api.delete(`/unfollow/${userId}`);
+//     },
 
-    getFollowingFeed: async (): Promise<FollowingFeedItem[]> => {
-        const { data } = await api.get<{
-            message: string;
-            feed: FollowingFeedItem[];
-        }>("/follow/me/feed");
+//     getFollowingFeed: async (): Promise<FollowingFeedItem[]> => {
+//         const { data } = await api.get<{
+//             message: string;
+//             feed: FollowingFeedItem[];
+//         }>("/follow/me/feed");
 
-        return data.feed;
-    },
+//         return data.feed;
+//     },
 
-    createAscent: async (payload: CreateAscentPayload): Promise<void> => {
-        await api.post("/ascents", payload);
-    },
+//     createAscent: async (payload: CreateAscentPayload): Promise<void> => {
+//         await api.post("/ascents", payload);
+//     },
 
-    getAscentRoutes: async (): Promise<AscentRouteOption[]> => {
-        const { data } = await api.get<{
-            message: string;
-            routes: AscentRouteOption[];
-        }>("/ascents/routes");
+//     getAscentRoutes: async (): Promise<AscentRouteOption[]> => {
+//         const { data } = await api.get<{
+//             message: string;
+//             routes: AscentRouteOption[];
+//         }>("/ascents/routes");
 
-        return data.routes;
-    },
+//         return data.routes;
+//     },
 
-    deleteAscent: async (ascentId: string): Promise<void> => {
-        await api.delete(`/ascents/${ascentId}`);
-    },
+//     deleteAscent: async (ascentId: string): Promise<void> => {
+//         await api.delete(`/ascents/${ascentId}`);
+//     },
 
-    getAscentDetails: async (
-        ascentId: string,
-    ): Promise<RemoteAscentDetails> => {
-        const { data } = await api.get<{
-            message: string;
-            ascent: RemoteAscentDetails;
-        }>(`/ascents/${ascentId}`);
-        return data.ascent;
-    },
+//     getAscentDetails: async (
+//         ascentId: string,
+//     ): Promise<RemoteAscentDetails> => {
+//         const { data } = await api.get<{
+//             message: string;
+//             ascent: RemoteAscentDetails;
+//         }>(`/ascents/${ascentId}`);
+//         return data.ascent;
+//     },
 
-    likeAscent: async (
-        ascentId: string,
-    ): Promise<{ isLiked: boolean; likesCount: number }> => {
-        const { data } = await api.post<{
-            message: string;
-            isLiked: boolean;
-            likesCount: number;
-        }>(`/ascents/${ascentId}/react`);
-        return data;
-    },
+//     likeAscent: async (
+//         ascentId: string,
+//     ): Promise<{ isLiked: boolean; likesCount: number }> => {
+//         const { data } = await api.post<{
+//             message: string;
+//             isLiked: boolean;
+//             likesCount: number;
+//         }>(`/ascents/${ascentId}/react`);
+//         return data;
+//     },
 
-    getUnreadReactions: async (): Promise<ReactionNotification[]> => {
-        const { data } = await api.get<{
-            message: string;
-            reactions: ReactionNotification[];
-        }>("/profile/reactions/unread");
-        return data.reactions;
-    },
-};
+//     getUnreadReactions: async (): Promise<ReactionNotification[]> => {
+//         const { data } = await api.get<{
+//             message: string;
+//             reactions: ReactionNotification[];
+//         }>("/profile/reactions/unread");
+//         return data.reactions;
+//     },
+// };
