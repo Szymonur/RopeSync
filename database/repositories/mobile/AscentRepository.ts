@@ -10,19 +10,10 @@ const BOULDER_GRADE_ORDER = ["4","4+","5","5+","6a","6a+","6b","6b+","6c","6c+",
 
 export class MobileAscentRepository extends ApiAscentRepository  {
     private db: SQLiteDatabase;
-	private currentUserId: string | null = null;
 
     constructor(db: SQLiteDatabase) {
 		super();
         this.db = db;
-    }
-	private async getUserId(): Promise<string> {
-        if (!this.currentUserId) {
-            const id = await getCurrentUserId();
-            if (!id) throw new Error("Brak zalogowanego użytkownika.");
-            this.currentUserId = id;
-        }
-        return this.currentUserId;
     }
 
 	async getUserStats(userId: number, signal?: AbortSignal): Promise<UserStats> {
@@ -194,7 +185,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         }
     }
 	async getAscent(ascentId: string, ownerId?: number): Promise<Ascent> {
-		const userId = await this.getUserId();
+		const userId = await getCurrentUserId();
 		
 		if (ownerId && ownerId !== Number(userId)) {
             // getAscent from ApiAscentRepository
@@ -271,6 +262,17 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 		}
 	}
 
+	async addAscentsLocal(ascents: Ascent[]): Promise<void>{
+		try{
+			await this.addAscentsLocalBulkQuery(ascents);
+		} catch (sqliteError) {
+			throw new Error(`Krytyczny błąd: nie udało się dodać przejść lokalnie. ${sqliteError}`);
+		}
+	}
+
+
+	
+
 	// private helpers
 
     private async markAsDeletedLocal(ascentId: string) {
@@ -297,7 +299,51 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         );
     }
 
+	private async addAscentsLocalBulkQuery(ascents: Ascent[]) {
+		if (ascents.length === 0) return;
+
+		const placeholders = ascents.map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");
+		
+		const query = `INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders}`;
+
+		const values: any[] = [];
+		for (const ascent of ascents) {
+			values.push(
+				ascent.id_przejscia,
+				ascent.data,
+				ascent.notatka,
+				String(ascent.timeline_data),
+				ascent.id_uzytkownika,
+				ascent.nazwa_stylu,
+				ascent.id_drogi,
+				ascent.synced ?? 1,
+				ascent.deleted ?? 0
+			);
+		}
+
+    await this.db.runAsync(query, values);
+}
+
 	// public helpers
+
+	async getAscentsCountLocal(): Promise<number>{
+		const userId = await getCurrentUserId();
+		const result =  await this.db.getFirstAsync<{count: number}>(
+			"SELECT COUNT(*) as count FROM Przejscia WHERE id_uzytkownika = ?", 
+			[userId]
+		);
+		return result?.count ?? 0;
+	}
+	async getAscentsUUID(): Promise<string[]>{
+		const userId = await getCurrentUserId();
+		const rows = await this.db.getAllAsync<{ id_przejscia: string }>(
+				"SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ?", 
+				[userId]
+			);
+		return rows.map(row => row.id_przejscia);
+	}
+
+
 
     async markAsSynced(ascentId: string) {
         await this.db.runAsync(

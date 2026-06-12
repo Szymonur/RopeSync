@@ -2,6 +2,8 @@ import { Ascent, AscentStyle, UserStats, AscenFeedItem } from "../../../types/as
 
 export interface IAscentRepository {
 	getAscents(signal?: AbortSignal): Promise<Ascent[]>;
+	getAscentsCount(signal?: AbortSignal): Promise<number>;
+	getUnsynchronisedAscents(ascentsUUID: string[], signal?: AbortSignal): Promise<Ascent[]>;
 	getAscent(ascentId: string, ownerId?: number, signal?: AbortSignal): Promise<Ascent>;
 	getStyles(): Promise<AscentStyle[]>;
 	deleteAscent(ascentId: string): Promise<void>;

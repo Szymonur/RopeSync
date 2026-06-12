@@ -78,6 +78,22 @@ export const useSyncManager = () => {
                 }
             }
 
+			// SYNCHRONIZACJA Z PRZEJŚCIAMU DODANYMI TYLKO PRZEZ WEB
+			try {
+				const [ascentsCountLocal, ascentsCountRemote] = await Promise.all([
+					repository.getAscentsCountLocal(),
+					repository.getAscentsCount()
+				]);
+				if (ascentsCountLocal < ascentsCountRemote) {
+					const ascentsUUID = await repository.getAscentsUUID();
+					const unsyncedAscents = await repository.getUnsynchronisedAscents(ascentsUUID);
+					await repository.addAscentsLocal(unsyncedAscents);	
+				}
+			} catch (error) {
+				console.error(`Błąd podczas podbieraia brakującyh przejść ze zdalnej bazy danych, ${error}`)
+			}
+
+
             // 3. Synchronizacja REAKCJI (Powiadomień) TODO
             try {
                 // const reactions = await UserService.getUnreadReactions();

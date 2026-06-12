@@ -14,6 +14,33 @@ export class ApiAscentRepository implements IAscentRepository {
             throw new Error("Problem z połączeniem sieciowym.");
         }
     }
+	async getAscentsCount(signal?: AbortSignal): Promise<number>{
+		try {
+			const response = await api.get<{count: number; }>(`/ascents/count`, { signal });
+			return response.data.count;
+		} catch (error: any) {
+            if (error.response) {
+                throw new Error("Wystąpił błąd podczas pobierania liczby przejść.", error);
+            }
+        	throw new Error("Problem z połączeniem sieciowym.");
+        }
+	}
+	async getUnsynchronisedAscents(ascentsUUID: string[], signal?: AbortSignal): Promise<Ascent[]>{
+	     try {
+            const response = await api.post<{ message: string; ascents: Ascent[] }>(
+                `/ascents/sync-diff`, 
+                { ascentsUUID }, { signal }
+            );
+            return response.data.ascents;
+        } catch (error: any) {
+            if (error.response) {
+                throw new Error("Wystąpił błąd podczas wyznaczania różnic synchronizacji.");
+            }
+        	throw new Error("Problem z połączeniem sieciowym.");
+		}
+	}
+
+
 	async getAscent(ascentId: string, ownerId?: number, signal?: AbortSignal): Promise<Ascent> {
 		try {
 			const response = await api.get<{message: string; ascent: Ascent; }>(`/ascents/${ascentId}`, { signal });
