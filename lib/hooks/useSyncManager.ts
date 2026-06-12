@@ -3,6 +3,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { MobileAscentRepository } from "../../database/repositories/mobile/AscentRepository";
+import { WebAscentRepository } from "../../database/repositories/web/AscentRepository";
 import { MobileReactionRepository } from "../../database/repositories/mobile/ReactionRepository";
 
 export const useSyncManager = () => {
@@ -15,6 +16,7 @@ export const useSyncManager = () => {
         if (!currentUserId || !isConnected || isSyncing.current) return;
 
         const repository = new MobileAscentRepository(db);
+        const repositoryWeb = new WebAscentRepository();
         const reactionRepo = new MobileReactionRepository();
 
         try {
@@ -30,7 +32,7 @@ export const useSyncManager = () => {
                 );
                 for (const ascent of deletions) {
                     try {
-                        await repository.deleteAscent(ascent.id_przejscia);
+                        await repositoryWeb.deleteAscent(ascent.id_przejscia);
                         await repository.deleteAscentPermanently(
                             ascent.id_przejscia,
                         );
@@ -55,7 +57,7 @@ export const useSyncManager = () => {
 
                 for (const ascent of unsynced) {
                     try {
-                        await repository.addAscent({
+                        await repositoryWeb.addAscent({
                             id_przejscia: ascent.id_przejscia,
 							id_uzytkownika: Number(currentUserId),
                             data: ascent.data,
