@@ -59,10 +59,23 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
 
                 let jsonContent;
                 if (typeof propTimelineData === "string") {
-                    jsonContent = JSON.parse(propTimelineData);
+                    if (propTimelineData.startsWith("[object")) {
+                        console.warn("Otrzymano string '[object Object]' zamiast danych timeline.");
+                        setError("Błąd formatu danych (otrzmano obiekt jako string).");
+                        setLoading(false);
+                        return;
+                    }
+                    try {
+                        jsonContent = JSON.parse(propTimelineData);
+                    } catch (e) {
+                        console.error("Błąd JSON.parse w ThemedTimeline:", e);
+                        setError("Błąd formatu danych JSON.");
+                        setLoading(false);
+                        return;
+                    }
                 } else {
                     jsonContent = propTimelineData;
-                }				
+                }
                 setTimelineData(jsonContent);
 
                 // Dynamiczne obliczanie max wysokości

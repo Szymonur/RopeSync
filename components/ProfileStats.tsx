@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
     StyleSheet,
     View,
@@ -8,7 +8,7 @@ import {
     RefreshControlProps,
 } from "react-native";
 import { useRouter } from "expo-router";
-import Svg, { Circle, Line, Polyline } from "react-native-svg";
+import Svg, { Circle, Line, Polyline, Text as SvgText, Rect, Polygon } from "react-native-svg";
 import Spacer from "./Spacer";
 import { UserStats } from "../types/ascent";
 import ThemedText from "./ThemedText";
@@ -34,9 +34,15 @@ const ProfileStats = ({
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const [lineChartWidth, setLineChartWidth] = useState(0);
+    const [selectedIndex, setSelectedIndex] = useState(0);
     const router = useRouter();
     const { showSnackbar } = useSnackbar();
-	console.log(stats);
+
+    useEffect(() => {
+        if (stats.weeklyChart && stats.weeklyChart.length > 0) {
+            setSelectedIndex(stats.weeklyChart.length - 1);
+        }
+    }, [stats.weeklyChart]);
 	
     const maxGradeCount = useMemo(
         () => Math.max(1, ...stats.gradeChart.map((item) => item.count)),
@@ -51,19 +57,20 @@ const ProfileStats = ({
         const chartHeight = 120;
         const topPadding = 12;
         const bottomPadding = 12;
-        const sidePadding = 18;
+        const leftPadding = 12;
+        const rightPadding = 35;
         const count = stats.weeklyChart.length;
         if (count === 0 || lineChartWidth <= 0) {
             return [] as Array<{ x: number; y: number }>;
         }
 
-        const usableWidth = Math.max(1, lineChartWidth - sidePadding * 2);
+        const usableWidth = Math.max(1, lineChartWidth - leftPadding - rightPadding);
         const usableHeight = chartHeight - topPadding - bottomPadding;
 
         return stats.weeklyChart.map((item, index) => {
             const xRatio = count === 1 ? 0 : index / (count - 1);
-            const x = sidePadding + usableWidth * xRatio;
-            const yRatio = item.count / maxWeeklyCount;
+            const x = leftPadding + usableWidth * xRatio;
+            const yRatio = maxWeeklyCount === 0 ? 0 : item.count / maxWeeklyCount;
             const y = topPadding + (1 - yRatio) * usableHeight;
             return { x, y };
         });
@@ -73,6 +80,14 @@ const ProfileStats = ({
         () => linePoints.map((point) => `${point.x},${point.y}`).join(" "),
         [linePoints],
     );
+
+    const fillPoints = useMemo(() => {
+        if (linePoints.length < 2) return "";
+        const first = linePoints[0];
+        const last = linePoints[linePoints.length - 1];
+        const baseline = 108; // Poziom osi X na wykresie
+        return `${first.x},${baseline} ${polylinePoints} ${last.x},${baseline}`;
+    }, [linePoints, polylinePoints]);
 
     return (
         <ScrollView style={styles.content} refreshControl={refreshControl}>
@@ -239,96 +254,197 @@ const ProfileStats = ({
             </ThemedCard>
 
             <ThemedCard style={[styles.chartCard]}>
-                <ThemedText style={styles.summaryTitle}>
-                    Przejścia tygodniowo
-                </ThemedText>
                 {stats.weeklyChart.length === 0 ? (
                     <ThemedText style={styles.emptyText}>
                         Brak danych czasowych.
                     </ThemedText>
                 ) : (
 					<>
-                        <View>
-                            <View
-                                style={[
-                                    styles.lineChartWrap,
-                                    { backgroundColor: theme.background, width: "100%" },
-                                ]}
-                                onLayout={(event: LayoutChangeEvent) =>
-                                    setLineChartWidth(
-                                        event.nativeEvent.layout.width,
-                                    )
-                                }
-                            >
-                                <Svg width="100%" height={120}>
-                                    <Line
-                                        x1="12"
-                                        y1="108"
-                                        x2={Math.max(12, lineChartWidth - 12)}
-                                        y2="108"
-                                        stroke={theme.border}
-                                        strokeWidth="1"
-                                    />
-                                    <Line
-                                        x1="12"
-                                        y1="60"
-                                        x2={Math.max(12, lineChartWidth - 12)}
-                                        y2="60"
-                                        stroke={theme.border}
-                                        strokeWidth="1"
-                                        opacity="0.5"
-                                    />
-                                    <Line
-                                        x1="12"
-                                        y1="12"
-                                        x2={Math.max(12, lineChartWidth - 12)}
-                                        y2="12"
-                                        stroke={theme.border}
-                                        strokeWidth="1"
-                                        opacity="0.25"
-                                    />
+                        {selectedIndex >= 0 && selectedIndex < stats.weeklyChart.length && (
+                            <View style={styles.selectedWeekHeader}>
+                                <ThemedText style={styles.selectedWeekDate}>
+                                    {(() => {
+                                        const label = stats.weeklyChart[selectedIndex].label;
+                                        // Parsowanie ręczne YYYY-MM-DD
+                                        const parts = label.split('-');
+                                        const startDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                                        
+                                        if (isNaN(startDate.getTime())) return label;
 
-                                    {linePoints.length > 1 ? (
-                                        <Polyline
-                                            points={polylinePoints}
-                                            fill="none"
-                                            stroke={Colors.primary}
-                                            strokeWidth="2"
-                                        />
-                                    ) : null}
+                                        const months = ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'];
 
-                                    {linePoints.map((point, index) => (
-                                        <Circle
-                                            key={`point-${index}`}
-                                            cx={point.x}
-                                            cy={point.y}
-                                            r="3.5"
-                                            fill={Colors.primary}
-                                            stroke={Colors.primary}
-                                            strokeWidth="1.2"
-                                        />
-                                    ))}
-                                </Svg>
+                                        const formatDateShort = (d: Date) => `${d.getDate()} ${months[d.getMonth()]}`;
+
+                                        // Oblicz poniedziałek bieżącego tygodnia
+                                        const now = new Date();
+                                        const day = now.getDay();
+                                        const mondayShift = day === 0 ? -6 : 1 - day;
+                                        const currentMonday = new Date(now);
+                                        currentMonday.setHours(0, 0, 0, 0);
+                                        currentMonday.setDate(currentMonday.getDate() + mondayShift);
+                                        
+                                        const toISO = (d: Date) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+                                        if (label === toISO(currentMonday)) {
+                                            return "W tym tygodniu";
+                                        }
+
+                                        // Oblicz niedzielę (koniec tygodnia)
+                                        const endDate = new Date(startDate);
+                                        endDate.setDate(endDate.getDate() + 6);
+                                        
+                                        return `${formatDateShort(startDate)} - ${formatDateShort(endDate)} ${endDate.getFullYear()}`;
+                                    })()}
+                                </ThemedText>
+                                <View style={styles.selectedWeekStats}>
+                                    <ThemedText style={[styles.summaryTitleNumber, {backgroundColor: Colors.primary},]}>
+										{stats.weeklyChart[selectedIndex].count}
+									</ThemedText>
+                                </View>
                             </View>
-                            <View style={styles.weeklyLabelsRow}>
-                                {linePoints.map((point, index) => (
-                                    <View
-                                        key={stats.weeklyChart[index].label}
-                                        style={{
-                                            position: "absolute",
-                                            left: point.x - 35,
-                                            width: 70,
-                                            alignItems: "center",
-                                        }}
-                                    >
-                                        {/* <ThemedText style={styles.weeklyLabel}>
-                                            {stats.weeklyChart[index].label}
-                                        </ThemedText> */}
-                                        <ThemedText style={styles.weeklyCount}>
-                                            {stats.weeklyChart[index].count}
-                                        </ThemedText>
-                                    </View>
-                                ))}
+                        )}
+                        <View>
+                            <View style={{ width: "100%"}}>
+                                <View
+                                    style={[
+                                        styles.lineChartWrap,
+                                        { backgroundColor: theme.background, width: "100%" },
+                                    ]}
+                                    onLayout={(event: LayoutChangeEvent) =>
+                                        setLineChartWidth(
+                                            event.nativeEvent.layout.width,
+                                        )
+                                    }
+                                >
+                                    <Svg width="100%" height={120}>
+                                        <Line
+                                            x1="12"
+                                            y1="108"
+                                            x2={Math.max(12, lineChartWidth - 35)}
+                                            y2="108"
+                                            stroke={theme.border}
+                                            strokeWidth="1"
+                                        />
+                                        <Line
+                                            x1="12"
+                                            y1="60"
+                                            x2={Math.max(12, lineChartWidth - 35)}
+                                            y2="60"
+                                            stroke={theme.border}
+                                            strokeWidth="1"
+                                            opacity="0.5"
+                                        />
+                                        <Line
+                                            x1="12"
+                                            y1="12"
+                                            x2={Math.max(12, lineChartWidth - 35)}
+                                            y2="12"
+                                            stroke={theme.border}
+                                            strokeWidth="1"
+                                            opacity="0.25"
+                                        />
+
+                                        <SvgText x={Math.max(12, lineChartWidth - 22)} y="110" fill={theme.text} fontSize="12" opacity={0.7}>
+                                            0
+                                        </SvgText>
+                                        <SvgText x={Math.max(12, lineChartWidth - 22)} y="64" fill={theme.text} fontSize="12" opacity={0.7}>
+                                            {Math.ceil(maxWeeklyCount / 2)}
+                                        </SvgText>
+                                        <SvgText x={Math.max(12, lineChartWidth - 22)} y="16" fill={theme.text} fontSize="12" opacity={0.7}>
+                                            {maxWeeklyCount}
+                                        </SvgText>
+
+                                        {fillPoints ? (
+                                            <Polygon
+                                                points={fillPoints}
+                                                fill={Colors.primary}
+                                                opacity={0.5}
+                                            />
+                                        ) : null}
+
+                                        {linePoints.length > 1 ? (
+                                            <Polyline
+                                                points={polylinePoints}
+                                                fill="none"
+                                                stroke={Colors.primary}
+                                                strokeWidth="2"
+                                            />
+                                        ) : null}
+
+                                        {linePoints.map((point, index) => {
+                                            const isSelected = selectedIndex === index;
+                                            const touchWidth = Math.max(15, (lineChartWidth - 47) / Math.max(1, stats.weeklyChart.length));
+                                            return (
+                                                <React.Fragment key={`point-${index}`}>
+                                                    {isSelected && (
+                                                        <Line
+                                                            x1={point.x}
+                                                            y1="12"
+                                                            x2={point.x}
+                                                            y2="108"
+                                                            stroke={theme.iconColourFocused}
+                                                            strokeWidth="2"
+                                                            strokeDasharray="6 4"
+                                                            opacity="0.7"
+                                                        />
+                                                    )}
+                                                    <Circle
+                                                        cx={point.x}
+                                                        cy={point.y}
+                                                        r={isSelected ? "5" : "3.5"}
+                                                        fill={Colors.primary}
+                                                        stroke={Colors.primary}
+                                                        strokeWidth={isSelected ? "2.5" : "1.2"}
+                                                    />
+                                                    <Rect
+                                                        x={point.x - touchWidth / 2}
+                                                        y="0"
+                                                        width={touchWidth}
+                                                        height="120"
+                                                        fill="transparent"
+                                                        onPress={() => setSelectedIndex(index)}
+                                                    />
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                    </Svg>
+                                </View>
+                                <View style={styles.weeklyLabelsRow}>
+                                    {stats.weeklyChart.map((item, index) => {
+                                        const months = ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'];
+                                        const parts = item.label.split('-');
+                                        const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                                        const monthStr = months[date.getMonth()];
+                                        
+                                        let prevMonthStr = null;
+                                        if (index > 0) {
+                                            const prevParts = stats.weeklyChart[index - 1].label.split('-');
+                                            const prevDate = new Date(parseInt(prevParts[0]), parseInt(prevParts[1]) - 1, parseInt(prevParts[2]));
+                                            prevMonthStr = months[prevDate.getMonth()];
+                                        }
+                                        
+                                        const isNewMonth = monthStr !== prevMonthStr;
+
+                                        if (!isNewMonth) return null;
+
+                                        const point = linePoints[index];
+                                        if (!point) return null;
+
+                                        return (
+                                            <View
+                                                key={`month-${index}`}
+                                                style={{
+                                                    position: "absolute",
+                                                    left: point.x - 20,
+                                                    width: 40,
+                                                    alignItems: "center",
+                                                }}
+                                            >
+                                                <ThemedText style={styles.weeklyLabel}>{monthStr}</ThemedText>
+                                            </View>
+                                        );
+                                    })}
+                                </View>
                             </View>
                         </View>
 					</>
@@ -475,7 +591,7 @@ const styles = StyleSheet.create({
     },
     weeklyLabelsRow: {
         marginTop: 8,
-        minHeight: 45,
+        minHeight: 16,
         position: "relative",
     },
     weeklyLabelCell: {
@@ -485,11 +601,35 @@ const styles = StyleSheet.create({
     weeklyLabel: {
         fontSize: 11,
         opacity: 0.85,
+        textTransform: "capitalize",
     },
     weeklyCount: {
         fontSize: 13,
         fontWeight: "700",
         marginTop: 2,
+    },
+    selectedWeekHeader: {
+		display: "flex",
+		flexDirection:"row",
+		justifyContent: "space-between",
+        paddingHorizontal: 10,
+		paddingBottom: 10,
+        borderRadius: 8,
+    },
+    selectedWeekDate: {
+		display: "flex",
+		alignItems: "center",
+		textAlignVertical: "center",
+        fontSize: 18,
+        fontWeight: 700,
+    },
+    selectedWeekStats: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    selectedWeekCount: {
+        fontSize: 18,
     },
     emptyText: {
         marginTop: 4,

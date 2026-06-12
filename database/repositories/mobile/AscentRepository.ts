@@ -127,7 +127,12 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 			weekStarts.push(start);
 		}
 
-		const toWeekKey = (date: Date) => date.toISOString().slice(0, 10);
+		const toWeekKey = (date: Date) => {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return `${year}-${month}-${day}`;
+		};
 		const allowedWeekKeys = new Set(weekStarts.map(d => toWeekKey(d)));
 		const weeklyCounts = new Map<string, number>();
 
@@ -145,7 +150,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 		});
 
 		return weekStarts.map(ws => ({
-			label: `${String(ws.getDate()).padStart(2, '0')}.${String(ws.getMonth() + 1).padStart(2, '0')}`,
+			label: toWeekKey(ws),
 			count: weeklyCounts.get(toWeekKey(ws)) || 0
 		}));
 	}
@@ -289,7 +294,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
                 ascent.id_przejscia,
                 ascent.data,
                 ascent.notatka,
-                String(ascent.timeline_data),
+                ascent.timeline_data ? JSON.stringify(ascent.timeline_data) : null,
                 ascent.id_uzytkownika,
                 ascent.nazwa_stylu,
                 ascent.id_drogi,
@@ -312,7 +317,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 				ascent.id_przejscia,
 				ascent.data,
 				ascent.notatka,
-				String(ascent.timeline_data),
+				ascent.timeline_data ? JSON.stringify(ascent.timeline_data) : null,
 				ascent.id_uzytkownika,
 				ascent.nazwa_stylu,
 				ascent.id_drogi,
