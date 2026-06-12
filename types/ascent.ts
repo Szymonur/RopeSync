@@ -35,3 +35,13 @@ export interface UserStats {
     gradeChart: { label: string; count: number }[];
     weeklyChart: { label: string; count: number }[];
 }
+
+export interface AscentFilters {
+    styles: string[];
+	types: string[];
+	dateFrom: string;
+	dateTo: string;
+	regionId?: number;
+    sectorId?: number;
+    routeId?: string;
+ }

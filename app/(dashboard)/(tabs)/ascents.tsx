@@ -6,9 +6,10 @@ import {
     RefreshControl,
     ActivityIndicator,
 } from "react-native";
-import { useState, useCallback } from "react";
-import { useRouter } from "expo-router";
+import { useState, useCallback, useMemo } from "react";
+import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../contexts/ThemeContext";
@@ -17,6 +18,7 @@ import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedCard from "../../../components/ThemedCard";
 import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
+import AscentsFilters from "../../../components/AscentsFilters"
 
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
 
@@ -25,10 +27,19 @@ import { useAscents } from "../../../lib/hooks/useAscents";
 import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
+import { AscentFilters as IFilters } from "../../../types/ascent";
 
 const Ascents = () => {
-    const { data: ascents, isLoading, refetch, isRefetching } = useAscents();
+    const { data: ascents = [], isLoading, refetch, isRefetching } = useAscents();
     const [formVisible, setFormVisible] = useState(false);
+    const [filtersVisible, setFiltersVisible] = useState(false);
+    const [activeFilters, setActiveFilters] = useState<IFilters>({
+        styles: [],
+        types: [],
+        dateFrom: "",
+        dateTo: "",
+    });
+    
     const router = useRouter();
 
     const { colorScheme } = useTheme();
@@ -38,13 +49,70 @@ const Ascents = () => {
         await refetch();
     }, [refetch]);
 
+    const filteredAscents = useMemo(() => {
+        return ascents.filter(ascent => {
+            // Filtracja po stylu
+            if (activeFilters.styles.length > 0 && !activeFilters.styles.includes(ascent.nazwa_stylu)) return false;
+            
+            // Filtracja po typie drogi
+            if (activeFilters.types.length > 0 && !activeFilters.types.includes(ascent.typ_drogi || "")) return false;
+            
+            // Filtracja po dacie
+            if (activeFilters.dateFrom && ascent.data < activeFilters.dateFrom) return false;
+            if (activeFilters.dateTo && ascent.data > activeFilters.dateTo) return false;
+            
+            // Filtracja po ID (jeśli backend nie zwraca id_rejonu w przejsciu, to lokalnie tylko po routeId)
+            if (activeFilters.routeId && ascent.id_drogi !== activeFilters.routeId) return false;
+
+            return true;
+        });
+    }, [ascents, activeFilters]);
+
     return (
         <ThemedView style={styles.container}>
+			    <Tabs.Screen
+                    options={{
+                        headerRight: () => (
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        setFiltersVisible(true)
+                                    }
+                                    style={{ marginRight: 20, display: "flex", flexDirection: "row", alignItems: "center"}}
+                                >
+									<ThemedText  style={{ marginRight: 6}}>
+										Filtry 
+									</ThemedText>
+                                    <MaterialIcons
+                                        name="filter-list"
+                                        color={activeFilters.styles.length > 0 || activeFilters.types.length > 0 || activeFilters.dateFrom || activeFilters.dateTo ? Colors.primary : theme.iconColour}
+                                        size={24}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        ),
+                    }}
+                />
             <ManualAscentFormModal
                 visible={formVisible}
                 onClose={() => setFormVisible(false)}
                 onSuccess={() => refetch()}
             />
+			<AscentsFilters
+                visible={filtersVisible}
+                onClose={() => setFiltersVisible(false)}
+                currentFilters={activeFilters}
+                onApply={(filters) => {
+                    setActiveFilters(filters);
+                    setFiltersVisible(false);
+                }}
+            />
+
 
             <TouchableOpacity
                 style={styles.fab}
@@ -56,7 +124,7 @@ const Ascents = () => {
             </TouchableOpacity>
 
             <FlatList
-                data={ascents}
+                data={filteredAscents}
                 keyExtractor={(item) => item.id_przejscia}
                 showsVerticalScrollIndicator={false}
                 style={{ width: "100%", paddingVertical: 7 }}
