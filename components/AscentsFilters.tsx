@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState, useEffect } from "react";
+import DateTimePicker, { DateType } from 'react-native-ui-datepicker';
 
 import ThemedView from "./ThemedView";
 import { useAscentStyles } from "../lib/hooks/useAscents";
@@ -25,6 +26,16 @@ interface AscentsFiltersProps {
     onApply: (filters: AscentFilters) => void;
     currentFilters: AscentFilters;
 }
+
+const formatDate = (date: DateType) => {
+    if (!date) return "";
+    const d = new Date(date.toString());
+    if (isNaN(d.getTime())) return "";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 const AscentsFilters = ({ visible, onClose, onApply, currentFilters }: AscentsFiltersProps) => {
     const { colorScheme } = useTheme();
@@ -153,25 +164,26 @@ const AscentsFilters = ({ visible, onClose, onApply, currentFilters }: AscentsFi
                         <Spacer height={16} />
 
                         <ThemedText style={styles.label}>Zakres dat</ThemedText>
-                        <View style={styles.dateRow}>
-                            <View style={{ flex: 1 }}>
-                                <ThemedTextInput
-                                    value={dateFrom}
-                                    onChangeText={setDateFrom}
-                                    placeholder="Od (YYYY-MM-DD)"
-                                />
-                            </View>
-                            <Spacer width={12} />
-                            <View style={{ flex: 1 }}>
-                                <ThemedTextInput
-                                    value={dateTo}
-                                    onChangeText={setDateTo}
-                                    placeholder="Do (YYYY-MM-DD)"
-                                />
-                            </View>
-                        </View>
-
-                        <Spacer height={24} />
+                        <DateTimePicker
+                            mode="range"
+                            startDate={dateFrom}
+                            endDate={dateTo}
+                            onChange={({ startDate, endDate }) => {
+                                setDateFrom(formatDate(startDate));
+                                setDateTo(formatDate(endDate));
+                            }}
+                            styles={{
+                                day_label: { color: theme.text },
+                                month_selector_label: { color: theme.text },
+                                year_selector_label: { color: theme.text },
+                                weekday_label: { color: theme.text },
+                                selected: { backgroundColor: Colors.primary, borderRadius: 10 },
+                                selected_label: { color: 'white' },
+                                today: { borderColor: Colors.primary, borderWidth: 1, borderRadius: 10 },
+                                today_label: { color: Colors.primary },
+                                range_fill: { backgroundColor: Colors.primary + '30' }
+                            }}
+                        />
 
                         <View style={styles.footer}>
                             <TouchableOpacity onPress={handleReset} style={styles.resetButton}>

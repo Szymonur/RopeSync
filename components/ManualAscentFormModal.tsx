@@ -24,6 +24,7 @@ import { useAscentStyles, useAddAscent } from "../lib/hooks/useAscents";
 import { useRoutes } from "../lib/hooks/useRoutes";
 import { useDebounce} from "../lib/hooks/useDebounce"
 
+import DateTimePicker, { DateType } from 'react-native-ui-datepicker';
 
 import { useSnackbar } from "../contexts/SnackbarContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -47,6 +48,15 @@ interface ManualAscentFormModalProps {
 }
 
 const getToday = () => new Date().toISOString().split("T")[0];
+
+const formatDate = (date: DateType) => {
+    if (!date) return getToday();
+    const d = new Date(date.toString());
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 const ManualAscentFormModal = ({
     visible,
@@ -211,16 +221,25 @@ const ManualAscentFormModal = ({
                         showsVerticalScrollIndicator={false}
                         keyboardShouldPersistTaps="handled"
                     >
-                        <ThemedText style={styles.label}>
-                            Data przejścia
-                        </ThemedText>
-                        <ThemedTextInput
-                            value={data}
-                            onChangeText={setData}
-                            placeholder="YYYY-MM-DD"
-                        />
-
-                        <Spacer height={12} />
+						    <DateTimePicker
+                                mode="single"
+                                date={data}
+                                onChange={({ date }) => {
+                                    if (date) {
+                                        setData(formatDate(date));
+                                    }
+                                }}
+                                styles={{
+                                    day_label: { color: theme.text },
+                                    month_selector_label: { color: theme.text },
+                                    year_selector_label: { color: theme.text },
+                                    weekday_label: { color: theme.text },
+                                    selected: { backgroundColor: Colors.primary, borderRadius: 10 },
+                                    selected_label: { color: 'white' },
+                                    today: { borderColor: Colors.primary, borderWidth: 1, borderRadius: 10 },
+                                    today_label: { color: Colors.primary }
+                                }}
+							/>
 
                         {!hideRouteSearch && (
                             <>
