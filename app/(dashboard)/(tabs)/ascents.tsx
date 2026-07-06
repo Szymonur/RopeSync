@@ -64,10 +64,11 @@ const Ascents = () => {
             // Filtracja po ID (jeśli backend nie zwraca id_rejonu w przejsciu, to lokalnie tylko po routeId)
             if (activeFilters.routeId && ascent.id_drogi !== activeFilters.routeId) return false;
 
+
             return true;
         });
     }, [ascents, activeFilters]);
-
+	
     return (
         <ThemedView style={styles.container}>
 			    <Tabs.Screen
