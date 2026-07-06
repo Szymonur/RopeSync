@@ -5,6 +5,7 @@ import {
     View,
     RefreshControl,
     ActivityIndicator,
+	Platform
 } from "react-native";
 import { useState, useCallback, useMemo } from "react";
 import { Tabs, useRouter } from "expo-router";
@@ -39,6 +40,7 @@ const Ascents = () => {
         dateFrom: "",
         dateTo: "",
     });
+	const isWeb = Platform.OS === "web";
     
     const router = useRouter();
 
@@ -104,15 +106,29 @@ const Ascents = () => {
                 onClose={() => setFormVisible(false)}
                 onSuccess={() => refetch()}
             />
-			<AscentsFilters
-                visible={filtersVisible}
-                onClose={() => setFiltersVisible(false)}
-                currentFilters={activeFilters}
-                onApply={(filters) => {
-                    setActiveFilters(filters);
-                    setFiltersVisible(false);
-                }}
-            />
+			{isWeb && (
+                <View style={[styles.webSidebar, { borderRightColor: theme.border }]}>
+                    <AscentsFilters
+                        visible={true}
+                        onClose={() => {}}
+                        currentFilters={activeFilters}
+                        onApply={(filters) => setActiveFilters(filters)}
+                    />
+                </View>
+            )}
+
+            {!isWeb && (
+                <AscentsFilters
+                    visible={filtersVisible}
+                    onClose={() => setFiltersVisible(false)}
+                    currentFilters={activeFilters}
+                    onApply={(filters) => {
+                        setActiveFilters(filters);
+                        setFiltersVisible(false);
+                    }}
+                />
+            )}
+			
 
 
             <TouchableOpacity
@@ -128,7 +144,7 @@ const Ascents = () => {
                 data={filteredAscents}
                 keyExtractor={(item) => item.id_przejscia}
                 showsVerticalScrollIndicator={false}
-                style={{ width: "100%", paddingVertical: 7 }}
+                style={[{ width: "100%", paddingVertical: 7, paddingLeft: isWeb ? 10 : 0} ]}
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching}
@@ -215,6 +231,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 16,
+		flexDirection: "row",
     },
     fab: {
         position: "absolute",
@@ -262,5 +279,20 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 12,
         fontWeight: "400",
+    },
+	webContainer: {
+        flexDirection: "row", // Ustawia dzieci (Sidebar i Główne okno) obok siebie
+        paddingHorizontal: 0,
+        gap: 20,
+    },
+    webSidebar: {
+        width: 350, // Stała szerokość kolumny filtrów
+        padding: 20,
+        borderRightWidth: 1,
+        // Tutaj ewentualnie dodaj kolor ramki w inline styles (borderRightColor)
+    },
+    webMainContent: {
+        flex: 1, // Zajmuje całą resztę dostępnego miejsca
+        paddingRight: 20,
     },
 });

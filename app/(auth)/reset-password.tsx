@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         alignItems: "center",
         paddingHorizontal: 30,
+
     },
     title: {
         textAlign: "center",

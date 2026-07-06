@@ -324,6 +324,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: "center",
         paddingHorizontal: 30,
+
     },
     title: {
         textAlign: "center",
