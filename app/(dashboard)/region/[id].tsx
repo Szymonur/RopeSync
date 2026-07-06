@@ -55,10 +55,10 @@ const RegionSectors = () => {
                             <ThemedText style={styles.bold}>
                                 {item.nazwa_sektoru}
                             </ThemedText>
-                            <ThemedText style={styles.coords}>
+                            {/* <ThemedText style={styles.coords}>
                                 {item.szerokosc_geograficzna},{" "}
                                 {item.dlugosc_geograficzna}
-                            </ThemedText>
+                            </ThemedText> */}
                         </ThemedCard>
                     </TouchableOpacity>
                 )}

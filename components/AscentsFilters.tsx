@@ -4,6 +4,7 @@ import {
     Modal,
     View,
     ScrollView,
+	Platform
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState, useEffect } from "react";
@@ -12,7 +13,6 @@ import DateTimePicker, { DateType } from 'react-native-ui-datepicker';
 import ThemedView from "./ThemedView";
 import { useAscentStyles } from "../lib/hooks/useAscents";
 import ThemedText from "./ThemedText";
-import ThemedTextInput from "./ThemedTextInput";
 import ThemedButton from "./ThemedButton";
 import Spacer from "./Spacer";
 
@@ -41,6 +41,8 @@ const AscentsFilters = ({ visible, onClose, onApply, currentFilters }: AscentsFi
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const { data: stylesList = [] } = useAscentStyles();
+
+	const isWeb = Platform.OS === "web";
     
     // Lokalne stany "robocze"
     const [selectedStyles, setSelectedStyles] = useState<string[]>(currentFilters.styles);

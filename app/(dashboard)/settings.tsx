@@ -50,11 +50,6 @@ const Settings = () => {
         <ThemedView style={styles.container} safe scroll>
             <Stack.Screen options={{ title: "Ustawienia" }} />
 
-            <Spacer />
-            <ThemedText title style={styles.title}>
-                Ustawienia
-            </ThemedText>
-
             <Spacer height={30} />
             <ThemedText style={styles.sectionTitle}>Wygląd</ThemedText>
             <Spacer height={10} />
@@ -110,6 +105,8 @@ const Settings = () => {
             <Spacer height={40} />
 
             <ThemedText style={styles.info}>RopeSync App v0.0.1</ThemedText>
+            <Spacer height={20} />
+
         </ThemedView>
     );
 };

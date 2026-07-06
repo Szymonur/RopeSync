@@ -6,6 +6,7 @@ import {
     ScrollView,
     TouchableOpacity,
     RefreshControlProps,
+	Platform
 } from "react-native";
 import { useRouter } from "expo-router";
 import Svg, { Circle, Line, Polyline, Text as SvgText, Rect, Polygon } from "react-native-svg";
@@ -90,7 +91,10 @@ const ProfileStats = ({
     }, [linePoints, polylinePoints]);
 
     return (
-        <ScrollView style={styles.content} refreshControl={refreshControl}>
+        <ScrollView style={styles.content} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
+			{Platform.OS == "web" &&
+				<Spacer/>
+			}
             <ThemedText title style={styles.sectionTitle}>
                 Życiówki
             </ThemedText>
@@ -466,8 +470,9 @@ const styles = StyleSheet.create({
     content: {
         width: "100%",
         paddingHorizontal: 20,
-        paddingTop: 18,
+        paddingTop: Platform.select({ ios: 18, android: 18, web: 0 }),
         paddingBottom: 30,
+
     },
     summaryCard: {
         marginTop: 14,

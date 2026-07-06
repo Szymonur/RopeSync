@@ -4,6 +4,7 @@ import {
     TouchableOpacity,
     SectionList,
     View,
+	Platform 
 } from "react-native";
 import { useState, useEffect } from "react";
 import { Tabs } from "expo-router";
@@ -71,6 +72,7 @@ const Routes = () => {
 
     return (
         <ThemedView style={styles.container}>
+			
             <Tabs.Screen
                 options={{
                     headerTitle: "Rejony",
@@ -92,6 +94,28 @@ const Routes = () => {
                     ),
                 }}
             />
+
+			{Platform.OS === 'web' &&
+			<>
+			<Spacer/>
+			<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+				<ThemedText style={{ fontSize: 24, fontWeight: 'bold' }}>Rejony</ThemedText>
+                
+                <TouchableOpacity
+                    onPress={() => {
+						setShowSearchBar(!showSearchBar);
+                        setSearchQuery("");
+                    }}
+					>
+                    <Ionicons
+                        name={showSearchBar ? "close" : "search"}
+                        size={24}
+                        color={theme.iconColour}
+						/>
+                </TouchableOpacity>
+            </View>
+			</>
+			}
 
             {showSearchBar && (
                 <ThemedTextInput

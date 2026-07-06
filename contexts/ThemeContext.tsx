@@ -30,24 +30,11 @@ const getStoredTheme = async (): Promise<ThemeMode | null> => {
     }
 };
 
-// Helper do zapisu danych zależnie od platformy
-const setStoredTheme = async (mode: ThemeMode): Promise<void> => {
-    if (Platform.OS === "web") {
-        try {
-            localStorage.setItem(THEME_STORAGE_KEY, mode);
-        } catch (e) {
-            console.error("Błąd zapisu do localStorage", e);
-        }
-    } else {
-        await SecureStore.setItemAsync(THEME_STORAGE_KEY, mode);
-    }
-};
-
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useSystemColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
 
-useEffect(() => {
+	useEffect(() => {
         // Załaduj zapisany motyw przy starcie 
         getStoredTheme().then((savedMode) => {
             if (savedMode) {
@@ -58,7 +45,6 @@ useEffect(() => {
 
   const setThemeMode = async (mode: ThemeMode) => {
     setThemeModeState(mode);
-    await SecureStore.setItemAsync('user-theme-mode', mode);
   };
 
   // Oblicz wynikowy schemat kolorów

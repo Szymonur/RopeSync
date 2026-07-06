@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View, ActivityIndicator } from "react-native";
+import { FlatList, StyleSheet, View, ActivityIndicator, TouchableOpacity } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useRepositories } from "../../contexts/RepositoryContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -89,55 +89,62 @@ export default function NotificationsScreen() {
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
-                        <ThemedCard
-                            style={[
-                                styles.card,
-                                item.wyswietlono === 0 && {
-                                    borderColor: theme.iconColourFocused,
-                                    borderWidth: 1,
-                                },
-                            ]}
-                        >
-                            <View style={styles.row}>
-                                <View style={styles.iconContainer}>
-                                    <Ionicons
-                                        name="heart"
-                                        size={24}
-                                        color={Colors.error}
-                                    />
-                                </View>
-                                <View style={styles.textContainer}>
-                                    <ThemedText style={styles.mainText}>
-                                        <ThemedText
-                                            style={{ fontWeight: "bold" }}
-                                        >
-                                            {item.imie} {item.nazwisko} (@
-                                            {item.username})
-                                        </ThemedText>{" "}
-                                        polubił(a) twoje przejście drogi{" "}
-                                        <ThemedText
-                                            style={{ fontWeight: "bold" }}
-                                        >
-                                            {item.nazwa_drogi}
-                                        </ThemedText>
-                                    </ThemedText>
-                                    <ThemedText style={styles.timeText}>
-                                        {formatDate(item.data_reakcji)}
-                                    </ThemedText>
-                                </View>
-                                {item.wyswietlono === 0 && (
-                                    <View
-                                        style={[
-                                            styles.unreadDot,
-                                            {
-                                                backgroundColor:
-                                                    theme.iconColourFocused,
-                                            },
-                                        ]}
-                                    />
-                                )}
-                            </View>
-                        </ThemedCard>
+						<TouchableOpacity
+							onPress={() =>
+								router.push(`/(dashboard)/ascent/${item.id_przejscia}`)
+							}
+						>
+                        	<ThemedCard
+                        	    style={[
+                        	        styles.card,
+                        	        item.wyswietlono === 0 && {
+                        	            borderColor: theme.iconColourFocused,
+                        	            borderWidth: 1,
+                        	        },
+                        	    ]}
+                        	>
+                        	    <View style={styles.row}>
+                        	        <View style={styles.iconContainer}>
+                        	            <Ionicons
+                        	                name="heart"
+                        	                size={24}
+                        	                color={Colors.error}
+                        	            />
+                        	        </View>
+                        	        <View style={styles.textContainer}>
+                        	            <ThemedText style={styles.mainText}>
+                        	                <ThemedText
+                        	                    style={{ fontWeight: "bold" }}
+                        	                >
+                        	                    {item.imie} {item.nazwisko} (@
+                        	                    {item.username})
+                        	                </ThemedText>{" "}
+                        	                polubił(a) twoje przejście drogi{" "}
+                        	                <ThemedText
+                        	                    style={{ fontWeight: "bold" }}
+                        	                >
+                        	                    {item.nazwa_drogi}
+                        	                </ThemedText>
+                        	            </ThemedText>
+                        	            <ThemedText style={styles.timeText}>
+                        	                {formatDate(item.data_reakcji)}
+                        	            </ThemedText>
+                        	        </View>
+                        	        {item.wyswietlono === 0 && (
+                        	            <View
+                        	                style={[
+                        	                    styles.unreadDot,
+                        	                    {
+                        	                        backgroundColor:
+                        	                            theme.iconColourFocused,
+                        	                    },
+                        	                ]}
+                        	            />
+                        	        )}
+                        	    </View>
+                        	</ThemedCard>
+						</TouchableOpacity>
+
                     )}
                 />
             )}
