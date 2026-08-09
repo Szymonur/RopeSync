@@ -21,6 +21,7 @@ import { Colors } from "../../constants/Colors";
 
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useSnackbar } from "../../contexts/SnackbarContext";
+import { useRepositories } from "../../contexts/RepositoryContext";
 
 
 import { validateEmail } from "../../lib/utils/vadidateEmail";
@@ -42,6 +43,8 @@ const Register = () => {
 
     const { isConnected } = useNetwork();
 	const { showSnackbar } = useSnackbar();
+	const { userRepository } = useRepositories();
+
 
     const router = useRouter();
     const { colorScheme } = useTheme();
@@ -68,7 +71,7 @@ const Register = () => {
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-    const handleSubmit = async () => {
+const handleSubmit = async () => {
         if (!isConnected) {
             Alert.alert(
                 "No internet",
@@ -120,7 +123,6 @@ const Register = () => {
             setUserPasswordRepeatError("Passwords are not the same!");
         }
 
-        // return to not call api when data is missing
         if (
             !trimmedLogin ||
             !trimmedPassword ||
@@ -136,59 +138,48 @@ const Register = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/auth/register`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username: trimmedLogin,
-                    password: trimmedPassword,
-                    firstName: trimmedFirstName,
-                    lastName: trimmedLastName,
-                    email: trimmedEmail,
-                }),
-            });
-			
+            // Wywołanie repozytorium (zwraca response.data w przypadku sukcesu)
+            await userRepository.register(
+                trimmedLogin,
+                trimmedPassword,
+                trimmedEmail,
+                trimmedFirstName,
+                trimmedLastName
+            );
 
-            if (response.status === 400) {
-				showSnackbar({
-                    message:
-                    "Błąd podczas rejestracji, wprowadz wszystkie poprawne dane.",
-                    type: "error",
-				})
-            }
-
-            if (response.status === 409) {
-                const json = await response.json();
-                if (json.message.includes("USER_ALREADY_EXISTS")) {
-                    setUserLoginError(
-                        "Konto z tym loginem już istnieje!",
-                    );
-                }
-                if (json.message.includes("EMAIL_ALREADY_EXISTS")) {
-                    setEmailError(
-                        "Konto z tym adresem email już istnieje!",
-                    );
-                }
-            }
-
-            if (response.status === 201) {
-				router.replace("/login");
-				showSnackbar({
-                    message:
-                    "Rejestracja powiodła się!",
-                    type: "success",
-				})
-            }
-        } catch (error) {
-            console.error("Network request failed", error);
+            // Jeśli nie wyskoczył błąd, to znaczy że rejestracja się powiodła (np. status 201)
+            router.replace("/login");
             showSnackbar({
-                message:
-                "Coś poszło nie tak! Sprawdź swoje połączenie sieciowe.",
-                type: "error",
-			})
+                message: "Rejestracja powiodła się!",
+                type: "success",
+            });
+
+        } catch (error: any) {
+            // Axios wrzuci tutaj błąd z serwera (4xx, 5xx) lub błąd sieci
+            // Sprawdzamy czy backend zwrócił odpowiedź z kodem statusu
+            const status = error.response?.status;
+            const message = error.response?.data?.message || "";
+
+            if (status === 409) {
+                if (message.includes("USER_ALREADY_EXISTS")) {
+                    setUserLoginError("Konto z tym loginem już istnieje!");
+                }
+                if (message.includes("EMAIL_ALREADY_EXISTS")) {
+                    setEmailError("Konto z tym adresem email już istnieje!");
+                }
+            } else if (status === 400) {
+                showSnackbar({
+                    message: "Błąd podczas rejestracji, wprowadź wszystkie poprawne dane.",
+                    type: "error",
+                });
+            } else {
+                // Błąd sieci lub inny niespodziewany błąd serwera (500)
+                console.error("Network request failed", error);
+                showSnackbar({
+                    message: "Coś poszło nie tak! Sprawdź swoje połączenie sieciowe.",
+                    type: "error",
+                });
+            }
         }
     };
 

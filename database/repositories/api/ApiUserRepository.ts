@@ -18,7 +18,8 @@ export class ApiUserRepository implements IUserRepository {
 
     async register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<void> {
         try {
-            await api.post(`/auth/register`, { username, password, email, firstName, lastName });
+            const response = await api.post(`/auth/register`, { username, password, email, firstName, lastName });
+			return response.data;
         } catch (error: any) {
             if (error.response && error.response.data) {
                 throw new Error(error.response.data.message || "Błąd podczas rejestracji.");
