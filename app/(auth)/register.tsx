@@ -20,6 +20,8 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { Colors } from "../../constants/Colors";
 
 import { useNetwork } from "../../contexts/NetworkContext";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+
 
 import { validateEmail } from "../../lib/utils/vadidateEmail";
 
@@ -39,6 +41,7 @@ const Register = () => {
     const [emailError, setEmailError] = useState("");
 
     const { isConnected } = useNetwork();
+	const { showSnackbar } = useSnackbar();
 
     const router = useRouter();
     const { colorScheme } = useTheme();
@@ -133,7 +136,7 @@ const Register = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/register`, {
+            const response = await fetch(`${API_URL}/auth/register`, {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
@@ -147,42 +150,45 @@ const Register = () => {
                     email: trimmedEmail,
                 }),
             });
+			
 
             if (response.status === 400) {
-                Alert.alert("Registration failed", "Enter credentials.", [
-                    { text: "OK" },
-                ]);
+				showSnackbar({
+                    message:
+                    "Błąd podczas rejestracji, wprowadz wszystkie poprawne dane.",
+                    type: "error",
+				})
             }
 
             if (response.status === 409) {
                 const json = await response.json();
                 if (json.message.includes("USER_ALREADY_EXISTS")) {
                     setUserLoginError(
-                        "An account with this login address already exists!",
+                        "Konto z tym loginem już istnieje!",
                     );
                 }
                 if (json.message.includes("EMAIL_ALREADY_EXISTS")) {
                     setEmailError(
-                        "An account with this email address already exists!",
+                        "Konto z tym adresem email już istnieje!",
                     );
                 }
             }
 
             if (response.status === 201) {
-                Alert.alert(
-                    "Registration succeed",
-                    "Now login to yout acount.",
-                    [
-                        {
-                            text: "OK",
-                            onPress: () => router.replace("/(auth)/login"),
-                        },
-                    ],
-                );
+				router.replace("/login");
+				showSnackbar({
+                    message:
+                    "Rejestracja powiodła się!",
+                    type: "success",
+				})
             }
         } catch (error) {
             console.error("Network request failed", error);
-            Alert.alert("Error", "Could not connect to the server.");
+            showSnackbar({
+                message:
+                "Coś poszło nie tak! Sprawdź swoje połączenie sieciowe.",
+                type: "error",
+			})
         }
     };
 

@@ -41,14 +41,17 @@ Ultimately, the app integrates with a dedicated wearable measurement device (bas
 ### Installation & Setup
 1. Clone the repository:
    ```bash
-   https://github.com/Szymonur/RopeSync.git
+   git clone https://github.com/Szymonur/RopeSync.git
    ```
 2. Install dependencies:
    ```bash
-   npm install
+   cd RopeSync
+   npm install --legacy-peer-deps
    ```
-3. Configure environment variables (create a .env file and define the backend API URL [http://localhost:8443])
-
+3. Configure environment variables (create a .env file and define the backend API URL) 
+   ```bash
+	EXPO_PUBLIC_API_URL=http://localhost:8443
+   ```
 4. Start the application:
     ```bash
     npm start
