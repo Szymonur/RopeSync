@@ -157,8 +157,7 @@ const AscentDetails = () => {
                 {ascent.notatka || "Brak notatki"}
 				
             </ThemedText>
-            {ascent.timeline_data &&
-                Object.keys(ascent.timeline_data).length > 2 && ( // TODO - idk why but it returns 2 for empty object when fetching data from local sqLite
+            {ascent.timeline_data && ( // TODO - idk why but it returns 2 for empty object when fetching data from local sqLite
                     <>
                         <Spacer height={10} />
                         <ThemedTimeline timelineData={ascent.timeline_data} />
