@@ -1,39 +1,56 @@
 # 🧗‍♂️ RopeSync - Mobile & Web App
 
-RopeSync to innowacyjna platforma dla wspinaczy, łącząca funkcjonalności dziennika przejść ze społecznościowym śledzeniem aktywności. Aplikacja pozwala na wyszukiwanie dróg, ręczne rejestrowanie przejść oraz śledzenie statystyk. 
+RopeSync is an innovative platform for climbers that combines the functionality of a climbing logbook with social activity tracking. The app allows users to search for routes, manually log their ascents, and track personal statistics. 
 
-Docelowo aplikacja integruje się z dedykowanym urządzeniem pomiarowym (opartym o ESP32) noszonym przez wspinacza, wizualizując przebieg wspinaczki za pomocą innowacyjnego **Heightline'u** (osi zdarzeń opartej na wysokości), na którym rejestrowane są wpinki, loty i ich parametry.
+Ultimately, the app integrates with a dedicated wearable measurement device (based on ESP32) worn by the climber. It visualizes the climb using an innovative **Heightline** (a height-based timeline), which records events such as clips, falls, and their specific parameters.
 
-## ✨ Funkcjonalności
+## Features
 
-### 👤 Konto i Społeczność
-* **Autoryzacja JWT:** Bezpieczne logowanie i utrzymywanie sesji dzięki wbudowanemu szyfrowaniu danych (Expo Secure Store).
-* **Zarządzanie kontem:** Rejestracja, logowanie oraz resetowanie hasła.
-* **Profil i statystyki:** Przegląd własnych osiągnięć wspinaczkowych.
-* **Społeczność:** Obserwowanie innych wspinaczy oraz feed z ich przejściami.
+### Account & Community
+* **JWT Authentication:** Secure login and session management with built-in data encryption (Expo Secure Store).
+* **Account Management:** User registration, login, and password reset workflows.
+* **Profile & Statistics:** Comprehensive overview of personal climbing achievements.
+* **Community:** Follow other climbers and keep up with their ascents via a dynamic activity feed.
 
-### 🧗‍♀️ Rejestrowanie i Baza Dróg
-* **Baza i Mapy:** Wyszukiwanie regionów, sektorów i konkretnych dróg wspinaczkowych z wykorzystaniem interaktywnych map.
-* **Manualny logbook:** Ręczne dodawanie własnych przejść wraz ze szczegółami.
-* **Tryb Offline:** Wsparcie lokalnej bazy danych SQLite.
+###  Logging & Route Database
+* **Database & Maps:** Search for regions, sectors, and specific climbing routes using interactive maps.
+* **Manual Logbook:** Manually log ascents along with detailed metadata.
+* **Offline Mode:** Local SQLite database support for essential offline capabilities.
 
-### 📡 Integracja Sprzętowa (Hardware)
-* **Bluetooth Low Energy (BLE):** Bezpośrednia komunikacja z modułem ESP32.
-* **Heightline (Oś Wysokości):** Unikalna wizualizacja przejścia rysowana dynamicznie na podstawie danych telemetrycznych (wykresy SVG). *Obecnie wspiera dane wygenerowane sztucznie.*
-* **Wzbogacanie danych:** Możliwość dodania nazwy drogi, opisu i zapisania zarejestrowanego przez urządzenie śladu do swojego profilu.
+### Hardware Integration
+* **Bluetooth Low Energy (BLE):** Direct communication with the ESP32 hardware module.
+* **Heightline:** A unique climb visualization drawn dynamically based on telemetry data (SVG charts). *Currently supports mock data for testing purposes.*
+* **Data Enrichment:** Link hardware-recorded tracks with specific route names, add personal descriptions, and save the enriched data directly to your profile.
 
-## 🛠 Technologie
+## Tech Stack
 
-* **Framework:** React Native / Expo 
-* **Język:** TypeScript
-* **Zarządzanie zapytaniami API:** TanStack React Query + Axios
-* **Baza lokalna i Storage:** Expo SQLite, Expo Secure Store
-* **Komunikacja BLE:** react-native-ble-plx
-* **Mapy i Grafika:** React Native Maps, React Native SVG
-* **Ikony i UI:** @expo/vector-icons, react-native-ui-datepicker
+* **Framework:** React Native / Expo (featuring the modern Expo Router)
+* **Language:** TypeScript
+* **API State Management:** TanStack React Query + Axios
+* **Local DB & Storage:** Expo SQLite, Expo Secure Store
+* **BLE Communication:** react-native-ble-plx
+* **Maps & Graphics:** React Native Maps, React Native SVG
+* **Icons & UI:** @expo/vector-icons, react-native-ui-datepicker
 
-## 🚀 Uruchomienie projektu
+## 🚀 Getting Started
 
-### Wymagania wstępne
-* Środowisko Node.js
-* Aplikacja Expo Go na fizycznym telefonie (wymagane do testów BLE) lub odpowiednie emulatory Android/iOS.
+### Prerequisites
+* Node.js environment
+* Expo Go app installed on a physical smartphone (required for testing BLE features), or an Android/iOS emulator for standard UI testing.
+
+### Installation & Setup
+1. Clone the repository:
+   ```bash
+   https://github.com/Szymonur/RopeSync.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Configure environment variables (create a .env file and define the backend API URL [http://localhost:8443])
+
+4. Start the application:
+    ```bash
+    npm start
+    # Use the Expo Go app to scan the QR code and run the project on your device.
+    ```
