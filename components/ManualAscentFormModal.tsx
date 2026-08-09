@@ -80,6 +80,8 @@ const ManualAscentFormModal = ({
 
 	const debouncedRouteFilter = useDebounce(routeFilter);
 
+	const isWeb = Platform.OS === "web";
+
     const { data: routes = [] } = useRoutes(
         { nazwa_drogi: debouncedRouteFilter.trim() },
         { enabled: visible && !hideRouteSearch && debouncedRouteFilter.trim().length >= 2 }
@@ -183,11 +185,11 @@ const ManualAscentFormModal = ({
         }
     };
 
-    return (
+return (
         <Modal
             visible={visible}
             transparent
-            animationType="slide"
+            animationType={isWeb ? "fade" : "slide"} // Na webie "fade" wygląda lepiej niż wjeżdżanie z dołu
             onRequestClose={onClose}
             statusBarTranslucent
         >
@@ -195,25 +197,16 @@ const ManualAscentFormModal = ({
                 <ThemedView
                     style={[
                         styles.sheet,
-                        {
-                            paddingBottom:
-                                keyboardHeight > 0 ? keyboardHeight : 20,
-                        },
+                        isWeb && styles.webSheet, // Dodajemy ograniczenie szerokości na webie
+                        { paddingBottom: keyboardHeight > 0 ? keyboardHeight : 20 },
                     ]}
                 >
                     <View style={styles.header}>
                         <ThemedText style={styles.title}>
                             Dodaj przejście
                         </ThemedText>
-                        <TouchableOpacity
-                            onPress={onClose}
-                            style={styles.closeButton}
-                        >
-                            <Ionicons
-                                name="close"
-                                size={28}
-                                color={theme.iconColour}
-                            />
+                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                            <Ionicons name="close" size={28} color={theme.iconColour} />
                         </TouchableOpacity>
                     </View>
 
@@ -221,215 +214,138 @@ const ManualAscentFormModal = ({
                         showsVerticalScrollIndicator={false}
                         keyboardShouldPersistTaps="handled"
                     >
-						    <DateTimePicker
-                                mode="single"
-                                date={data}
-                                onChange={({ date }) => {
-                                    if (date) {
-                                        setData(formatDate(date));
-                                    }
-                                }}
-                                styles={{
-                                    day_label: { color: theme.text },
-                                    month_selector_label: { color: theme.text },
-                                    year_selector_label: { color: theme.text },
-                                    weekday_label: { color: theme.text },
-                                    selected: { backgroundColor: Colors.primary, borderRadius: 10 },
-                                    selected_label: { color: 'white' },
-                                    today: { borderColor: Colors.primary, borderWidth: 1, borderRadius: 10 },
-                                    today_label: { color: Colors.primary }
-                                }}
-							/>
+                        {/* KONTENER DZIELĄCY EKRAN NA KOLUMNY (TYLKO WEB) */}
+                        <View style={isWeb ? styles.webRowContainer : undefined}>
+                            
+                            {/* --- LEWA KOLUMNA: KALENDARZ --- */}
+                            <View style={isWeb ? styles.webLeftColumn : undefined}>
+                                <DateTimePicker
+                                    mode="single"
+                                    date={data}
+                                    onChange={({ date }) => {
+                                        if (date) setData(formatDate(date));
+                                    }}
+                                    styles={{
+                                        day_label: { color: theme.text },
+                                        month_selector_label: { color: theme.text },
+                                        year_selector_label: { color: theme.text },
+                                        weekday_label: { color: theme.text },
+                                        selected: { backgroundColor: Colors.primary, borderRadius: 10 },
+                                        selected_label: { color: 'white' },
+                                        today: { borderColor: Colors.primary, borderWidth: 1, borderRadius: 10 },
+                                        today_label: { color: Colors.primary }
+                                    }}
+                                />
+                            </View>
 
-                        {!hideRouteSearch && (
-                            <>
-                                <ThemedText style={styles.label}>
-                                    Szukaj drogi
-                                </ThemedText>
+                            {/* --- PRAWA KOLUMNA: RESZTA FORMULARZA --- */}
+                            <View style={isWeb ? styles.webRightColumn : undefined}>
+                                {!hideRouteSearch && (
+                                    <>
+                                        <ThemedText style={styles.label}>Szukaj drogi</ThemedText>
+                                        <ThemedTextInput
+                                            value={routeFilter}
+                                            onChangeText={setRouteFilter}
+                                            placeholder="Wpisz nazwę drogi..."
+                                            error={routeFilterError}
+                                        />
+
+                                        <ScrollView
+                                            style={styles.routesList}
+                                            nestedScrollEnabled={true}
+                                            showsVerticalScrollIndicator={false}
+                                            keyboardShouldPersistTaps="handled"
+                                        >
+                                            {routes.length === 0 && debouncedRouteFilter.length >= 2 ? (
+                                                <ThemedText style={{ opacity: 0.7 }}>
+                                                    Brak dróg pasujących do filtra.
+                                                </ThemedText>
+                                            ) : (
+                                                routes.map((item) => {
+                                                    const selected = selectedRouteId === item.id_drogi;
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={item.id_drogi}
+                                                            onPress={() => setSelectedRouteId(selectedRouteId == item.id_drogi ? "" : item.id_drogi)}
+                                                            style={[
+                                                                styles.routeItem,
+                                                                {
+                                                                    backgroundColor: selected ? theme.iconColourFocused : theme.uiBackground,
+                                                                    borderColor: theme.iconColourFocused,
+                                                                },
+                                                            ]}
+                                                        >
+                                                            <ThemedText style={{ color: selected ? theme.background : theme.text, fontWeight: "700" }}>
+                                                                {item.nazwa_drogi}
+                                                            </ThemedText>
+                                                            <ThemedText style={{ color: selected ? theme.background : theme.text, opacity: 0.8 }}>
+                                                                {item.nazwa_rejonu} • {item.typ_drogi} {item.wycena ? ` • ${item.wycena}` : ""}
+                                                            </ThemedText>
+                                                        </TouchableOpacity>
+                                                    );
+                                                })
+                                            )}
+                                        </ScrollView>
+                                    </>
+                                )}
+
+                                {selectedRoute && (
+                                    <ThemedText style={styles.selectedHint}>
+                                        Wybrałeś: {selectedRoute.nazwa_drogi} • {selectedRoute.nazwa_rejonu} • {selectedRoute.typ_drogi}
+                                        {selectedRoute.wycena ? ` • ${selectedRoute.wycena}` : ""}
+                                    </ThemedText>
+                                )}
+
+                                <Spacer height={12} />
+                                <ThemedText style={styles.label}>Styl przejścia</ThemedText>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.stylesList}>
+                                    {stylesList.map((style) => {
+                                        const selected = style.nazwa_stylu === ascentStyle;
+                                        return (
+                                            <TouchableOpacity
+                                                key={style.nazwa_stylu}
+                                                onPress={() => setAscentStyle(style.nazwa_stylu)}
+                                                style={[
+                                                    styles.styleItem,
+                                                    {
+                                                        backgroundColor: selected ? theme.iconColourFocused : theme.uiBackground,
+                                                        borderColor: theme.iconColourFocused,
+                                                    },
+                                                ]}
+                                            >
+                                                <ThemedText style={{ color: selected ? theme.background : theme.text, fontWeight: "700" }}>
+                                                    {style.nazwa_stylu}
+                                                </ThemedText>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
+
+                                <Spacer height={12} />
+                                <ThemedText style={styles.label}>Krótki opis</ThemedText>
                                 <ThemedTextInput
-                                    value={routeFilter}
-                                    onChangeText={setRouteFilter}
-                                    placeholder="Wpisz nazwę drogi..."
-                                    error={routeFilterError}
+                                    value={note}
+                                    onChangeText={setNote}
+                                    placeholder="Jak było?"
+                                    multiline
+                                    numberOfLines={4}
+                                    style={styles.multilineInput}
                                 />
 
-
-								<ScrollView
-                                    style={styles.routesList}
-                                    nestedScrollEnabled={true}
-                                    showsVerticalScrollIndicator={false}
-                                    keyboardShouldPersistTaps="handled"
+                                <Spacer height={18} />
+                                <ThemedButton
+                                    onPress={handleSubmit}
+                                    disabled={!canSubmit || addAscentMutation.isPending}
+                                    style={{ opacity: !canSubmit || addAscentMutation.isPending ? 0.4 : 1 }}
                                 >
-                                    {routes.length === 0 && debouncedRouteFilter.length >= 2 ? (
-                                        <ThemedText style={{ opacity: 0.7 }}>
-                                            Brak dróg pasujących do filtra.
+                                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                                        <ThemedText style={{ textAlign: "center", color: "white", fontWeight: "bold" }}>
+                                            {addAscentMutation.isPending ? <ActivityIndicator size="small" color="white" /> : "Zapisz przejście"}
                                         </ThemedText>
-                                    ) : (
-                                        routes.map((item) => {
-                                            const selected = selectedRouteId === item.id_drogi;
-
-                                            return (
-                                                <TouchableOpacity
-                                                    key={item.id_drogi}
-                                                    onPress={() => {
-                                                        if (
-                                                            selectedRouteId ==
-                                                            item.id_drogi
-                                                        ) {
-                                                            setSelectedRouteId(
-                                                                "",
-                                                            );
-                                                        } else {
-                                                            setSelectedRouteId(
-                                                                item.id_drogi,
-                                                            );
-                                                        }
-                                                    }}
-                                                    style={[
-                                                        styles.routeItem,
-                                                        {
-                                                            backgroundColor:
-                                                                selected
-                                                                    ? theme.iconColourFocused
-                                                                    : theme.uiBackground,
-                                                            borderColor:
-                                                                theme.iconColourFocused,
-                                                        },
-                                                    ]}
-                                                >
-                                                    <ThemedText
-                                                        style={{
-                                                            color: selected
-                                                                ? theme.background
-                                                                : theme.text,
-                                                            fontWeight: "700",
-                                                        }}
-                                                    >
-                                                        {item.nazwa_drogi}
-                                                    </ThemedText>
-                                                    <ThemedText
-                                                        style={{
-                                                            color: selected
-                                                                ? theme.background
-                                                                : theme.text,
-                                                            opacity: 0.8,
-                                                        }}
-                                                    >
-                                                        {item.nazwa_rejonu} •{" "}
-                                                        {item.typ_drogi}
-                                                        {item.wycena
-                                                            ? ` • ${item.wycena}`
-                                                            : ""}
-                                                    </ThemedText>
-                                                </TouchableOpacity>
-                                            );
-                                        })
-                                    )}
-                                </ScrollView>
-                            </>
-                        )}
-
-                        {selectedRoute && (
-                            <>
-                                <ThemedText style={styles.selectedHint}>
-                                    Wybrałeś: {selectedRoute.nazwa_drogi} •{" "}
-                                    {selectedRoute.nazwa_rejonu} •{" "}
-                                    {selectedRoute.typ_drogi}
-                                    {selectedRoute.wycena
-                                        ? ` • ${selectedRoute.wycena}`
-                                        : ""}
-                                </ThemedText>
-                            </>
-                        )}
-
-                        <Spacer height={12} />
-                        <ThemedText style={styles.label}>
-                            Styl przejścia
-                        </ThemedText>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            style={styles.stylesList}
-                        >
-                            {stylesList.map((style) => {
-                                const selected = style.nazwa_stylu === ascentStyle;
-                                return (
-                                    <TouchableOpacity
-                                        key={style.nazwa_stylu}
-                                        onPress={() => setAscentStyle(style.nazwa_stylu)}
-                                        style={[
-                                            styles.styleItem,
-                                            {
-                                                backgroundColor: selected
-                                                    ? theme.iconColourFocused
-                                                    : theme.uiBackground,
-                                                borderColor:
-                                                    theme.iconColourFocused,
-                                            },
-                                        ]}
-                                    >
-                                        <ThemedText
-                                            style={{
-                                                color: selected
-                                                    ? theme.background
-                                                    : theme.text,
-                                                fontWeight: "700",
-                                            }}
-                                        >
-                                            {style.nazwa_stylu}
-                                        </ThemedText>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-
-                        <Spacer height={12} />
-                        <ThemedText style={styles.label}>
-                            Krótki opis
-                        </ThemedText>
-                        <ThemedTextInput
-                            value={note}
-                            onChangeText={setNote}
-                            placeholder="Jak było?"
-                            multiline
-                            numberOfLines={4}
-                            style={styles.multilineInput}
-                        />
-
-                        <Spacer height={18} />
-                        <ThemedButton
-                            onPress={handleSubmit}
-                            disabled={!canSubmit || addAscentMutation.isPending}
-                            style={{
-                                opacity: !canSubmit || addAscentMutation.isPending ? 0.4 : 1,
-                            }}
-                        >
-                            <View
-                                style={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: 10,
-                                }}
-                            >
-                                <ThemedText
-                                    style={{
-                                        textAlign: "center",
-                                        color: "white",
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    {addAscentMutation.isPending ? (
-                                        <ActivityIndicator
-                                            size="small"
-                                            color="white"
-                                        />
-                                    ) : (
-                                        "Zapisz przejście"
-                                    )}
-                                </ThemedText>
+                                    </View>
+                                </ThemedButton>
                             </View>
-                        </ThemedButton>
+                        </View>
                     </ScrollView>
                 </ThemedView>
             </View>
@@ -451,6 +367,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 24,
         padding: 20,
         maxHeight: "88%",
+		display: "flex",
     },
     header: {
         flexDirection: "row",
@@ -505,5 +422,23 @@ const styles = StyleSheet.create({
         minHeight: 96,
         textAlignVertical: "top",
         paddingTop: 12,
+    },
+	webSheet: {
+        width: "100%",
+        maxWidth: 900, //
+        alignSelf: "center",
+        borderRadius: 24,
+    },
+    webRowContainer: {
+        flexDirection: "row",
+        gap: 30,
+        alignItems: "flex-start",
+    },
+    webLeftColumn: {
+        flex: 1,
+        maxWidth: 350,
+    },
+    webRightColumn: {
+        flex: 2,
     },
 });

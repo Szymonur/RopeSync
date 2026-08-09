@@ -5,6 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
+	Platform
 } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -33,6 +34,8 @@ const Index = () => {
     const theme = Colors[colorScheme];
     const { isConnected } = useNetwork();
     const { showSnackbar } = useSnackbar();
+
+	const isWeb = Platform.OS === "web";
 
     const {
         data: feed = [],
@@ -73,6 +76,10 @@ const Index = () => {
             />
             <FlatList
                 data={feed}
+				key={isWeb ? "grid-2-cols" : "list-1-col"}
+				numColumns={isWeb ? 2 : 1}
+				columnWrapperStyle={isWeb ? styles.columnWrapper : undefined}
+				style={{ width: "100%", paddingVertical: 7 }}
                 keyExtractor={(item) => item.id_przejscia}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
@@ -121,6 +128,7 @@ const Index = () => {
                 }
                 renderItem={({ item }) => (
                     <TouchableOpacity
+						style={isWeb ? styles.gridItem : undefined}
                         onPress={() => {
                             isConnected
                                 ? router.push(
@@ -133,7 +141,7 @@ const Index = () => {
                                   });
                         }}
                     >
-                        <ThemedCard style={styles.feedCard}>
+                        <ThemedCard style={[styles.feedCard, isWeb && { height: '100%' }]}>
                             <View style={styles.authorRow}>
                                 <View
                                     style={[
@@ -284,5 +292,13 @@ const styles = StyleSheet.create({
     likesCount: {
         fontSize: 14,
         fontWeight: "500",
+    },
+	columnWrapper: {
+        gap: 16, // Tworzy idealny, równy odstęp w pionie między dwoma kolumnami
+        marginBottom: 16, // Odstęp między rzędami z dołu
+    },
+    gridItem: {
+        flex: 1, // Sprawia, że każdy element zajmuje dokładnie pół dostępnego miejsca
+        maxWidth: "50%", // Zabezpieczenie – jeśli w ostatnim rzędzie będzie tylko 1 element, nie rozciągnie się on na całą szerokość ekranu
     },
 });

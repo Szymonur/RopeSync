@@ -10,6 +10,7 @@ import ThemedView from "../../components/ThemedView";
 import ThemedCard from "../../components/ThemedCard";
 import { Ionicons } from "@expo/vector-icons";
 import { ReactionNotification } from "../../types/reaction";
+import Spacer from "../../components/Spacer";
 
 export default function NotificationsScreen() {
     const { colorScheme } = useTheme();
@@ -72,6 +73,7 @@ export default function NotificationsScreen() {
 
             {notifications.length === 0 ? (
                 <View style={styles.center}>
+					<Spacer/>
                     <Ionicons
                         name="notifications-off-outline"
                         size={48}
@@ -81,6 +83,7 @@ export default function NotificationsScreen() {
                     <ThemedText style={{ opacity: 0.7 }}>
                         Brak powiadomień
                     </ThemedText>
+					<Spacer/>
                 </View>
             ) : (
                 <FlatList

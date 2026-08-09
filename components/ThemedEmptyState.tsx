@@ -7,8 +7,8 @@ import Spacer from "./Spacer";
 interface ThemedEmptyStateProps {
     title: string;
     description: string | string[];
-    buttonLabel: string;
-    onButtonPress: () => void;
+    buttonLabel?: string;
+    onButtonPress?: () => void;
 }
 
 const ThemedEmptyState = ({
@@ -30,11 +30,14 @@ const ThemedEmptyState = ({
                 </ThemedText>
             ))}
 
-            <Spacer />
-
-            <ThemedButton onPress={onButtonPress}>
-                <ThemedText style={styles.emptyButtonText}>{buttonLabel}</ThemedText>
-            </ThemedButton>
+			{buttonLabel && 
+				<>
+					<Spacer />
+            		<ThemedButton onPress={onButtonPress}>
+                		<ThemedText style={styles.emptyButtonText}>{buttonLabel}</ThemedText>
+            		</ThemedButton>
+				</>
+			}
         </ThemedCard>
     );
 };

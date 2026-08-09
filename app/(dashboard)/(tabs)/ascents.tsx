@@ -209,15 +209,26 @@ const Ascents = () => {
                             color={theme.iconColourFocused}
                         />
                     ) : (
-                        <ThemedEmptyState
-                            title="Twoja księga przejść jest jeszcze czysta"
-                            description={[
-                                "Każda droga zaczyna się od pierwszego kroku.",
-                                "Zapisz swoje ostatnie przejście, aby zacząć budować swoją historię.",
-                            ]}
-                            buttonLabel="Dodaj pierwsze przejście"
-                            onButtonPress={() => setFormVisible(true)}
-                        />
+						activeFilters.styles.length > 0 || activeFilters.types.length > 0 || activeFilters.dateFrom || activeFilters.dateTo ? (
+							<ThemedEmptyState
+								title="Brak przejść pasujących do filtrów"
+								description={[
+									"Aktualnie nie znaleźliśmy przejść zarejestrowanych na twoim profilu które pasowały by do filtrów które zastosowałeś",
+								]}
+							/>
+						) : (
+							
+							<ThemedEmptyState
+								title="Twoja księga przejść jest jeszcze czysta"
+								description={[
+									"Każda droga zaczyna się od pierwszego kroku.",
+									"Zapisz swoje ostatnie przejście, aby zacząć budować swoją historię.",
+								]}
+								buttonLabel="Dodaj pierwsze przejście"
+								onButtonPress={() => setFormVisible(true)}
+							/>
+						)
+						
                     )
                 }
             />
