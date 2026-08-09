@@ -1,4 +1,4 @@
-# 🧗‍♂️ RopeSync - Mobile App
+# 🧗‍♂️ RopeSync - Mobile & Web App
 
 RopeSync to innowacyjna platforma dla wspinaczy, łącząca funkcjonalności dziennika przejść ze społecznościowym śledzeniem aktywności. Aplikacja pozwala na wyszukiwanie dróg, ręczne rejestrowanie przejść oraz śledzenie statystyk. 
 
