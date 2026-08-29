@@ -57,3 +57,8 @@ Ultimately, the app integrates with a dedicated wearable measurement device (bas
     npm start
     # Use the Expo Go app to scan the QR code and run the project on your device.
     ```
+5. Login to test account or register to create new one:
+    ```bash
+	login: szymon_climber
+   password: Password1!
+    ```

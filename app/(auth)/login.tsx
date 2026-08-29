@@ -12,6 +12,8 @@ import { useRepositories } from "../../contexts/RepositoryContext";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useNetwork } from "../../contexts/NetworkContext";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+
 import { useState } from "react";
 
 const Login = () => {
@@ -19,6 +21,8 @@ const Login = () => {
     const { isConnected } = useNetwork();
 	const { userRepository } = useRepositories();
 	
+	const { showSnackbar } = useSnackbar();
+
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
 
@@ -27,11 +31,10 @@ const Login = () => {
 
     const handleSubmit = async () => {
         if (!isConnected) {
-            Alert.alert(
-                "No internet",
-                "You are currently offline. Please check your connection.",
-                [{ text: "OK" }],
-            );
+			showSnackbar({
+                message: "Problemy z siecią, sprawdz swoje połączenie internetowe!",
+                type: "warn",
+            });
             return;
         }
 
@@ -50,6 +53,10 @@ const Login = () => {
 			if (result.accessToken && result.refreshToken && result.userId) {
                 await authContextLogin(result.accessToken, result.refreshToken, result.userId);
 			} else {
+				showSnackbar({
+                	message: "Błędne dane logowania!",
+                	type: "error",
+            	});
 				setErrorLogin("Błędne dane logowania");
 				setErrorPassword("Błędne dane logowania");	
 			}
