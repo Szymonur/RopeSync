@@ -117,13 +117,41 @@ const ProfileStats = ({
                         style={[styles.pbItem, { borderColor: theme.border }]}
                     >
                         <View style={styles.pbBadge}>
-                            <RouteTypeBadge route_type={"sportowa"} />
+                            <RouteTypeBadge route_type={"Sport"} />
                         </View>
                         <ThemedText style={styles.pbValue}>
                             {stats.bestSport?.wycena ?? "-"}
                         </ThemedText>
                         <ThemedText style={styles.pbRoute}>
                             {stats.bestSport?.nazwa_drogi ?? "Brak danych"}
+                        </ThemedText>
+                    </View>
+                </TouchableOpacity>
+				<TouchableOpacity
+                    style={styles.pbItemContainer}
+                    onPress={() => {
+                        stats.bestMixedTrad?.id_przejscia
+                            ? router.push(
+                                  `/(dashboard)/ascent/${stats.bestMixedTrad?.id_przejscia}?userId=${stats.bestMixedTrad?.id_uzytkownika}`,
+                              )
+                            : showSnackbar({
+                                  message:
+                                      "Ten użytkownik nie ma jeszcze przejść tradowych",
+                                  type: "warn",
+                              });
+                    }}
+                >
+                    <View
+                        style={[styles.pbItem, { borderColor: theme.border }]}
+                    >
+                        <View style={styles.pbBadge}>
+                            <RouteTypeBadge route_type={"Mixed trad"} />
+                        </View>
+                        <ThemedText style={styles.pbValue}>
+                            {stats.bestMixedTrad?.wycena ?? "-"}
+                        </ThemedText>
+                        <ThemedText style={styles.pbRoute}>
+                            {stats.bestMixedTrad?.nazwa_drogi ?? "Brak danych"}
                         </ThemedText>
                     </View>
                 </TouchableOpacity>
@@ -145,7 +173,7 @@ const ProfileStats = ({
                         style={[styles.pbItem, { borderColor: theme.border }]}
                     >
                         <View style={styles.pbBadge}>
-                            <RouteTypeBadge route_type={"trad"} />
+                            <RouteTypeBadge route_type={"Trad"} />
                         </View>
                         <ThemedText style={styles.pbValue}>
                             {stats.bestTrad?.wycena ?? "-"}
@@ -173,7 +201,7 @@ const ProfileStats = ({
                         style={[styles.pbItem, { borderColor: theme.border }]}
                     >
                         <View style={styles.pbBadge}>
-                            <RouteTypeBadge route_type={"boulder"} />
+                            <RouteTypeBadge route_type={"Boulder"} />
                         </View>
                         <ThemedText style={styles.pbValue}>
                             {stats.bestBoulder?.wycena ?? "-"}
@@ -205,19 +233,25 @@ const ProfileStats = ({
                         <ThemedText style={styles.summaryTypeCount}>
                             {stats.sportCount}
                         </ThemedText>
-                        <RouteTypeBadge route_type={"sportowa"} />
+                        <RouteTypeBadge route_type={"Sport"} />
+                    </View>
+					<View style={styles.summaryLine}>
+                        <ThemedText style={styles.summaryTypeCount}>
+                            {stats.mixedTradCount}
+                        </ThemedText>
+                        <RouteTypeBadge route_type={"Mixed trad"} />
                     </View>
                     <View style={styles.summaryLine}>
                         <ThemedText style={styles.summaryTypeCount}>
                             {stats.tradCount}
                         </ThemedText>
-                        <RouteTypeBadge route_type={"trad"} />
+                        <RouteTypeBadge route_type={"Trad"} />
                     </View>
                     <View style={styles.summaryLine}>
                         <ThemedText style={styles.summaryTypeCount}>
                             {stats.boulderCount}
                         </ThemedText>
-                        <RouteTypeBadge route_type={"boulder"} />
+                        <RouteTypeBadge route_type={"Boulder"} />
                     </View>
                 </View>
             </ThemedCard>
@@ -532,7 +566,7 @@ const styles = StyleSheet.create({
     },
     pbItemContainer: {
         flexGrow: 1,
-        minWidth: "30%",
+        minWidth: "20%",
     },
     pbItem: {
         borderWidth: 1,
@@ -549,6 +583,7 @@ const styles = StyleSheet.create({
         opacity: 0.75,
     },
     pbValue: {
+		textTransform: "uppercase",
         fontSize: 24,
         fontWeight: "700",
         marginTop: 2,
@@ -569,6 +604,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     chartLabel: {
+		textTransform: "uppercase",
         width: 56,
         fontSize: 13,
         fontWeight: "600",

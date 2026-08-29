@@ -32,7 +32,6 @@ export class ApiRouteRepository implements IRouteRepository {
                 params: { query },
                 signal
             });
-			console.log("response searchRoutes",  response);
 			
             return response.data.routes;
         } catch (error: any) {

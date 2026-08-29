@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useColorScheme as useSystemColorScheme, Platform} from 'react-native';
+import { useColorScheme as useSystemColorScheme, Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 type ThemeMode = 'system' | 'light' | 'dark';
@@ -12,10 +12,8 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-
 const THEME_STORAGE_KEY = "user-theme-mode";
 
-// Helper do odczytu danych zależnie od platformy
 const getStoredTheme = async (): Promise<ThemeMode | null> => {
     if (Platform.OS === "web") {
         try {
@@ -30,11 +28,23 @@ const getStoredTheme = async (): Promise<ThemeMode | null> => {
     }
 };
 
+const setStoredTheme = async (mode: ThemeMode) => {
+    if (Platform.OS === "web") {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, mode);
+        } catch (e) {
+            console.error("Błąd zapisu do localStorage", e);
+        }
+    } else {
+        await SecureStore.setItemAsync(THEME_STORAGE_KEY, mode);
+    }
+};
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useSystemColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
 
-	useEffect(() => {
+    useEffect(() => {
         // Załaduj zapisany motyw przy starcie 
         getStoredTheme().then((savedMode) => {
             if (savedMode) {
@@ -44,7 +54,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, []);
 
   const setThemeMode = async (mode: ThemeMode) => {
-    setThemeModeState(mode);
+    setThemeModeState(mode); // Aktualizacja stanu UI
+    await setStoredTheme(mode); // Zapis do pamięci przeglądarki/telefonu!
   };
 
   // Oblicz wynikowy schemat kolorów

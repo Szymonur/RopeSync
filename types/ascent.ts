@@ -28,9 +28,11 @@ export interface UserStats {
     totalCount: number;
     sportCount: number;
     tradCount: number;
+    mixedTradCount: number;
     boulderCount: number;
     bestSport?: Ascent;
     bestTrad?: Ascent;
+    bestMixedTrad?: Ascent;
     bestBoulder?: Ascent;
     gradeChart: { label: string; count: number }[];
     weeklyChart: { label: string; count: number }[];

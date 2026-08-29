@@ -10,6 +10,7 @@ export const Colors = {
     sport: "#2a6f97",
     trad: "#bc6120",
     boulder: "#b7094c",
+	mixedTrad: "#6b4470",
 
     dark: {
         text: "#cfdbd5",

@@ -18,14 +18,20 @@ const RouteGradeBadge = ({ route_grade }: RouteGradeBadgeProps) => {
 export default RouteGradeBadge;
 
 const styles = StyleSheet.create({
-    badge: {
+badge: {
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 6,
+        justifyContent: "center",
+        alignItems: "center",
     },
     gradeText: {
+        textTransform: "uppercase",
         color: "white",
         fontWeight: "bold",
         fontSize: 12,
+        lineHeight: 12,
+        includeFontPadding: false, 
+        textAlignVertical: "center", 
     },
 });

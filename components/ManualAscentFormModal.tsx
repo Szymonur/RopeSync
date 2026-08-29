@@ -279,7 +279,11 @@ return (
                                                                 {item.nazwa_drogi}
                                                             </ThemedText>
                                                             <ThemedText style={{ color: selected ? theme.background : theme.text, opacity: 0.8 }}>
-                                                                {item.nazwa_rejonu} • {item.typ_drogi} {item.wycena ? ` • ${item.wycena}` : ""}
+                                                                {item.nazwa_rejonu} • {item.typ_drogi}   
+																<ThemedText style={[ styles.selectedGrade, { color: selected ? theme.background : theme.text, opacity: 0.8 }]}>
+																	{item.wycena ? ` • ${item.wycena}` : ""} 
+
+																</ThemedText>
                                                             </ThemedText>
                                                         </TouchableOpacity>
                                                     );
@@ -292,7 +296,7 @@ return (
                                 {selectedRoute && (
                                     <ThemedText style={styles.selectedHint}>
                                         Wybrałeś: {selectedRoute.nazwa_drogi} • {selectedRoute.nazwa_rejonu} • {selectedRoute.typ_drogi}
-                                        {selectedRoute.wycena ? ` • ${selectedRoute.wycena}` : ""}
+                                        <ThemedText style={styles.selectedGrade}> {selectedRoute.wycena ? ` • ${selectedRoute.wycena}` : ""} </ThemedText>
                                     </ThemedText>
                                 )}
 
@@ -441,4 +445,7 @@ const styles = StyleSheet.create({
     webRightColumn: {
         flex: 2,
     },
+	selectedGrade: {
+		textTransform: "uppercase",
+	}
 });

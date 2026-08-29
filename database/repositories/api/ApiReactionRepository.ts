@@ -69,7 +69,6 @@ export class ApiReactionRepository implements IReactionRepository {
 				message: string;
 				notifications: ReactionNotification[];
 			}>("/notifications");
-			console.log(data);
 			
 			return data.notifications;
 		} catch (error: any) {
