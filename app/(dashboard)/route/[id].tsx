@@ -24,7 +24,8 @@ const RouteDetail = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { data: route, isLoading } = useRouteDetails(id!);
     const [formVisible, setFormVisible] = useState(false);
-
+	console.log(route);
+	
     if (isLoading) {
         return (
             <ThemedView

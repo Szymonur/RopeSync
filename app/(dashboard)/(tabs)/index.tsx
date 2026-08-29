@@ -5,7 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
-	Platform
+	Platform,
 } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -24,9 +24,20 @@ import ThemedEmptyState from "../../../components/ThemedEmptyState";
 import LikeButton from "../../../components/LikeButton";
 
 import { useSnackbar } from "../../../contexts/SnackbarContext";
-import { useState } from "react";
+import { useState,	useCallback } from "react";
 import { useFollowingFeed } from "../../../lib/hooks/useAscents";
 
+const dateFormatter = new Intl.DateTimeFormat("pl-PL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+});
+
+const formatDate = (value: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return dateFormatter.format(date);
+};
 
 const Index = () => {
     const router = useRouter();
@@ -44,15 +55,96 @@ const Index = () => {
         isRefetching,
     } = useFollowingFeed();
 
-    const formatDate = (value: string) => {
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return value;
-        return new Intl.DateTimeFormat("pl-PL", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-        }).format(date);
-    };
+	const renderFeedItem = useCallback(({ item }: { item: any }) => (
+			<TouchableOpacity
+				style={isWeb ? styles.gridItem : undefined}
+                onPress={() => {
+                    isConnected
+                        ? router.push(
+                              `/(dashboard)/ascent/${item.id_przejscia}?userId=${item.id_uzytkownika}`,
+                          )
+                        : showSnackbar({
+                              message:
+                                  "Aby zobaczyć szczegóły przejscia potrzebujesz podłączenia do internetu!",
+                              type: "warn",
+                          });
+                }}
+            >
+                <ThemedCard style={[styles.feedCard, isWeb && { height: '100%' }]}>
+                    <View style={styles.authorRow}>
+                        <View
+                            style={[
+                                styles.avatar,
+                                {
+                                    borderColor: theme.text,
+                                },
+                            ]}
+                        >
+                            <Ionicons
+                                name="person-outline"
+                                size={26}
+                                color={theme.text}
+                            />
+                        </View>
+                        <View style={styles.authorTextBlock}>
+                            <ThemedText style={styles.authorName}>
+                                {item.imie} {item.nazwisko}
+                            </ThemedText>
+                            <ThemedText style={styles.authorMeta}>
+                                @{item.username} ·{" "}
+                                {formatDate(item.data)}
+                            </ThemedText>
+                        </View>
+                    </View>
+
+                    <ThemedText style={styles.routeName}>
+                        {item.nazwa_drogi}
+                    </ThemedText>
+                    {item.notatka && (
+                        <>
+                            <ThemedText style={styles.routeNote}>
+                                {item.notatka}
+                            </ThemedText>
+                        </>
+                    )}
+                    <View style={styles.routeMetaRow}>
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                flex: 1,
+                                gap: 4,
+                            }}
+                        >
+                            {item.typ_drogi && (
+                                <RouteTypeBadge
+                                    route_type={item.typ_drogi}
+                                />
+                            )}
+
+                            {item.wycena && (
+                                <RouteGradeBadge
+                                    route_grade={item.wycena}
+                                />
+                            )}
+                            {item.nazwa_stylu && (
+                                <RouteStyleBadge
+                                    route_style={item.nazwa_stylu}
+                                />
+                            )}
+                        </View>
+
+                        <LikeButton
+                            isLiked={item.isLiked}
+                            ascentId={item.id_przejscia}
+                            theme={theme}
+                            isConnected={isConnected ? true : false}
+                            showSnackbar={showSnackbar}
+                        />
+                    </View>
+                </ThemedCard>
+            </TouchableOpacity>
+    ), [isWeb, isConnected, theme, router, showSnackbar]); // Zależności useCallback
+
 
     return (
         <ThemedView style={{ flex: 1 }}>
@@ -75,23 +167,29 @@ const Index = () => {
                 }}
             />
             <FlatList
-                data={feed}
-				key={isWeb ? "grid-2-cols" : "list-1-col"}
-				numColumns={isWeb ? 2 : 1}
-				columnWrapperStyle={isWeb ? styles.columnWrapper : undefined}
-				style={{ width: "100%", paddingVertical: 7 }}
-                keyExtractor={(item) => item.id_przejscia}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={isRefetching}
-                        onRefresh={refetch}
-                        colors={[theme.iconColour]}
-                        tintColor={theme.iconColour}
-                        enabled={isConnected !== false}
-                    />
-                }
+					data={feed}
+                    key={isWeb ? "grid-2-cols" : "list-1-col"}
+                    numColumns={isWeb ? 2 : 1}
+                    columnWrapperStyle={isWeb ? styles.columnWrapper : undefined}
+                    style={{ width: "100%", paddingVertical: 7 }}
+                    keyExtractor={(item) => item.id_przejscia}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    
+                    initialNumToRender={5} //
+                    maxToRenderPerBatch={5} 
+                    windowSize={5} 
+                    removeClippedSubviews={Platform.OS !== 'web'} 
+                    
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefetching}
+                            onRefresh={refetch}
+                            colors={[theme.iconColour]}
+                            tintColor={theme.iconColour}
+                            enabled={isConnected !== false}
+                        />
+                    }
                 ListEmptyComponent={
                     isLoading ? (
                         <ActivityIndicator
@@ -126,95 +224,7 @@ const Index = () => {
                         />
                     )
                 }
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-						style={isWeb ? styles.gridItem : undefined}
-                        onPress={() => {
-                            isConnected
-                                ? router.push(
-                                      `/(dashboard)/ascent/${item.id_przejscia}?userId=${item.id_uzytkownika}`,
-                                  )
-                                : showSnackbar({
-                                      message:
-                                          "Aby zobaczyć szczegóły przejscia potrzebujesz podłączenia do internetu!",
-                                      type: "warn",
-                                  });
-                        }}
-                    >
-                        <ThemedCard style={[styles.feedCard, isWeb && { height: '100%' }]}>
-                            <View style={styles.authorRow}>
-                                <View
-                                    style={[
-                                        styles.avatar,
-                                        {
-                                            borderColor: theme.text,
-                                        },
-                                    ]}
-                                >
-                                    <Ionicons
-                                        name="person-outline"
-                                        size={26}
-                                        color={theme.text}
-                                    />
-                                </View>
-                                <View style={styles.authorTextBlock}>
-                                    <ThemedText style={styles.authorName}>
-                                        {item.imie} {item.nazwisko}
-                                    </ThemedText>
-                                    <ThemedText style={styles.authorMeta}>
-                                        @{item.username} ·{" "}
-                                        {formatDate(item.data)}
-                                    </ThemedText>
-                                </View>
-                            </View>
-
-                            <ThemedText style={styles.routeName}>
-                                {item.nazwa_drogi}
-                            </ThemedText>
-                            {item.notatka && (
-                                <>
-                                    <ThemedText style={styles.routeNote}>
-                                        {item.notatka}
-                                    </ThemedText>
-                                </>
-                            )}
-                            <View style={styles.routeMetaRow}>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        flex: 1,
-                                        gap: 4,
-                                    }}
-                                >
-                                    {item.typ_drogi && (
-                                        <RouteTypeBadge
-                                            route_type={item.typ_drogi}
-                                        />
-                                    )}
-
-                                    {item.wycena && (
-                                        <RouteGradeBadge
-                                            route_grade={item.wycena}
-                                        />
-                                    )}
-                                    {item.nazwa_stylu && (
-                                        <RouteStyleBadge
-                                            route_style={item.nazwa_stylu}
-                                        />
-                                    )}
-                                </View>
-
-                                <LikeButton
-                                    isLiked={item.isLiked}
-                                    ascentId={item.id_przejscia}
-                                    theme={theme}
-                                    isConnected={isConnected ? true : false}
-                                    showSnackbar={showSnackbar}
-                                />
-                            </View>
-                        </ThemedCard>
-                    </TouchableOpacity>
-                )}
+				renderItem={renderFeedItem}
             />
         </ThemedView>
     );

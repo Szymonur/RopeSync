@@ -34,13 +34,16 @@ import { Colors } from "../constants/Colors";
 
 const queryClient = new QueryClient();
 
+const NativeSyncManager: React.FC = () => {
+    useSyncManager();
+    return null;
+};
+
 const DatabaseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // Jeśli to web, pomijamy SQLiteProvider i renderujemy same dzieci
     if (Platform.OS === "web") {
         return <>{children}</>;
     }
 
-    // Dla iOS/Android uruchamiamy pełnego SQLite'a
     return (
         <SQLiteProvider databaseName="ropesync.db" onInit={initializeDatabase}>
             {children}
@@ -55,25 +58,23 @@ const InitialLayout = () => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    // Aktywacja managera synchronizacji
-	if (Platform.OS !== "web") {
-    	useSyncManager();
-    }
-
     useEffect(() => {
         if (isLoading) return;
 
         const inAuthGroup = segments[0] === "(auth)";
 
+        // Poprawiłem zależność: z !currentUserId na currentUserId
         if (!currentUserId && !refreshToken && !inAuthGroup) {
             router.replace("/(auth)/login");
         } else if (currentUserId && refreshToken && inAuthGroup) {
             router.replace("/(dashboard)");
         }
-    }, [refreshToken, !currentUserId, isLoading, segments]);
+    }, [refreshToken, currentUserId, isLoading, segments]);
 
     return (
         <View style={{ flex: 1 }}>
+            {Platform.OS !== "web" && <NativeSyncManager />}
+            
             <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
             <Stack
                 screenOptions={{
@@ -95,53 +96,54 @@ const InitialLayout = () => {
 };
 
 const RootLayout = () => {
-    if (Platform.OS === "web") {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
-		if(token){
-        const appUrl = `ropesync://choose-new-password?token=${token}`;
-			useEffect(() => {
-				window.location.replace(appUrl);
-			}, []);
+    const urlParams = Platform.OS === "web" ? new URLSearchParams(window.location.search) : null;
+    const token = urlParams?.get("token");
+    const appUrl = token ? `ropesync://choose-new-password?token=${token}` : null;
 
-			return (
-				<View style={styles.webContainer}>
-					<Text style={styles.webTitle}>Otwieranie aplikacji...</Text>
-					<Text style={styles.webText}>
-						Jeśli aplikacja nie otworzyła się automatycznie, kliknij
-						przycisk poniżej.
-					</Text>
-					<View style={{ marginTop: 30 }}>
-						<Text
-							style={styles.buttonText}
-							onPress={() => {
-								window.location.replace(appUrl);
-							}}
-						>
-							Otwórz w aplikacji RopeSync
-						</Text>
-					</View>
-				</View>
-			);
-		}
+    useEffect(() => {
+        if (Platform.OS === "web" && appUrl) {
+            window.location.replace(appUrl);
+        }
+    }, [appUrl]);
 
+    if (Platform.OS === "web" && token && appUrl) {
+        return (
+            <View style={styles.webContainer}>
+                <Text style={styles.webTitle}>Otwieranie aplikacji...</Text>
+                <Text style={styles.webText}>
+                    Jeśli aplikacja nie otworzyła się automatycznie, kliknij
+                    przycisk poniżej.
+                </Text>
+                <View style={{ marginTop: 30 }}>
+                    <Text
+                        style={styles.buttonText}
+                        onPress={() => {
+                            window.location.replace(appUrl);
+                        }}
+                    >
+                        Otwórz w aplikacji RopeSync
+                    </Text>
+                </View>
+            </View>
+        );
     }
+
     return (
-			<QueryClientProvider client={queryClient}>
-				<ThemeProvider>
-					<SnackbarProvider>
-						<NetworkProvider>
-							<AuthProvider>
-								<DatabaseWrapper>
-									<RepositoryProvider>
-										<InitialLayout />
-									</RepositoryProvider>
-								</DatabaseWrapper>
-							</AuthProvider>
-						</NetworkProvider>
-					</SnackbarProvider>
-				</ThemeProvider>
-			</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+                <SnackbarProvider>
+                    <NetworkProvider>
+                        <AuthProvider>
+                            <DatabaseWrapper>
+                                <RepositoryProvider>
+                                    <InitialLayout />
+                                </RepositoryProvider>
+                            </DatabaseWrapper>
+                        </AuthProvider>
+                    </NetworkProvider>
+                </SnackbarProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
     );
 };
 
