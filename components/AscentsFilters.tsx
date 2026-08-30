@@ -92,7 +92,7 @@ const AscentsFilters = ({ visible, onClose, onApply, currentFilters }: AscentsFi
         setDateTo("");
     };
 
-    const routeTypes = ["Sport", "Trad", "Boulder", "MixedTrad"];
+    const routeTypes = ["Sport", "Trad", "Boulder", "Mixed trad"];
 	const FilterContent = (
         <ThemedView style={isWeb ? styles.webContainer : styles.sheet}>
             <View style={styles.header}>

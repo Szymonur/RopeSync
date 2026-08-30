@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         fontSize: 15,
-        marginLeft: 8,
+        marginLeft: 0,
     },
     summaryTypesRow: {
         display: "flex",

@@ -14,7 +14,6 @@ import { useAuth } from "../../../contexts/AuthContext";
 const DeviceScreen = () => {
     const { currentUserId: userId } = useAuth();
     const { mutateAsync: addAscent } = useAddAscent();
-
     const {
         scanForPeripherals,
         isScanning,

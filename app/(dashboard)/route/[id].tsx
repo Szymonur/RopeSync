@@ -148,16 +148,6 @@ const RouteDetail = () => {
                             </ThemedText>
                         </View>
                     )}
-                    {route.czy_stanowiska && (
-                        <View style={styles.detailRow}>
-                            <ThemedText style={styles.label}>
-                                Bolred anchors:
-                            </ThemedText>
-                            <ThemedText style={styles.value}>
-                                {route.czy_stanowiska ? "yes" : "no"}
-                            </ThemedText>
-                        </View>
-                    )}
                 </ThemedCard>
 
                 <Spacer height={20} />

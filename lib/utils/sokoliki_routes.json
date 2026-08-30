@@ -1,0 +1,6534 @@
+[
+    {
+        "area_name": "Krzywa Turnia",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/313746507",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Smak Żubra",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 4
+            },
+            {
+                "name": "Grzbiet Żubra",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "IV",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 45,
+                "bolts": null
+            },
+            {
+                "name": "Żubr",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Kurtykówka",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 23,
+                "bolts": 9
+            },
+            {
+                "name": "Kant Krzywej",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 7
+            },
+            {
+                "name": "Brzytwa",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Brzytwa Wprost",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Dupa Żubra",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 60,
+                "bolts": null
+            },
+            {
+                "name": "Rysy Żubra",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 42,
+                "bolts": null
+            },
+            {
+                "name": "Przez trawki",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 45,
+                "bolts": null
+            },
+            {
+                "name": "Skansen",
+                "grade": "VI.6",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 10
+            },
+            {
+                "name": "Das Beton ist fertig",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 11
+            },
+            {
+                "name": "Ambroży",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 6
+            },
+            {
+                "name": "Kukri",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 8
+            },
+            {
+                "name": "Dziurki Pankiewicza",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Małolatówka",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 8
+            },
+            {
+                "name": "Rysa Osady",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Rysa lotników",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Szalona lokomotywa",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 7
+            },
+            {
+                "name": "Zacięcie lotników",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 5
+            },
+            {
+                "name": "Ninja",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 35,
+                "bolts": 9
+            },
+            {
+                "name": "Zbyteczna fanfaronada",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 8
+            },
+            {
+                "name": "Calibra",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Nos żubra",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Falconetti",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Międzyżubrze",
+                "grade": "VI.1+/2",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Wejście smoka",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 4
+            },
+            {
+                "name": "Ogon Żubra",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 7
+            },
+            {
+                "name": "Wyjście awaryjne",
+                "grade": "VI.2/2+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "O la spacca",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "O la va",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 30,
+                "bolts": 12
+            },
+            {
+                "name": "Amber Gold",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Łaska Heliosa",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Slalom w rysach",
+                "grade": "VI+/VI.1",
+                "style": "Mixed trad",
+                "length_m": 20,
+                "bolts": 2
+            },
+            {
+                "name": "Zad Żubra",
+                "grade": "IV",
+                "style": "Mixed trad",
+                "length_m": 10,
+                "bolts": 2
+            },
+            {
+                "name": "Rysa Blondasa",
+                "grade": "VI.1+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Yosemite dreams",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Mescalito",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 8
+            },
+            {
+                "name": "American direct",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 65,
+                "bolts": 3
+            },
+            {
+                "name": "Bellisima",
+                "grade": "VI.2/2+",
+                "style": "Sport",
+                "length_m": 65,
+                "bolts": 26
+            },
+            {
+                "name": "Wrześniowy poranek",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": 45,
+                "bolts": 3
+            },
+            {
+                "name": "Ciasny kominek",
+                "grade": "IV+",
+                "style": "Mixed trad",
+                "length_m": 35,
+                "bolts": 1
+            },
+            {
+                "name": "Trawers Małolata",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 45,
+                "bolts": 3
+            },
+            {
+                "name": "Risk of dramatic falls",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 40,
+                "bolts": 15
+            },
+            {
+                "name": "Zielone rynny",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": 50,
+                "bolts": null
+            },
+            {
+                "name": "Zielona ryska",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Robin Hood",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 60,
+                "bolts": 21
+            },
+            {
+                "name": "Freerider",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 60,
+                "bolts": 21
+            },
+            {
+                "name": "Wojnarowicz",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Biedermana",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie WuJana",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Dwa zacięcia",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Ryski Michałów",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Wariant Panfila",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 65,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Biedermana",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": 20,
+                "bolts": 2
+            },
+            {
+                "name": "Rysa Gorayskiego",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 65,
+                "bolts": null
+            },
+            {
+                "name": "Nord rysa",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 22,
+                "bolts": null
+            },
+            {
+                "name": "Kroczek",
+                "grade": "IV",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 1
+            },
+            {
+                "name": "Książę Sukiennic",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 7
+            },
+            {
+                "name": "Joker",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 6
+            },
+            {
+                "name": "Kroczek przez okap",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Klimka",
+                "grade": "VI.3+",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Totem",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 6
+            },
+            {
+                "name": "Pierwsza rysa",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Pierwsza rysa - wariant wprost",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Robin Hood (III wyciąg)",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 5
+            }
+        ]
+    },
+    {
+        "area_name": "Sukiennice",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/313746123",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Kant Sukiennic",
+                "grade": "IV+",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 3
+            },
+            {
+                "name": "Kant Sukiennic wariant ścianką",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 3
+            },
+            {
+                "name": "Ryski Nowaczyka",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 6
+            },
+            {
+                "name": "Eliminator",
+                "grade": "VI.3/3+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 6
+            },
+            {
+                "name": "Panfil brzózka",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 3
+            },
+            {
+                "name": "Brzózka",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Fix brzózka",
+                "grade": "IV",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 2
+            },
+            {
+                "name": "Złoty strzał",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Rysa Budzana",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Filar brzózki",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Rock arena",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Dzika rzecz",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 5
+            },
+            {
+                "name": "Jelito diabła",
+                "grade": "VI.5+/6",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 12
+            },
+            {
+                "name": "Super Znik",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Prostowanie Znika",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 5
+            },
+            {
+                "name": "Super Punk",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 8
+            },
+            {
+                "name": "Egzorcysta",
+                "grade": "VI.7",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Znikający punkt",
+                "grade": "VI.3+/4",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 5
+            },
+            {
+                "name": "Znikający Punk",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 7
+            },
+            {
+                "name": "Lewy Komin",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 17,
+                "bolts": null
+            },
+            {
+                "name": "Prawy Komin",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 17,
+                "bolts": 7
+            },
+            {
+                "name": "Kant Trzech Nierobów",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Kant Wuja",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 8
+            },
+            {
+                "name": "33",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "33 i 1/2",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "33 przez przewieszkę",
+                "grade": "IV+",
+                "style": "Mixed trad",
+                "length_m": 20,
+                "bolts": 1
+            },
+            {
+                "name": "34",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 20,
+                "bolts": 1
+            },
+            {
+                "name": "War. Wprost",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 19,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka Lwowa",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 19,
+                "bolts": 6
+            },
+            {
+                "name": "Maślane palce",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 19,
+                "bolts": 6
+            },
+            {
+                "name": "Parszywa rynna",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Chimera",
+                "grade": "VI.6",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Hokej",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Prostowanie hokeja",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Indiańska twarz",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Geronimo",
+                "grade": "VI.7",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Pod Zjazdem",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Jaś Fasola",
+                "grade": "VI.4",
+                "style": "Mixed trad",
+                "length_m": 19,
+                "bolts": 4
+            },
+            {
+                "name": "Gładkie Zacięcie",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Figo fago",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Wariant Mikosa",
+                "grade": "VI.3/3+",
+                "style": "Sport",
+                "length_m": 19,
+                "bolts": 6
+            },
+            {
+                "name": "Porozumienie gdańskie",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 19,
+                "bolts": 5
+            },
+            {
+                "name": "Łasiczki",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 24,
+                "bolts": null
+            },
+            {
+                "name": "Prostowanie łasiczek",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 6,
+                "bolts": 2
+            },
+            {
+                "name": "Droga Głazka",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Kancik Wachowicza",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Gładkie zacięcie z wyjściem",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Szare Zacięcie",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Filar Nowaczyka",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Dwa okapy",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Dwa okapy zacięciem",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "KKP",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Uszy słonia",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Nos wodza",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Goebbelsa",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Przełyk",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Rój Hektora",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 7
+            },
+            {
+                "name": "Direttissima",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Średnia Arytmetyczna",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Kancik",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "1001 Drobiazgow",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Kuj haczora",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Rysa do półki",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Geniusz Młynka",
+                "grade": "IV+",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 2
+            },
+            {
+                "name": "Czarna rysa",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Wkładka",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Bat na wroga",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 19,
+                "bolts": 6
+            },
+            {
+                "name": "Droga Dyrcza",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Diagonalna",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 2
+            },
+            {
+                "name": "Średnia ważona",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 6
+            },
+            {
+                "name": "Superdirettissima",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Superdirettissima wprost",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Hiperdirettissima",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Hiperdirettissima prawym wariantem",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Ziele siostry Marii Huany",
+                "grade": "VI.3",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Tył komina",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Nitka",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Nitka wariant płytką",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 13
+            },
+            {
+                "name": "H/2",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": 9
+            },
+            {
+                "name": "Ryska Tygryska",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Nutelka",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 7
+            },
+            {
+                "name": "Super skręt",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 8
+            },
+            {
+                "name": "Rysa zegarowa",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Szalony poranek",
+                "grade": "VI.2/2+",
+                "style": "Trad",
+                "length_m": 23,
+                "bolts": null
+            },
+            {
+                "name": "Krzyż",
+                "grade": "VI.1+/2",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Łysi sułtani",
+                "grade": "VI.5+/6",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Łyse jajca",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 23,
+                "bolts": 8
+            },
+            {
+                "name": "Sułtani swingu",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Sułtani stringów",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 23,
+                "bolts": 7
+            },
+            {
+                "name": "Trzy Okapy",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Prostowanie Robót",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Jurajska pułapka",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 30,
+                "bolts": 10
+            },
+            {
+                "name": "Filar Kęsickiego",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Roboty drogowe",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 23,
+                "bolts": 7
+            },
+            {
+                "name": "Pod okapami",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Okapy Biedermana",
+                "grade": "VI.1",
+                "style": "Mixed trad",
+                "length_m": 27,
+                "bolts": 5
+            },
+            {
+                "name": "Lewy Biederman",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Fluidy",
+                "grade": "VI.3+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Prawy Biederman",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Chatka",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/313746894",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Kancik Chatki",
+                "grade": "V-",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Lewy kancik",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Zachodnie Zaciecie",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Środek chatki",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 5
+            },
+            {
+                "name": "Trudne początki",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Lewy Grzyb",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Chatka Puchatka",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 4
+            },
+            {
+                "name": "Powrót Prosiaczka",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 4
+            },
+            {
+                "name": "NRD",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Przewieszone zaciątko",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Blondasówka",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Zygzak Lwowa",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 11,
+                "bolts": 3
+            },
+            {
+                "name": "Lewe prostowanie",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Prawe prostowanie",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Zającówka",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Slimline",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Zemsta Kłapouchego",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Taniec Tygryska",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Przez kolebę",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Wejściowa",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Lewe zaciątko",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Super kancik",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Rysa Janowskiego",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Cudowne ocalenie",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 6
+            },
+            {
+                "name": "Środek Chatki wprost",
+                "grade": "VI+/VI.1",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 6
+            },
+            {
+                "name": "Bardzo trudne początki",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 6
+            },
+            {
+                "name": "Grzybowe ryski",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Do grzyba",
+                "grade": "IV",
+                "style": "Mixed trad",
+                "length_m": 11,
+                "bolts": 2
+            },
+            {
+                "name": "Grzybowy trawers",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 15,
+                "bolts": 1
+            },
+            {
+                "name": "Krótka rysa",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Jasiówka",
+                "grade": "VI+/VI.1",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Skrajna ryska",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Sokolik Duży",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/313747263",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant R",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Lewy Nitsch",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Nitówka",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 8
+            },
+            {
+                "name": "Środkowy Nitsch",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Droga Panfila",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Prawy Nitsch",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Rozdroża pesymizmu",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Ambroży",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Ambroży wprost",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Filar mgieł",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 52,
+                "bolts": 12
+            },
+            {
+                "name": "Zacięcie filara",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Ostrze filara",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Filar Gaorayskiego",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Czołg",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Czołg wariantem Piotrowskiego",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Czołg wprost",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Czołg wariant Głazka",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Grzęda Ruffa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Rysa z wąwozu",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Przez las",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Ryski marynarskie",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Filar wiewiórek",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Kominek adeptów",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Kleszcze",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 1
+            },
+            {
+                "name": "Kominek adeptów z trawersem",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie przy schodach",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Pod schodami",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Stara droga",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Filarek do platformy",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Wariant Małolata",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Lewy Nitsch wprost",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Rampa Noego",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 11
+            },
+            {
+                "name": "Ściana północna",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 22,
+                "bolts": 4
+            },
+            {
+                "name": "Arka Noego",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 10
+            },
+            {
+                "name": "Kant północny",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Czysta forma (Płyta prawdy)",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 7
+            },
+            {
+                "name": "Może będzie afera",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Droga Wojnarowicza",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Kant Płyty Nowaczyka",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            },
+            {
+                "name": "Mały hokej",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Płyta Nowaczyka",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 8
+            }
+        ]
+    },
+    {
+        "area_name": "Sokolik Mały",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/313747614",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Czas Apokalipsy",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Nowaczyka",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Smuga Cienia",
+                "grade": "VI.3+/4",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Małpia Ścianka",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Prostowanie Małpiej",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 6
+            },
+            {
+                "name": "Nachy w Drachy",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Latido del corazon",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Los cristales",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Rysa Tota",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Organki",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Droga Ruffa",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Kurtykówka",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Terminator",
+                "grade": "VI.3+/4",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 8
+            },
+            {
+                "name": "Mały kombinator",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 8
+            },
+            {
+                "name": "Magic mushrooms",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 8
+            },
+            {
+                "name": "Dół filara zachodniego",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Klasyczna",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 12,
+                "bolts": 2
+            },
+            {
+                "name": "Rysa Zipsera",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Ściana północno-wschodnia",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Komar",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Prostowanie Komara",
+                "grade": "VI.1+",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Złośliwość rzeczy martwych",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 35,
+                "bolts": 10
+            },
+            {
+                "name": "Lumbago",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 35,
+                "bolts": 9
+            },
+            {
+                "name": "Direttissima",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 35,
+                "bolts": 2
+            },
+            {
+                "name": "Rysa Skrzypka",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 35,
+                "bolts": 2
+            },
+            {
+                "name": "Odpęknięty filarek",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 34,
+                "bolts": null
+            },
+            {
+                "name": "Żółta rysa",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Rysa południowa",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Chała",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 60,
+                "bolts": null
+            },
+            {
+                "name": "Droga klasyczna",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Rysa przy kancie",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Słoneczna ścianka",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 1
+            },
+            {
+                "name": "Ostatnia rysa",
+                "grade": "VI+/VI.1",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 1
+            },
+            {
+                "name": "Dwójka",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 24,
+                "bolts": 8
+            },
+            {
+                "name": "Jedynka",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 24,
+                "bolts": 7
+            },
+            {
+                "name": "Trójka",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 8
+            },
+            {
+                "name": "Przez nyżę",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 24,
+                "bolts": null
+            },
+            {
+                "name": "Pić trzeba",
+                "grade": "VI.3/3+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Esperal",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Kroczek",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 22,
+                "bolts": 1
+            },
+            {
+                "name": "Jarzębinka",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 22,
+                "bolts": null
+            },
+            {
+                "name": "Droga Głazka",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 21,
+                "bolts": 1
+            },
+            {
+                "name": "Chirurgia palca",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 7
+            },
+            {
+                "name": "Amfy-teatr",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 7
+            },
+            {
+                "name": "Kurtykówka wprost",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 6
+            },
+            {
+                "name": "Droga kolana",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 5
+            },
+            {
+                "name": "Małolatówka",
+                "grade": "VI.1+/2",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 7
+            },
+            {
+                "name": "Cholerny świat",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 9
+            },
+            {
+                "name": "Cholerny świat light",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 9
+            },
+            {
+                "name": "Monidło",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": 27,
+                "bolts": 11
+            },
+            {
+                "name": "Kakaowe oczko",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": 28,
+                "bolts": 12
+            },
+            {
+                "name": "Biały ściek",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 28,
+                "bolts": 11
+            },
+            {
+                "name": "Ścierwokot",
+                "grade": "VI.4/4+",
+                "style": "Sport",
+                "length_m": 28,
+                "bolts": 11
+            },
+            {
+                "name": "Oczko",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 28,
+                "bolts": 11
+            },
+            {
+                "name": "Wakacje z blondynką",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "Ludzki neuroleptyk",
+                "grade": "VI.1+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Filar Kurtyki",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Dżihad",
+                "grade": "VI.3/3+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Weroniki",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Ostrze filara Biedermana",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Ostrze filara Biedermana wprost",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Droga Gabryela",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Do okienka",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 55,
+                "bolts": null
+            },
+            {
+                "name": "Do okienka szeroką rysą",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 55,
+                "bolts": null
+            },
+            {
+                "name": "Wielkie zacięcie",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 55,
+                "bolts": null
+            },
+            {
+                "name": "Do okienka wariant na szczyt filara",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 50,
+                "bolts": null
+            },
+            {
+                "name": "Do okienka wariant na szczyt filara 2",
+                "grade": "",
+                "style": "Trad",
+                "length_m": 50,
+                "bolts": null
+            },
+            {
+                "name": "Spirit of time",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 45,
+                "bolts": 16
+            },
+            {
+                "name": "Wachowicz",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 55,
+                "bolts": null
+            },
+            {
+                "name": "Godzina W",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 55,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Baba",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/313747959",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Kowalewskiego",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Serduszko",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Kurtykowka",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Krwawa Raczka",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Loteryjka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Toto Lotek",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Drugi próg",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Kurtykówka wariant płytką",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 4
+            },
+            {
+                "name": "Problemy Blondyny",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Multilotek",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Kumulacja dla Małolata",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Tępa",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1821509445",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Gula Hula",
+                "grade": "VI.2+/3",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Zulu Gula",
+                "grade": "VI.2+/3",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Kociokwik",
+                "grade": "VI.3+/4",
+                "style": "Sport",
+                "length_m": 9,
+                "bolts": 4
+            },
+            {
+                "name": "Commando",
+                "grade": "VI.4/4+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 11
+            },
+            {
+                "name": "Witajcie w Małpiarni",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Commando Light",
+                "grade": "VI.3/3+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Droga Brysia",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 6
+            },
+            {
+                "name": "Kwiaty w ogrodzie",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 6
+            },
+            {
+                "name": "Margaryna",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 7
+            },
+            {
+                "name": "Primabalerina",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 7
+            },
+            {
+                "name": "Śmietanka",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 13,
+                "bolts": 6
+            },
+            {
+                "name": "Małe Obciąganie",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 13,
+                "bolts": 6
+            },
+            {
+                "name": "Super Małe Obciąganie",
+                "grade": "VI.2+/3",
+                "style": "Sport",
+                "length_m": 13,
+                "bolts": 6
+            },
+            {
+                "name": "Canilia",
+                "grade": "VI.4/4+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Kletter killer",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 11
+            },
+            {
+                "name": "Świetlisty Szlak",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": 22,
+                "bolts": 11
+            },
+            {
+                "name": "Margaryna wprost",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 7
+            },
+            {
+                "name": "Masełko",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Szanuj zieleń!",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 13,
+                "bolts": 6
+            },
+            {
+                "name": "Speed fire",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 23,
+                "bolts": 14
+            },
+            {
+                "name": "Lady kiła",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 23,
+                "bolts": 13
+            },
+            {
+                "name": "Prawy do lewego",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 28,
+                "bolts": 13
+            },
+            {
+                "name": "Przez mchy i chrobotki",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Jastrzębia Turnia",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/314738733",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Płyta Kurczaba",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "Kancik",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 6
+            },
+            {
+                "name": "Delicatstresen",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Mandala życia",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Mandela Fit",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Mandela",
+                "grade": "VI.4+/5",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Pomyłka sapera",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "War. Wprost",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "Muppet Show",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 10
+            },
+            {
+                "name": "Tanczacy z Mrowkami",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 45,
+                "bolts": null
+            },
+            {
+                "name": "Banan",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Wschodni kominek",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Jastrzębia grań",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Pitostrada",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Droga Kozłowskiego",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Jastrzębia grań wariant Głazka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Przez ząb",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Jabłońskiego",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Klasyczna",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Po stopniach",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Po stopniach wprost",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Ryska Czernera",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Wielkie zacięcie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Wielkie zacięcie wariantem ryską",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Wielkie zacięcie wprost",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "projekt",
+                "grade": "",
+                "style": "Mixed trad",
+                "length_m": 25,
+                "bolts": 5
+            },
+            {
+                "name": "Wielkie zacięcie wariant na wierzchołek",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Delikatessen",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Efekt uboczny",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Filar północny",
+                "grade": "VI+/VI.1",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Filar północny wprost",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": 35,
+                "bolts": 2
+            },
+            {
+                "name": "Filar północny wariant Tarwaca",
+                "grade": "VI.1+",
+                "style": "Mixed trad",
+                "length_m": 35,
+                "bolts": 2
+            },
+            {
+                "name": "Lewa udręka fakira",
+                "grade": "VI.1+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Udręka i ekstaza",
+                "grade": "VI.2",
+                "style": "Mixed trad",
+                "length_m": 35,
+                "bolts": 2
+            },
+            {
+                "name": "Prawa udręka fakira",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Niedzielna przechadzka",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 45,
+                "bolts": 14
+            },
+            {
+                "name": "Direttissima",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "Filar osadów",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "Sosna",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 40,
+                "bolts": null
+            },
+            {
+                "name": "Droga dla Zuzi",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Strzały znikąd",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Droga Jargiły",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 25,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Makara",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Górska przygoda",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 45,
+                "bolts": 15
+            }
+        ]
+    },
+    {
+        "area_name": "Duży Michał",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/6550083642",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wejściowa",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Lewa rysa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Prawa rysa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Zachodnia ścianka",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Zachodnie zacięcie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Filarek Michała",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Schodki do nieba",
+                "grade": "III+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Młody murarz",
+                "grade": "IV",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Michał ledwo dychał",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Zacięcie spadającej wiertarki",
+                "grade": "IV+",
+                "style": "Mixed trad",
+                "length_m": 10,
+                "bolts": 2
+            },
+            {
+                "name": "Krótki filarek",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Mały Michał",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/384512838",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Południowa płytka",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Facebook",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Facebook 2",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Ścianka Nowaczyka",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Z Kamyczka na Kamyczek Wprost",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Z Kamyczka na Kamyczek",
+                "grade": "V-",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Filarek Małolata",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Prawe zacięcie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Solarium",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1803667635",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Nieznane zacięcie",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Zachodni filarek",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Słoneczny kancik",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Wiara czyni cuda",
+                "grade": "IV",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Kryształy kwarcu III",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Pantera",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Helikopter w ogniu",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 7
+            },
+            {
+                "name": "Kolory dla koni",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Fugazi",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Lewy Fereński",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Reaktywacja",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Wschodnie zacięcie",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Prawy Fereński",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Północny filarek",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 12,
+                "bolts": 1
+            },
+            {
+                "name": "Wariant Dozenta",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            }
+        ]
+    },
+    {
+        "area_name": "Loża",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1803693564",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Nyża szyderców",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Ryska OSady",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            },
+            {
+                "name": "7up",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            },
+            {
+                "name": "Wejściowa",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            },
+            {
+                "name": "Wschodnie zacięcie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Zimowe spotkanie",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 8,
+                "bolts": 4
+            },
+            {
+                "name": "Zamiast nart",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 11,
+                "bolts": 4
+            }
+        ]
+    },
+    {
+        "area_name": "Kraina Bulderingu",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1840421907",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Lama",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1840457733",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Północna płyta",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Kominkowata rysa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Kant filara",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Filar Lamy",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Niesajzowa rysa",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Kant non stop",
+                "grade": "VI.4/4+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Kant stop",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Ścianka Bebaka",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka Osady",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Głazków",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Zipserowa Czuba",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1840462242",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Superdozentissima",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Hiperdozentissima",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Emu",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Niemy Krzyk",
+                "grade": "VI.4",
+                "style": "Sport",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Gardening",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 4
+            },
+            {
+                "name": "Trzech Muszkieterów",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 5
+            },
+            {
+                "name": "Ku Chwale Kursantów",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 5
+            },
+            {
+                "name": "Direta",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Lewy Tomys",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 6
+            },
+            {
+                "name": "Direttissima",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 7
+            },
+            {
+                "name": "Dozentissima",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 9
+            },
+            {
+                "name": "Szczytowanie",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Prawy Tomys",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 17,
+                "bolts": null
+            },
+            {
+                "name": "Lepperiada",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Kominek Kamińskiej",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Giertychówka",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 19,
+                "bolts": null
+            },
+            {
+                "name": "Droga Panfila Wprost",
+                "grade": "VI+/VI.1",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Lewy zabójca szczotek",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Zabójca szczotek",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Prawy zabójca szczotek",
+                "grade": "VI.2/2+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Rysa Brysia",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 22,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Brysia",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 22,
+                "bolts": null
+            },
+            {
+                "name": "Komin północno-wschodni",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 22,
+                "bolts": null
+            },
+            {
+                "name": "Czarcie wrota",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 28,
+                "bolts": 7
+            },
+            {
+                "name": "Bycze zacięcie",
+                "grade": "VI.1",
+                "style": "Mixed trad",
+                "length_m": 28,
+                "bolts": 6
+            },
+            {
+                "name": "Wyjście z cienia",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Komin północny",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Między młotem a kowadłem",
+                "grade": "VI.2+/3",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Prolog",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Niemy krzyk wprost",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": 30,
+                "bolts": 14
+            },
+            {
+                "name": "Droga Kęsickiego",
+                "grade": "VI-",
+                "style": "Mixed trad",
+                "length_m": 28,
+                "bolts": 3
+            },
+            {
+                "name": "Gitarowa przygrywka",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 28,
+                "bolts": 1
+            },
+            {
+                "name": "Kant Osady",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 28,
+                "bolts": 4
+            },
+            {
+                "name": "Łatwe ladacznice",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 9
+            },
+            {
+                "name": "Droga Zemły",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Dziupla",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Dziupla wprost",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Grzybnia",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 19,
+                "bolts": null
+            },
+            {
+                "name": "Ginkobiloba",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 20,
+                "bolts": null
+            },
+            {
+                "name": "Kominek do szczerby",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Dozentówka",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Direta WKW",
+                "grade": "VI+/VI.1",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 10
+            },
+            {
+                "name": "Diretka WKW",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 20,
+                "bolts": 8
+            },
+            {
+                "name": "Środek",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 20,
+                "bolts": 3
+            },
+            {
+                "name": "Prawy środek",
+                "grade": "III+",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 3
+            },
+            {
+                "name": "Kominek za blokiem",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Filarek za blokiem",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Raz Dwa Trzy",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Zipserowa rynna",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Po schodkach",
+                "grade": "I",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Korrida",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Weź byka za rogi",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Ptak",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1883584551",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Kolana",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Mit Kicaja",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 13,
+                "bolts": 4
+            },
+            {
+                "name": "Łysy Perszing",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 6
+            },
+            {
+                "name": "Coś z niczego",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Kurtykówka",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Skośne zacięcie",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Filar północny",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Powrót do Edenu",
+                "grade": "VI.2",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 4
+            },
+            {
+                "name": "Droga Zwierza",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Wyprawa po złote runo",
+                "grade": "VI.1+",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Direttissima",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Kant Brzętysława",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 17,
+                "bolts": 7
+            },
+            {
+                "name": "Kant Brzętysława wprost",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": 17,
+                "bolts": 7
+            }
+        ]
+    },
+    {
+        "area_name": "Husyckie Skaly",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/1883607930",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Enigma",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Smiertelnik",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Diamenty",
+                "grade": "VI.4",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Biesiada rekinów",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Czyste rączki",
+                "grade": "VI.1+",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Rysa Kierza",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Modern trójka",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Krótkie zaciątko",
+                "grade": "VI.2",
+                "style": "Mixed trad",
+                "length_m": 10,
+                "bolts": 1
+            },
+            {
+                "name": "Sulovskie klimaty",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 3
+            },
+            {
+                "name": "Krótka Ryska",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Piskarskie klimaty",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 3
+            },
+            {
+                "name": "Nietykalna rysa",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Zapomniana droga",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Droga Siemaszki",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 35,
+                "bolts": null
+            },
+            {
+                "name": "Wariant Głazka",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 24,
+                "bolts": 1
+            },
+            {
+                "name": "Zielony Filarek",
+                "grade": "IV",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Różowa Pantera",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 4
+            },
+            {
+                "name": "Biały Filarek",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Biały Kieł",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Proste Zacięcie",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zarastająca Ryska Wprost",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zarastająca Ryska",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Szansa dla Szympansa",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Goryl",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Czwórka na Szóstkę",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Turnia Panfila",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/8210390796",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Rysia-Krzysia",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Rysia",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Filarek Krzysia",
+                "grade": "VI.1+/2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            },
+            {
+                "name": "Lewa ręka Prezesa",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Prawa ręka Prezesa",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Przerysa na miękko",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant Spawacza do Przerysy",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Miłość w Majtach",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant do Miłości w Majtach",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Radość w Majtach",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            },
+            {
+                "name": "Rysa na Palmę",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Slawek dzisiaj nie pije",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Na cycek wprost",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "W holdzie budowniczym",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Ciężko jest lekko żyć",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Z kroniki Archeo",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 1
+            },
+            {
+                "name": "Prawy Wariant Archeo",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 1
+            },
+            {
+                "name": "Wszystko ma Swój Koniec",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            },
+            {
+                "name": "Wejściówka",
+                "grade": "II",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 2
+            }
+        ]
+    },
+    {
+        "area_name": "Płetwa",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147756591",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Płetwy",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie Pakera",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Pakerówka",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Cząstki elementarne",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 6
+            },
+            {
+                "name": "Nibyrysa",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 11,
+                "bolts": 5
+            },
+            {
+                "name": "Pierwsza krew",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Kłapouchy",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 6
+            },
+            {
+                "name": "Kubuś Puchatek",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 11,
+                "bolts": 5
+            }
+        ]
+    },
+    {
+        "area_name": "Buła",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147822195",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Przy buku",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Okap Handla",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Ryska w okapie",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Płyta Handla",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Droga klasyczna",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Filarek Chruściela wprost",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Filarek Chruściela",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka Biedermana",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka Biedermana wprost",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Południowo-wschodni filarek",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Lewa rysa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Krótkie zacięcie",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Wschodnia depresja",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Gilotyna",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147836076",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Lewy północny filarek",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Prawy północny filarek",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Maria Antonina",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Sprawa Dantona",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 9,
+                "bolts": 4
+            },
+            {
+                "name": "Windą na szafot",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 9,
+                "bolts": 5
+            },
+            {
+                "name": "Palec Vendome",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Komin pod ostrzem",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Dr Guillotine",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Ciach ciach",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Jastrzębiec",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147842421",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Prawa grzęda",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Prawa grzęda wariant ścianką",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Mulat to burak",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Przez wąwóz",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Dozent wariat",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Wrześniowe popołudnie",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 6
+            },
+            {
+                "name": "Janosik z Wojcieszowa",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 7
+            },
+            {
+                "name": "Prostowanie Janosika",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 7
+            },
+            {
+                "name": "Rampa do komina",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Kubutek",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Szeroki komin",
+                "grade": "III",
+                "style": "Mixed trad",
+                "length_m": 12,
+                "bolts": 1
+            },
+            {
+                "name": "Odwrócone \"Z\"",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Mocna szóstka",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Prostowanie zetki",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 14,
+                "bolts": 1
+            },
+            {
+                "name": "Sztuka kompromisu",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Droga Osady",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 14,
+                "bolts": 3
+            },
+            {
+                "name": "Filarek Pakera",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Prawe zacięcie",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Stara droga",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Aplitowa ścianka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Okapik z lewej",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Okapik z prawej",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Okienna",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3148179540",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Pirania u dentysty",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Spróchniała pirania",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Kant dupy",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 3
+            },
+            {
+                "name": "Zielona płyta",
+                "grade": "IV",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Skraj zielonej płyty",
+                "grade": "III+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Lewy okienny kominek",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Virtutti Militari",
+                "grade": "VI.3",
+                "style": "Mixed trad",
+                "length_m": 10,
+                "bolts": 1
+            },
+            {
+                "name": "Płytka",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Prawy okienny kominek",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Podwójny nos",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka filara",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Wąski kominek",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            },
+            {
+                "name": "Niewyraźny filarek",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            },
+            {
+                "name": "Niewyraźne zacięcie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            },
+            {
+                "name": "Prawy niewyraźny filarek",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 6,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Skała nad Ogniskiem",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3148188978",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Lewa ścianka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Kolory wiosny",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 8,
+                "bolts": 4
+            },
+            {
+                "name": "Antidotum",
+                "grade": "VI.6",
+                "style": "Sport",
+                "length_m": 8,
+                "bolts": 4
+            },
+            {
+                "name": "Paranoid",
+                "grade": "VI.5",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Rokendrolowcy",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": 8,
+                "bolts": 1
+            },
+            {
+                "name": "Skośna rysa",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": 8,
+                "bolts": 1
+            }
+        ]
+    },
+    {
+        "area_name": "Stodoła",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3148197864",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Filarek Stodoły",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Filarek Stodoły wariantem z prawej",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 4
+            },
+            {
+                "name": "Dziurki",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Ścianka Małolata",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Rodeo",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Ścianka Małolata light",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Przy kobyle",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Południowy filar",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Klasyczna",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Prawa klasyczna",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Kursowa",
+                "grade": "IV",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 4
+            },
+            {
+                "name": "Potrzaskany kominek",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Prawa ścianka",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka Pakera",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Skrajna rysa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Skrajny filarek",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Żyletka",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/14410199523",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wejściówka",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Czeska droga",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Krucha rysa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Bolek i Lolek",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Cypisek i Rumcajs",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wietrzejący filar",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Ciekawostka geologiczna",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Dudniące połogi",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant ucieczkowy",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Okolice",
+                "grade": "VI.1/1+",
+                "style": "Top rope",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Koziołek Matołek",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Serduszko",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/14410231068",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Był sobie stopień",
+                "grade": "VI.2",
+                "style": "Top rope",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Kruchość",
+                "grade": "VI.3",
+                "style": "Top rope",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Ryska pesymizmu",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Ściernisko",
+                "grade": "VI-",
+                "style": "Top rope",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Pokłady optymizmu",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Schody Tutenchamona",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Przez okap",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Jarzębinka",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Prawa komora",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Pełne bezpieczeństwo",
+                "grade": "VI",
+                "style": "Top rope",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Brzuchata",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147659403",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Lewa smocza rysa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Prawa smocza rysa",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 15,
+                "bolts": null
+            },
+            {
+                "name": "Kant brzucha",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Łamigłówka",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 5
+            },
+            {
+                "name": "Przez brzuszki",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 11,
+                "bolts": 4
+            }
+        ]
+    },
+	    {
+        "area_name": "Rozwalisko",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/14410254126",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Ryzykowna gra",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Za brzozą",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wiosenne porządki",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Gładki filarek",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Prima aprilis",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wielkanocny zajączek",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Rozwalisty komin",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Domestos",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Buty w kupie",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "WC Picker",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Bukowe Skały",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147664674",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wyimaginowana",
+                "grade": "VI.2",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 2
+            },
+            {
+                "name": "Pater noster",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Pozwany wstać!",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 3
+            },
+            {
+                "name": "Sopelkowa bokiem",
+                "grade": "IV+",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 3
+            },
+            {
+                "name": "Sopelkowa",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 2
+            },
+            {
+                "name": "Zimowy okap",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 18,
+                "bolts": 4
+            },
+            {
+                "name": "Smocza alternatywa",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": 18,
+                "bolts": 2
+            },
+            {
+                "name": "Ogródek Halinki",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 18,
+                "bolts": null
+            },
+            {
+                "name": "Zaciszny Kominek",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zimowa",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Grudniowa",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Anisia Pysia",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Koło fortuny",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Środa dzien loda",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 6
+            },
+            {
+                "name": "Blokowisko",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Mortal Kombat wprost",
+                "grade": "VI.1+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 6
+            },
+            {
+                "name": "Mortal Kombat",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 6
+            },
+            {
+                "name": "Kursowe zacięcie",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Filarek Zabłotnego",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 5
+            },
+            {
+                "name": "Okapik Zabłotnego",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 5
+            },
+            {
+                "name": "Żeglując do Filadelfii",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Going Home",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Mason-Dixon Line",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Brak Diety",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Bananiara",
+                "grade": "VI-",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 4
+            },
+            {
+                "name": "Dieta",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "MajEczka",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Opróżnianie jabola",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "Bukowe zacięcie",
+                "grade": "IV+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "Tylko głowa mnie blokuje",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "I Love Rock'n Roll",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 5
+            },
+            {
+                "name": "Pijani Glazurnicy",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 5
+            },
+            {
+                "name": "Taniec Borsuka",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Fuga",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zacięcie z okapem",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Rząd Marcinkiewicza",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Zamkowe Skały",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/6777321084",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Moherowe Berety",
+                "grade": "VI.1+/2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 6
+            },
+            {
+                "name": "Waleczne Serce",
+                "grade": "VI.2/2+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            },
+            {
+                "name": "Zajęcze Serce",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            }
+        ]
+    },
+    {
+        "area_name": "Krzyżna Skała",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147674001",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Rynna do okna",
+                "grade": "I",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Krzyżna grań",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Aquaman i zatopiony smartfon",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant Aquamana",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant kominem",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Przez bastion",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Oda do haczora",
+                "grade": "VI+/VI.1",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Rysa",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Gastrofaza",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Pupcia",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Przez basteję",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Kino moralnego niepokoju",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 30,
+                "bolts": 9
+            },
+            {
+                "name": "Nieporozumienie",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Kursowe warianty",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Ściana południowa",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Prawa płyta",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Filar Krzyżnej Skały",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 30,
+                "bolts": null
+            },
+            {
+                "name": "Leśna",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 2
+            },
+            {
+                "name": "Wariant przez sosnę",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wschodnia rysa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant prawy",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Rogatka",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147692034",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Przy kancie",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Strach u okulisty",
+                "grade": "VI.1",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Komin między uszami",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Prima Aprilis, bo się pomylisz",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Rzut grenadiera",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Bania u Micaja",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 16,
+                "bolts": 6
+            },
+            {
+                "name": "Kancik Rogatki",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Need for Speed",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 5
+            },
+            {
+                "name": "Mini-Max",
+                "grade": "VI.4/4+",
+                "style": "Sport",
+                "length_m": 12,
+                "bolts": 4
+            },
+            {
+                "name": "Rysa Kolankowskiego",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Zapomniana",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zielona depresja",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Południowa ścianka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wejściowa",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Solowy filarek",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Rysa vis a vis",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            }
+        ]
+    },
+	    {
+        "area_name": "Sokolec",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147706107",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Przez przełączkę",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Lewa ścianka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Środkowa ścianka",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 9,
+                "bolts": null
+            },
+            {
+                "name": "Bliźniacze ryski",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 8,
+                "bolts": null
+            },
+            {
+                "name": "Krótki kancik",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Ścianka",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Ryska I",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Ryska II",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Filarek",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Filar Sokolca",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Rzęchy",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Przez przełączkę 2",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Kariokówka",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 5
+            },
+            {
+                "name": "Wszawe ryski",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Kursowa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Walka z drzewem",
+                "grade": "V",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 6
+            },
+            {
+                "name": "Total eclipse",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Wild theme",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 3
+            },
+            {
+                "name": "Juliet",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Romeo",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 11,
+                "bolts": null
+            },
+            {
+                "name": "Caryca Katarzyna",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Swarożyc",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147717195",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Dolny kancik",
+                "grade": "VI+",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 2
+            },
+            {
+                "name": "Gzygzakowata",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Taniec marionetek",
+                "grade": "VI.2+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Chupacabra",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Stara droga",
+                "grade": "VI-",
+                "style": "Mixed trad",
+                "length_m": 16,
+                "bolts": 1
+            },
+            {
+                "name": "Hrabia Drapula",
+                "grade": "VI.6",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 4
+            },
+            {
+                "name": "Krwawa Mary",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 4
+            },
+            {
+                "name": "Jazz",
+                "grade": "VI.5+/6",
+                "style": "Sport",
+                "length_m": 15,
+                "bolts": 4
+            },
+            {
+                "name": "Perun",
+                "grade": "VI.5",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 5
+            },
+            {
+                "name": "Pogański swing",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 6
+            },
+            {
+                "name": "Pogańskie obrzędy",
+                "grade": "VI.3+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 4
+            },
+            {
+                "name": "Szatański swing",
+                "grade": "VI.5+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 7
+            },
+            {
+                "name": "Szatańskie obrzędy",
+                "grade": "VI.5/5+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 6
+            }
+        ]
+    },
+    {
+        "area_name": "Szara Turnia",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147723015",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Tylne zacięcie",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wejściówka",
+                "grade": "I",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Aplitowa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Szary filarek",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Szare zacięcie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Oprawianie rzeczy w ramkę",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Rysa w kancie",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Pęknięta tablica",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Mad Max",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 3
+            },
+            {
+                "name": "Easy Max",
+                "grade": "V+",
+                "style": "Sport",
+                "length_m": 10,
+                "bolts": 3
+            },
+            {
+                "name": "Rysa w tablicy",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Kominek za tablicą",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Środkowe płyty",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Wariant ryską",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Rysa dla koneserów",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 16,
+                "bolts": null
+            },
+            {
+                "name": "Kantofrenia",
+                "grade": "VI.4+",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 4
+            },
+            {
+                "name": "Szpital przemienienia",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Jeden ruch",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Słoneczna zima",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wariant startowy",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Trzy Korony",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147731325",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wejściowa",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Wejsciowka wariant spod okapu",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Dorotka",
+                "grade": "II",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            },
+            {
+                "name": "Noworoczny okapik",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Pierwszy filarek",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Poezja",
+                "grade": "VI",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Klisiówka",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Drugi filarek",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Szwajcarska rysa",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 10,
+                "bolts": null
+            },
+            {
+                "name": "Przez okapik",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wczuj się w zapach wędzonego sera",
+                "grade": "VI-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Zapomniana",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/3147737313",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Parchate zacięcie",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Moralny kancik",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Czarna perła",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "projekt",
+                "grade": "",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Mustak Super Power",
+                "grade": "VI.2+",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Mustak Power",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 6
+            },
+            {
+                "name": "Uśmiech teściowej",
+                "grade": "VI+",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Paris Hilton",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 14,
+                "bolts": null
+            },
+            {
+                "name": "Piękna rupieciarnia",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": 13,
+                "bolts": null
+            },
+            {
+                "name": "Czeska droga",
+                "grade": "VI.2",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 3
+            },
+            {
+                "name": "Pył z komina",
+                "grade": "VI",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zacisk",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+	{
+        "area_name": "Słoń",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/7631120520",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Za Uchem",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 7,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Krzyżna Strażnica",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/7631123526",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Lewica",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Piernikowa droga",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Jablonecka droga",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 1
+            },
+            {
+                "name": "Busz",
+                "grade": "III - IV",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Zakręcona",
+                "grade": "III - IV",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 2
+            },
+            {
+                "name": "Kto się boi ten nie stoi",
+                "grade": "VI+",
+                "style": "Sport",
+                "length_m": 27,
+                "bolts": 10
+            },
+            {
+                "name": "Wariant zacięciem",
+                "grade": "V",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 4
+            },
+            {
+                "name": "Koszmar bularza",
+                "grade": "VI.2",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Ewakuacyjna",
+                "grade": "III",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Lewa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Prawa",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Głupota sezonu",
+                "grade": "VI.3",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 4
+            },
+            {
+                "name": "Nawet mrówki nie jedzą parówki",
+                "grade": "VI.1",
+                "style": "Sport",
+                "length_m": 14,
+                "bolts": 5
+            },
+            {
+                "name": "Osy żrą kabanosy",
+                "grade": "VI+/VI.1",
+                "style": "Sport",
+                "length_m": null,
+                "bolts": 5
+            },
+            {
+                "name": "Lawina kamienna",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Helloween",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Fajna rysa",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Południowy kancik",
+                "grade": "III+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Problem z drzewem",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Dudniący okap",
+                "grade": "V+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Szybka piątka",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Halabarda",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Od Micaja",
+                "grade": "VI",
+                "style": "Mixed trad",
+                "length_m": null,
+                "bolts": 1
+            },
+            {
+                "name": "Prawica",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Wejściówka",
+                "grade": "I",
+                "style": "Trad",
+                "length_m": null,
+                "bolts": null
+            }
+        ]
+    },
+    {
+        "area_name": "Krzyżny Trabancik",
+        "area_url": "https://www.thecrag.com/en/climbing/poland/sokoliki/area/7631162604",
+        "routes": [
+            {
+                "name": "Brak nazwy",
+                "grade": "Grade",
+                "style": "Brak stylu",
+                "length_m": null,
+                "bolts": null
+            },
+            {
+                "name": "Polonezik",
+                "grade": "VI+/VI.1",
+                "style": "Mixed trad",
+                "length_m": 12,
+                "bolts": 1
+            },
+            {
+                "name": "Rysunkowy błąd",
+                "grade": "V+",
+                "style": "Mixed trad",
+                "length_m": 12,
+                "bolts": 1
+            },
+            {
+                "name": "Południowa ściana",
+                "grade": "V",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Szponton",
+                "grade": "IV+",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Krótka płytka",
+                "grade": "V-",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            },
+            {
+                "name": "Odwrócona elka",
+                "grade": "IV",
+                "style": "Trad",
+                "length_m": 12,
+                "bolts": null
+            }
+        ]
+    }
+]

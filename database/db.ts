@@ -1,5 +1,6 @@
 import { SQLiteDatabase } from "expo-sqlite";
 import { DATABASE_SCHEMA, SEED_DATA } from "./schema";
+import { seedMobileDatabase } from '../lib/utils/seedMobile';
 
 export async function initializeDatabase(db: SQLiteDatabase) {
     // 1. Optymalizacje silnika SQLite
@@ -40,111 +41,13 @@ export async function initializeDatabase(db: SQLiteDatabase) {
             `);
             await db.execAsync(`PRAGMA foreign_keys = ON;`);
             await db.execAsync(DATABASE_SCHEMA);
-            await db.execAsync(SEED_DATA);
+			
+            await seedMobileDatabase(db);
 
             currentDbVersion = 6;
             await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
         } catch (error) {
             console.error("Błąd podczas inicjalizacji bazy danych:", error);
-        }
-    }
-
-    // Migracja z wersji 6 do 7 (Dodanie kolumny synced)
-    if (currentDbVersion === 6) {
-        console.log("Migracja bazy danych: 6 -> 7 (Dodawanie kolumny synced)");
-        try {
-            await db.execAsync(`
-                ALTER TABLE Przejscia ADD COLUMN synced INTEGER DEFAULT 1;
-            `);
-            currentDbVersion = 7;
-            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-        } catch (error) {
-            console.error("Błąd podczas migracji 6 -> 7:", error);
-        }
-    }
-
-    // Migracja z wersji 7 do 8 (Dodanie kolumny deleted)
-    if (currentDbVersion === 7) {
-        console.log("Migracja bazy danych: 7 -> 8 (Dodawanie kolumny deleted)");
-        try {
-            await db.execAsync(`
-                ALTER TABLE Przejscia ADD COLUMN deleted INTEGER DEFAULT 0;
-            `);
-            currentDbVersion = 8;
-            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-            console.log("Migracja 7 -> 8 zakończona pomyślnie.");
-        } catch (error) {
-            console.error("Błąd podczas migracji 7 -> 8:", error);
-        }
-    }
-
-    // Migracja z wersji 8 do 9 (Zmiana uri_timeline na timeline_data)
-    if (currentDbVersion === 8) {
-        console.log(
-            "Migracja bazy danych: 8 -> 9 (Zmiana uri_timeline na timeline_data)",
-        );
-        try {
-            await db.execAsync(`
-                ALTER TABLE Przejscia RENAME COLUMN uri_timeline TO timeline_data;
-            `);
-            currentDbVersion = 9;
-            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-            console.log("Migracja 8 -> 9 zakończona pomyślnie.");
-        } catch (error) {
-            console.error("Błąd podczas migracji 8 -> 9:", error);
-        }
-    }
-
-    // Migracja z wersji 9 do 10 (Dodanie tabeli Reakcje)
-    if (currentDbVersion === 9) {
-        console.log("Migracja bazy danych: 9 -> 10 (Dodawanie tabeli Reakcje)");
-        try {
-            await db.execAsync(`
-                CREATE TABLE IF NOT EXISTS Reakcje (
-                    id_uzytkownika INTEGER NOT NULL,
-                    id_przejscia TEXT NOT NULL,
-                    wyswietlono INTEGER DEFAULT 0,
-                    PRIMARY KEY (id_uzytkownika, id_przejscia),
-                    FOREIGN KEY (id_uzytkownika) REFERENCES Uzytkownicy(id_uzytkownika) ON DELETE CASCADE,
-                    FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
-                );
-            `);
-            currentDbVersion = 10;
-            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-            console.log("Migracja 9 -> 10 zakończona pomyślnie.");
-        } catch (error) {
-            console.error("Błąd podczas migracji 9 -> 10:", error);
-        }
-    }
-
-    // Migracja z wersji 10 do 11 (Rozbudowa tabeli Reakcje o nowe pola do powiadomień)
-    if (currentDbVersion === 10) {
-        console.log(
-            "Migracja bazy danych: 10 -> 11 (Rozbudowa tabeli Reakcje)",
-        );
-        try {
-            await db.execAsync(`PRAGMA foreign_keys = OFF;`);
-            await db.execAsync(`DROP TABLE IF EXISTS Reakcje;`);
-            await db.execAsync(`
-                CREATE TABLE Reakcje (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    id_uzytkownika INTEGER NOT NULL,
-                    id_przejscia TEXT NOT NULL,
-                    imie TEXT,
-                    nazwisko TEXT,
-                    username TEXT,
-                    data_reakcji TEXT,
-                    wyswietlono INTEGER DEFAULT 0,
-                    UNIQUE(id_uzytkownika, id_przejscia),
-                    FOREIGN KEY (id_przejscia) REFERENCES Przejscia(id_przejscia) ON DELETE CASCADE
-                );
-            `);
-            await db.execAsync(`PRAGMA foreign_keys = ON;`);
-            currentDbVersion = 11;
-            await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);
-            console.log("Migracja 10 -> 11 zakończona pomyślnie.");
-        } catch (error) {
-            console.error("Błąd podczas migracji 10 -> 11:", error);
         }
     }
 }
