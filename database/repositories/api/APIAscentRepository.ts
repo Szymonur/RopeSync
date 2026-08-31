@@ -78,8 +78,6 @@ export class ApiAscentRepository implements IAscentRepository {
 			await api.post<{message: string}>(`/ascents/`, ascent);
 		} catch (error: any) {
             if (error.response) {
-				console.log(" error.response", error.response);
-				
                 throw new Error("Wystąpił błąd podczas dodawania przejscia.", error.response);
             }
         	throw new Error("Problem z połączeniem sieciowym.");
