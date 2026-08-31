@@ -88,6 +88,7 @@ const resetPassword = () => {
 						message: "Sprawdz swoją krzynkę pocztową. Jeśli dla tego adresu e-mail istnieje konto, wysłaliśmy link do zresetowania hasła. Na wszelki wypadek sprawdź folder ze spamem.",
 						type: "success",
 					});
+					router.replace("/(auth)/login");
 				} else {
                 	Alert.alert(
                 	    "Sprawdz swoją krzynkę pocztową",

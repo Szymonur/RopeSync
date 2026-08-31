@@ -16,9 +16,13 @@ import Spacer from "../../components/Spacer";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 
+import { useSnackbar } from "../../contexts/SnackbarContext";
+
+
 const ChooseNewPassword = () => {
     const { token } = useLocalSearchParams<{ token: string }>();
     const router = useRouter();
+	const { showSnackbar } = useSnackbar();
 
     const [password, setPassword] = useState("");
     const [passwordRepeat, setPasswordRepeat] = useState("");
@@ -65,12 +69,12 @@ const ChooseNewPassword = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/reset-password/confirm`, {
+            const response = await fetch(`${API_URL}/auth/reset-password/confirm`, {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
-                },
+                },	
                 body: JSON.stringify({
                     token,
                     newPassword: trimmedPassword,
@@ -78,23 +82,35 @@ const ChooseNewPassword = () => {
             });
 
             if (response.status === 200) {
-                Alert.alert(
-                    "Success",
-                    "Your password has been reset successfully.",
-                    [
-                        {
-                            text: "Login",
-                            onPress: () => router.replace("/(auth)/login"),
-                        },
-                    ],
-                );
+				showSnackbar({
+					message: "Twoje hasło zostało pomyślnie zresetowane.",
+					type: "success",
+				});
+				if (Platform.OS === "web" && typeof window !== "undefined") {
+					window.history.replaceState(
+						null,
+						document.title,
+						window.location.pathname,
+					);
+				}
+				window.location.replace("ropesync://login");
+				router.replace({
+					pathname: "/(auth)/login",
+					params: {},
+				});
             } else {
                 const data = await response.json();
-                Alert.alert("Error", data.message || "Something went wrong.");
+				showSnackbar({
+					message: `Błąd podczas restaru hasła. ${data.message}`,
+					type: "error",
+				});
             }
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "Could not connect to the server.");
+			showSnackbar({
+				message: "Błąd serwera, spróbuj ponownie za chwilę",
+				type: "error",
+			});
         }
     };
 

@@ -62,8 +62,12 @@ const Login = () => {
 			}
 
         } catch (error) {
-            Alert.alert("Something went wrong!", `${error}`, [{ text: "OK" }]);
-            console.error(error);
+			showSnackbar({
+                message: "Błędne dane logowania!",
+                type: "error",
+            });
+			setErrorLogin("Błędne dane logowania");
+			setErrorPassword("Błędne dane logowania");	
         }
     };
     return (

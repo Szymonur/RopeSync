@@ -12,12 +12,13 @@ if (typeof WeakRef === "undefined") {
     };
 }
 
-import { useEffect } from "react";
-import { StyleSheet, Platform, View, Text } from "react-native";
+import { useEffect, useRef } from "react";
+import { Platform, View } from "react-native";
 import {
     Stack,
     useRouter,
     useSegments,
+    usePathname,
 } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
@@ -63,6 +64,9 @@ const InitialLayout = () => {
 
         const inAuthGroup = segments[0] === "(auth)";
 
+        // The password-reset screen must remain accessible without authentication.
+        if (segments.includes("choose-new-password")) return;
+
         // Poprawiłem zależność: z !currentUserId na currentUserId
         if (!currentUserId && !refreshToken && !inAuthGroup) {
             router.replace("/(auth)/login");
@@ -96,37 +100,29 @@ const InitialLayout = () => {
 };
 
 const RootLayout = () => {
-    const urlParams = Platform.OS === "web" ? new URLSearchParams(window.location.search) : null;
-    const token = urlParams?.get("token");
-    const appUrl = token ? `ropesync://choose-new-password?token=${token}` : null;
+    const router = useRouter();
+    const pathname = usePathname();
+    const resetLinkHandled = useRef(false);
+    const urlParams =
+        Platform.OS === "web" && typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : null;
+    const token = urlParams?.get("token") ?? null;
 
     useEffect(() => {
-        if (Platform.OS === "web" && appUrl) {
-            window.location.replace(appUrl);
+        if (
+            Platform.OS === "web" &&
+            token &&
+            !pathname.includes("choose-new-password") &&
+            !resetLinkHandled.current
+        ) {
+            resetLinkHandled.current = true;
+            router.replace({
+                pathname: "/(auth)/choose-new-password",
+                params: { token },
+            });
         }
-    }, [appUrl]);
-
-    if (Platform.OS === "web" && token && appUrl) {
-        return (
-            <View style={styles.webContainer}>
-                <Text style={styles.webTitle}>Otwieranie aplikacji...</Text>
-                <Text style={styles.webText}>
-                    Jeśli aplikacja nie otworzyła się automatycznie, kliknij
-                    przycisk poniżej.
-                </Text>
-                <View style={{ marginTop: 30 }}>
-                    <Text
-                        style={styles.buttonText}
-                        onPress={() => {
-                            window.location.replace(appUrl);
-                        }}
-                    >
-                        Otwórz w aplikacji RopeSync
-                    </Text>
-                </View>
-            </View>
-        );
-    }
+    }, [pathname, router, token]);
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -148,35 +144,3 @@ const RootLayout = () => {
 };
 
 export default RootLayout;
-
-const styles = StyleSheet.create({
-    webContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f0f0f0",
-        padding: 20,
-    },
-    webTitle: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    webText: {
-        fontSize: 16,
-        color: "#666",
-        textAlign: "center",
-        maxWidth: "80%",
-    },
-    buttonText: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "white",
-        backgroundColor: "#007bff",
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 8,
-        overflow: "hidden",
-        textAlign: "center",
-    }
-});
