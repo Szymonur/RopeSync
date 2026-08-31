@@ -239,7 +239,7 @@ const ProfileStats = ({
                         <ThemedText style={styles.summaryTypeCount}>
                             {stats.mixedTradCount}
                         </ThemedText>
-                        <RouteTypeBadge route_type={"Mixed trad"} />
+                        <RouteTypeBadge route_type={"M. trad"} />
                     </View>
                     <View style={styles.summaryLine}>
                         <ThemedText style={styles.summaryTypeCount}>
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
         display: "flex",
         flex: 1,
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "space-between",
         fontSize: 15,
         marginLeft: 0,
     },
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     },
     pbItemContainer: {
         flexGrow: 1,
-        minWidth: "20%",
+        minWidth: "45%",
     },
     pbItem: {
         borderWidth: 1,

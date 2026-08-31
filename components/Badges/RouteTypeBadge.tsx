@@ -9,6 +9,7 @@ const typeColors: Record<string, string> = {
     "Sport": Colors.sport,
     "Trad": Colors.trad,
     "Mixed trad": Colors.mixedTrad,
+    "M. trad": Colors.mixedTrad,
     "Boulder": Colors.boulder,
 };
 
