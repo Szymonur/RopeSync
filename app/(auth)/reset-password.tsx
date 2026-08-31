@@ -15,6 +15,8 @@ import ThemedView from "../../components/ThemedView";
 import ThemedTextInput from "../../components/ThemedTextInput";
 import ThemedButton from "../../components/ThemedButton";
 import Spacer from "../../components/Spacer";
+import { useSnackbar } from "../../contexts/SnackbarContext";
+
 
 import { useNetwork } from "../../contexts/NetworkContext";
 
@@ -25,6 +27,8 @@ const resetPassword = () => {
     const [emailError, setEmailError] = useState("");
 
     const { isConnected } = useNetwork();
+
+	const { showSnackbar } = useSnackbar();
 
     const router = useRouter();
 
@@ -65,7 +69,7 @@ const resetPassword = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/reset-password`, {
+            const response = await fetch(`${API_URL}/auth/reset-password`, {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
@@ -79,32 +83,39 @@ const resetPassword = () => {
                 setEmailError("Enter correct Email!");
             }
             if (response.status === 200) {
-                Alert.alert(
-                    "Check your inbox",
-                    "If an account exists for this email, we've sent a password reset link. Please check your spam folder just in case.",
-                    [
-                        {
-                            text: "Back to Login",
-                            style: "cancel",
-                            onPress: () => router.replace("/(auth)/login"),
-                        },
-                        {
-                            text: "Open Email App",
-                            onPress: async () => {
-                                try {
-                                    await openInbox();
-                                    router.replace("/(auth)/login");
-                                } catch (error) {
-                                    console.error(
-                                        "Nie udało się otworzyć aplikacji email",
-                                        error,
-                                    );
-                                    router.replace("/(auth)/login");
-                                }
-                            },
-                        },
-                    ],
-                );
+				if(Platform.OS === "web"){
+					showSnackbar({
+						message: "Sprawdz swoją krzynkę pocztową. Jeśli dla tego adresu e-mail istnieje konto, wysłaliśmy link do zresetowania hasła. Na wszelki wypadek sprawdź folder ze spamem.",
+						type: "success",
+					});
+				} else {
+                	Alert.alert(
+                	    "Sprawdz swoją krzynkę pocztową",
+                	    "Jeśli dla tego adresu e-mail istnieje konto, wysłaliśmy link do zresetowania hasła. Na wszelki wypadek sprawdź folder ze spamem.",
+                	    [
+                	        {
+                	            text: "Powrót do strony logowania",
+                	            style: "cancel",
+                	            onPress: () => router.replace("/(auth)/login"),
+                	        },
+                	        {
+                	            text: "Otwórz pocztę",
+                	            onPress: async () => {
+                	                try {
+                	                    await openInbox();
+                	                    router.replace("/(auth)/login");
+                	                } catch (error) {
+                	                    console.error(
+                	                        "Nie udało się otworzyć aplikacji email",
+                	                        error,
+                	                    );
+                	                    router.replace("/(auth)/login");
+                	                }
+                	            },
+                	        },
+                	    ],
+                	);			
+				}
             }
         } catch (e) {
             console.log(e);
