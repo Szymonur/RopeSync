@@ -13,23 +13,40 @@ export class MobileUserRepository extends ApiUserRepository{
 
     async login(username: string, password: string): Promise<LoginResponse> {
 		const responseData = await super.login(username, password);
-        try {           
-            const query = `INSERT OR IGNORE INTO uzytkownicy (id_uzytkownika, email, login, imie, nazwisko) VALUES (?, ?, ?, ?, ?);`;
-			await this.db.runAsync(query, [
-				responseData.userId,
-				responseData.email,
-				responseData.username,
-				responseData.firstName,
-				responseData.lastName,
-			]);
+        try {
+            const query = `
+                INSERT INTO Uzytkownicy
+                    (id_uzytkownika, email, login, haslo, sol, imie, nazwisko)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (id_uzytkownika) DO UPDATE SET
+                    email = excluded.email,
+                    login = excluded.login,
+                    imie = excluded.imie,
+                    nazwisko = excluded.nazwisko;
+            `;
+    		const res = await this.db.runAsync(query, [
+    			responseData.userId,
+    			responseData.email,
+    			responseData.username,
+                "mobile_profile",
+                "mobile_profile",
+    			responseData.firstName,
+    			responseData.lastName,
+    		]);
+    		console.log("Użytkownik zapisany w lokalnym SQLite:", res);
             return responseData;
-        } catch (error: any) {
-			console.error(`Nie udało się zapisać użytkownika w lokalnym SQLite:`, error);
+        } catch (error) {
+    		console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
+            throw error;
         }
-		return responseData;
     }
-	async getCurrentUser(): Promise<User> {
-		const userId= await getCurrentUserId();
+    async getCurrentUser(): Promise<User> {
+    	const userId= await getCurrentUserId();
+
+        if (!userId) {
+            throw new Error("Brak identyfikatora zalogowanego użytkownika.");
+        }
+		
 		try {           
             const query = `SELECT 
 								id_uzytkownika AS userId,
@@ -50,4 +67,3 @@ export class MobileUserRepository extends ApiUserRepository{
         }
 	}
 }
-
