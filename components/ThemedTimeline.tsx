@@ -14,6 +14,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../contexts/ThemeContext";
 
+import DelayedActivityIndicator from "./DelayedActivityIndicator";
+
 // Konfiguracja wizualna
 const EVENT_CARD_HEIGHT = 60;
 
@@ -223,7 +225,11 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
     if (loading) {
         return (
             <View style={{ padding: 20, alignItems: "center" }}>
-                <ActivityIndicator size="large" color={theme.text} />
+                <DelayedActivityIndicator 
+                    isLoading={loading} 
+                    size="large" 
+                    style={{ marginTop: 20 }} 
+                />
                 <ThemedText style={{ marginTop: 10 }}>
                     Ładowanie danych...
                 </ThemedText>

@@ -20,6 +20,7 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedCard from "../../../components/ThemedCard";
 import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
 import AscentsFilters from "../../../components/AscentsFilters"
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
 
@@ -204,10 +205,12 @@ const Ascents = () => {
                 )}
                 ListEmptyComponent={
                     isLoading ? (
-                        <ActivityIndicator
-                            size="large"
-                            color={theme.iconColourFocused}
-                        />
+						<DelayedActivityIndicator 
+							isLoading={isLoading} 
+							size="large" 
+							color={theme.iconColourFocused} 
+							style={{ marginTop: 20 }} 
+						/>
                     ) : (
 						activeFilters.styles.length > 0 || activeFilters.types.length > 0 || activeFilters.dateFrom || activeFilters.dateTo ? (
 							<ThemedEmptyState
@@ -292,18 +295,17 @@ const styles = StyleSheet.create({
         fontWeight: "400",
     },
 	webContainer: {
-        flexDirection: "row", // Ustawia dzieci (Sidebar i Główne okno) obok siebie
+        flexDirection: "row",
         paddingHorizontal: 0,
         gap: 20,
     },
     webSidebar: {
-        width: 350, // Stała szerokość kolumny filtrów
+        width: 350,
         padding: 20,
         borderRightWidth: 1,
-        // Tutaj ewentualnie dodaj kolor ramki w inline styles (borderRightColor)
     },
     webMainContent: {
-        flex: 1, // Zajmuje całą resztę dostępnego miejsca
+        flex: 1, 
         paddingRight: 20,
     },
 });

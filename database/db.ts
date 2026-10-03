@@ -1,14 +1,14 @@
 import { SQLiteDatabase } from "expo-sqlite";
-import { DATABASE_SCHEMA, SEED_DATA } from "./schema";
+import { DATABASE_SCHEMA} from "./schema";
 import { seedMobileDatabase } from '../lib/utils/seedMobile';
 
 export async function initializeDatabase(db: SQLiteDatabase) {
-    // 1. Optymalizacje silnika SQLite
+    // Optymalizacje silnika SQLite
     await db.execAsync(`
         PRAGMA journal_mode = WAL;
     `);
 
-    // 2. System migracji
+    // System migracji
     const result = await db.getFirstAsync<{ user_version: number }>(
         "PRAGMA user_version",
     );

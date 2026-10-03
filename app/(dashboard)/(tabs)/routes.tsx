@@ -14,6 +14,7 @@ import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedTextInput from "../../../components/ThemedTextInput";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 
 import { useTheme } from "../../../contexts/ThemeContext";
 import { Colors } from "../../../constants/Colors";
@@ -158,9 +159,12 @@ const Routes = () => {
                     renderItem={({ item }) => <RegionCard region={item} />}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <ThemedText style={styles.emptyText}>
-                            No regions available.
-                        </ThemedText>
+						<DelayedActivityIndicator 
+							isLoading={true} 
+							size="large" 
+							color={theme.iconColourFocused} 
+							style={{ marginTop: 20 }} 
+						/>
                     }
                 />
             )}

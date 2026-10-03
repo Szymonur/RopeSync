@@ -7,6 +7,7 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import RouteCard from "../../../components/Explore/RouteCard";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 
 const SectorRoutes = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,7 +24,11 @@ const SectorRoutes = () => {
                 style={[styles.container, { justifyContent: "center" }]}
                 safe
             >
-                <ActivityIndicator size="large" color="#7b0490" />
+                <DelayedActivityIndicator 
+                    isLoading={isLoading} 
+                    size="large" 
+                    style={{ marginTop: 20 }} 
+                />
             </ThemedView>
         );
     }

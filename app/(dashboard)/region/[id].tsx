@@ -11,6 +11,7 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import ThemedCard from "../../../components/ThemedCard";
 import Spacer from "../../../components/Spacer";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 
 const RegionSectors = () => {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,7 +29,11 @@ const RegionSectors = () => {
                 style={[styles.container, { justifyContent: "center" }]}
                 safe
             >
-                <ActivityIndicator size="large" color="#7b0490" />
+				<DelayedActivityIndicator 
+                    isLoading={isLoading} 
+                    size="large" 
+                    style={{ marginTop: 20 }} 
+                />
             </ThemedView>
         );
     }

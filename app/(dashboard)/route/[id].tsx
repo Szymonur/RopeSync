@@ -13,6 +13,8 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedCard from "../../../components/ThemedCard";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
+
 import { Colors } from "../../../constants/Colors";
 
 import ManualAscentFormModal from "../../../components/ManualAscentFormModal";
@@ -30,7 +32,11 @@ const RouteDetail = () => {
                 style={[styles.container, { justifyContent: "center" }]}
                 safe
             >
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <DelayedActivityIndicator 
+                    isLoading={isLoading} 
+                    size="large" 
+                    style={{ marginTop: 20 }} 
+                />
             </ThemedView>
         );
     }

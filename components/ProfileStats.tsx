@@ -566,7 +566,6 @@ const styles = StyleSheet.create({
     },
     pbItemContainer: {
         flexGrow: 1,
-        minWidth: "45%",
     },
     pbItem: {
         borderWidth: 1,

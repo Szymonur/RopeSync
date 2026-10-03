@@ -6,6 +6,7 @@ import Spacer from "../../../components/Spacer";
 import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedButton from "../../../components/ThemedButton";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 
 import { useBLE } from "../../../lib/hooks/useBLE";
 import { useAddAscent } from "../../../lib/hooks/useAscents";
@@ -385,7 +386,11 @@ const DeviceScreen = () => {
 
             <Spacer />
 
-            {isScanning && <ActivityIndicator size="large" color="#FFF" />}
+            {isScanning && <DelayedActivityIndicator 
+                    isLoading={isScanning} 
+                    size="large"  
+                    style={{ marginTop: 20 }} 
+                />}
             {!connectedDevice && !isScanning && (
                 <ThemedButton
                     onPress={() => {

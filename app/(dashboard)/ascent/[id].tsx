@@ -15,6 +15,7 @@ import ThemedView from "../../../components/ThemedView";
 import ThemedText from "../../../components/ThemedText";
 import Spacer from "../../../components/Spacer";
 import ThemedTimeline from "../../../components/ThemedTimeline";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
@@ -96,7 +97,12 @@ const AscentDetails = () => {
                 style={[styles.container, { justifyContent: "center" }]}
                 safe
             >
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <DelayedActivityIndicator 
+                    isLoading={isLoading} 
+                    size="large" 
+                    color={theme.iconColourFocused} 
+                    style={{ marginTop: 20 }} 
+                />
             </ThemedView>
         );
     }

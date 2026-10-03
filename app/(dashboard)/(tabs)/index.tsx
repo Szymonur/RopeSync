@@ -21,6 +21,7 @@ import RouteTypeBadge from "../../../components/Badges/RouteTypeBadge";
 import RouteGradeBadge from "../../../components/Badges/RouteGradeBadge";
 import RouteStyleBadge from "../../../components/Badges/RouteStyleBadge";
 import ThemedEmptyState from "../../../components/ThemedEmptyState";
+import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
 import LikeButton from "../../../components/LikeButton";
 
 import { useSnackbar } from "../../../contexts/SnackbarContext";
@@ -192,10 +193,12 @@ const Index = () => {
                     }
                 ListEmptyComponent={
                     isLoading ? (
-                        <ActivityIndicator
-                            size="large"
-                            color={theme.iconColourFocused}
-                        />
+					<DelayedActivityIndicator 
+						isLoading={isLoading} 
+						size="large" 
+						color={theme.iconColourFocused} 
+						style={{ marginTop: 20 }} 
+                	/>
                     ) : (
                         <ThemedEmptyState
                             title={

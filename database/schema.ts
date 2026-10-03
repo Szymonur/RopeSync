@@ -159,4 +159,4 @@ CREATE TABLE IF NOT EXISTS Pomiary_wyciagow (
 );
 `;
 
-export const SEED_DATA = ``; // Zgodnie z umową, zostawiamy na razie puste, do synchronizacji z API.
+export const SEED_DATA = ``;
