@@ -29,7 +29,7 @@ export const Colors = {
         background: "#f4f7f5",
         navBackground: "#ffffff",
         uiBackground: "#ffffff",
-		uiBackgroundSelected: "#e9e9e9",
+		uiBackgroundSelected: "#c8c8c8",
         iconColour: "#6c8174",
         iconColourFocused: "#1b4d3e",
         border: "#6c8174",

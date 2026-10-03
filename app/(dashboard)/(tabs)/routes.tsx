@@ -4,10 +4,10 @@ import {
     TouchableOpacity,
     SectionList,
     View,
-	Platform 
+    Platform 
 } from "react-native";
-import { useState, useEffect } from "react";
-import { Tabs } from "expo-router";
+import { useState, useEffect, useCallback } from "react";
+import { Tabs, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import Spacer from "../../../components/Spacer";
@@ -19,33 +19,79 @@ import DelayedActivityIndicator from "../../../components/DelayedActivityIndicat
 import { useTheme } from "../../../contexts/ThemeContext";
 import { Colors } from "../../../constants/Colors";
 import { useExploreSearch } from "../../../lib/hooks/useExploreSearch";
-import { useRegionById, useSectorsByRegion} from "../../../lib/hooks/useLocations";
-import { useRoutesBySector } from "../../../lib/hooks/useRoutes";
-
+import { useRegionById, useSectorsByRegion } from "../../../lib/hooks/useLocations";
+import { useRoutesBySector, useRouteDetails  } from "../../../lib/hooks/useRoutes";
 
 import RegionCard from "../../../components/Explore/RegionCard";
 import SectorCard from "../../../components/Explore/SectorCard";
 import RouteCard from "../../../components/Explore/RouteCard";
-
-
+import RouteDetail from "../../../app/(dashboard)/route/[id]";
 
 const Routes = () => {
+    // Odczytujemy stan z parametrów URL, by przeżył nawigację/odświeżenie
+    const params = useLocalSearchParams<{ region?: string; sector?: string; route?: string; }>();
+    
+    const selectedRegion = params.region ? parseInt(params.region) : null;
+    const selectedSector = params.sector ? parseInt(params.sector) : null;
+    const selectedRoute = params.route ? params.route : "";
+
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearchBar, setShowSearchBar] = useState(false);
     const [error, setError] = useState<string | undefined>();
 
-	const [selectedRegion, setSelectedRegion] = useState<number | null >(null)	
-	const [selectedSector, setSelectedSector] = useState<number | null >(null)	
-
+    // Pobieranie danych
     const { data: region } = useRegionById(selectedRegion);
-	const { data: sectors } = useSectorsByRegion(selectedRegion);
-	const { data: routes } = useRoutesBySector(selectedSector);
+    const { data: sectors } = useSectorsByRegion(selectedRegion);
+    const { data: routes } = useRoutesBySector(selectedSector);
+    const { data: route } =  useRouteDetails(selectedRoute);
 
     const { regions, sections } = useExploreSearch(searchQuery);
+
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
+    // --- LOGIKA WYBORU (Aktualizacja URL) ---
+    const handleRegionSelect = useCallback((regionId: number) => {
+        router.setParams({ 
+            region: regionId.toString(), 
+            sector: "",
+			route: ""
+        });
+    }, []);
 
+    const handleSectorSelect = useCallback((sectorId: number) => {
+        router.setParams({ sector: sectorId.toString() });
+    }, []);
+
+	const handleRouteSelect =  useCallback((routeId: string) => {
+        router.setParams({ route: routeId });
+    }, []);
+
+    const renderRegionItem = useCallback(({ item }: { item: any }) => (
+        <RegionCard 
+            region={item} 
+            onRegionPress={handleRegionSelect} 
+            isSelected={selectedRegion === item.id_rejonu}
+        />
+    ), [selectedRegion, handleRegionSelect]);
+
+    const renderSectorItem = useCallback(({ item }: { item: any }) => (
+        <SectorCard 
+            sector={item} 
+            onSectorPress={handleSectorSelect} 
+            isSelected={selectedSector === item.id_sektoru}
+        />
+    ), [selectedSector, handleSectorSelect]);
+
+    const renderRouteItem = useCallback(({ item }: { item: any }) => (
+        <RouteCard 
+			route={item}
+            onRoutePress={handleRouteSelect} 
+            isSelected={selectedRoute === item.id_drogi}
+		/>
+    ), [selectedRoute, handleRouteSelect]);
+
+    // Logika walidacji wyszukiwarki
     useEffect(() => {
         if (searchQuery.length === 0 || searchQuery.length >= 2) {
             setError(undefined);
@@ -69,11 +115,37 @@ const Routes = () => {
     }) => {
         switch (section.type) {
             case "region":
-                return <RegionCard region={item} />;
+                return <RegionCard region={item} onRegionPress={ () => {
+					router.setParams({ 
+                        region: item.id_rejonu, 
+                        sector: "", 
+                        route: "" 
+                    });
+					setShowSearchBar(false);
+					setSearchQuery("");
+				}}  />;
             case "sector":
-                return <SectorCard sector={item} />;
+                return <SectorCard sector={item} onSectorPress={ () => {
+					router.setParams({ 
+                        region: item.id_rejonu, 
+                        sector: item.id_sektoru, 
+                        route: "" 
+                    });
+					setShowSearchBar(false);
+					setSearchQuery("");
+				}}  />;
             case "route":
-                return <RouteCard route={item} />;
+                return <RouteCard route={item} 
+					onRoutePress={ () => {
+					console.log(item);
+					router.setParams({ 
+                        region: item.id_rejonu, 
+                        sector: item.id_sektoru, 
+                        route: item.id_drogi
+                    });
+					setShowSearchBar(false);
+					setSearchQuery("");
+				}}  />;
             default:
                 return null;
         }
@@ -103,27 +175,27 @@ const Routes = () => {
                 }}
             />
 
-			{Platform.OS === 'web' &&
-			<>
-			<Spacer/>
-			<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-				<ThemedText style={{ fontSize: 24, fontWeight: 'bold' }}>Drogi</ThemedText>
-                
-                <TouchableOpacity
-                    onPress={() => {
-						setShowSearchBar(!showSearchBar);
-                        setSearchQuery("");
-                    }}
-					>
-                    <Ionicons
-                        name={showSearchBar ? "close" : "search"}
-                        size={24}
-                        color={theme.iconColour}
-						/>
-                </TouchableOpacity>
-            </View>
-			</>
-			}
+            {Platform.OS === 'web' && (
+                <>
+                    <Spacer/>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <ThemedText style={{ fontSize: 24, fontWeight: 'bold' }}>Drogi</ThemedText>
+                        
+                        <TouchableOpacity
+                            onPress={() => {
+                                setShowSearchBar(!showSearchBar);
+                                setSearchQuery("");
+                            }}
+                        >
+                            <Ionicons
+                                name={showSearchBar ? "close" : "search"}
+                                size={24}
+                                color={theme.iconColour}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
 
             {showSearchBar && (
                 <ThemedTextInput
@@ -142,8 +214,7 @@ const Routes = () => {
                 <SectionList
                     sections={sections}
                     keyExtractor={(item, index) =>
-                        (item.id_sektoru || item.id_rejonu || item.id_drogi) +
-                        index
+                        (item.id_sektoru || item.id_rejonu || item.id_drogi) + index
                     }
                     renderItem={renderSearchItem}
                     renderSectionHeader={({ section: { title } }) => (
@@ -160,53 +231,62 @@ const Routes = () => {
                     }
                 />
             ) : (
-				<ThemedView style={{display: "flex", flexDirection: "row"}}>
-					<FlatList
-						style={{flex: 1}}
-						data={regions}
-						keyExtractor={(item) => item.id_rejonu.toString()}
-						renderItem={({ item }) => 
-							<RegionCard region={item} onRegionPress={(regionId) => setSelectedRegion(regionId)} isSelected={selectedRegion === item.id_rejonu}/>}
-						showsVerticalScrollIndicator={false}
-						ListEmptyComponent={
-							<DelayedActivityIndicator 
-								isLoading={true} 
-								size="large"  
-							/>
-						}
-					/>
-					{selectedRegion && region && 
-					<FlatList
-						style={{flex: 1}}
-						data={sectors}
-						keyExtractor={(item) => item.id_sektoru.toString()}
-						renderItem={({ item }) => 
-						<SectorCard sector={item} onSectorPress={(sectorId) => setSelectedSector(sectorId)} isSelected={selectedSector === item.id_sektoru}/>}
-						showsVerticalScrollIndicator={false}
-						ListEmptyComponent={
-							<DelayedActivityIndicator 
-								isLoading={true} 
-								size="large"  
-							/>
-						}
-					/> }
+                <ThemedView style={{ display: "flex", flexDirection: "row", flex: 1 }}>
+                    {/* Lista Rejonów */}
+                    <FlatList
+                        style={{ flex: 1 }}
+                        data={regions}
+                        keyExtractor={(item) => item.id_rejonu.toString()}
+                        renderItem={renderRegionItem}
+                        showsVerticalScrollIndicator={false}
+                        initialNumToRender={10}
+                        windowSize={5}
+                        removeClippedSubviews={Platform.OS !== 'web'}
+                        ListEmptyComponent={<DelayedActivityIndicator isLoading={true} size="large" />}
+                    />
+                    
+                    {/* Lista Sektorów (widoczna tylko gdy wybrano rejon) */}
+                    {selectedRegion && region && (
+                        <FlatList
+                            style={{ flex: 1 }}
+                            data={sectors}
+                            keyExtractor={(item) => item.id_sektoru.toString()}
+                            renderItem={renderSectorItem}
+                            showsVerticalScrollIndicator={false}
+                            initialNumToRender={10}
+                            windowSize={5}
+                            removeClippedSubviews={Platform.OS !== 'web'}
+                            ListEmptyComponent={<DelayedActivityIndicator isLoading={true} size="large" />}
+                        /> 
+                    )}
 
-					{selectedRegion && region &&  selectedSector && routes &&
-					<FlatList
-						style={{flex: 2}}
-						data={routes}
-						keyExtractor={(item) => item.id_drogi.toString()}
-						renderItem={({ item }) => <RouteCard route={item} 
-						/>}
-						showsVerticalScrollIndicator={false}
-						ListEmptyComponent={
-							<DelayedActivityIndicator 
-								isLoading={true} 
-								size="large"  
-							/>
-						}
-					/> }
-				</ThemedView>
+                    {/* Lista Dróg (widoczna tylko gdy wybrano sektor) */}
+                    {selectedRegion && region && selectedSector && routes && (
+                        <FlatList
+                            style={{ flex: 2 }}
+                            data={routes}
+                            keyExtractor={(item) => item.id_drogi.toString()}
+                            renderItem={renderRouteItem}
+                            showsVerticalScrollIndicator={false}
+                            initialNumToRender={15}
+                            windowSize={5}
+                            removeClippedSubviews={Platform.OS !== 'web'}
+                            ListEmptyComponent={<DelayedActivityIndicator isLoading={true} size="large" />}
+                        /> 
+                    )}
+
+					{selectedRoute && (
+                        <View style={{ flex: 3}}>
+                            {/* Komponent z flagą isEmbedded - nie renderuje Stack.Screen i wie, że jest panelem */}
+                            <RouteDetail 
+                                routeId={selectedRoute} 
+                                isEmbedded={true} 
+                            />
+                        </View>
+                    )}
+
+
+                </ThemedView>
             )}
         </ThemedView>
     );

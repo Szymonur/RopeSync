@@ -31,7 +31,7 @@ export const useRouteDetails = (routeId: string, options?: { enabled?: boolean }
     return useQuery({
         queryKey: ['route', routeId],
         queryFn: ({ signal }) => routeRepository.getRouteDetails(routeId, signal),
-        enabled: !!routeId && (options?.enabled !== false),
+        enabled: !!routeId && routeId !== "" && (options?.enabled !== false),
         ...options,
     });
 };

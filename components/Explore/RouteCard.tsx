@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
@@ -8,9 +8,11 @@ import RouteGradeBadge from "../Badges/RouteGradeBadge";
 
 interface Props {
     route: RouteListItem;
+	onRoutePress?: (routeId: string) => void;
+	isSelected?: boolean;
 }
 
-const RouteCard = ({ route }: Props) => {
+const RouteCard = ({ route, onRoutePress, isSelected }: Props) => {
     const router = useRouter();
 
     // Use wycena if skala is not available, but usually one of them should be there
@@ -18,14 +20,20 @@ const RouteCard = ({ route }: Props) => {
 
     return (
         <TouchableOpacity
-            onPress={() =>
-                router.push({
-                    pathname: "/(dashboard)/route/[id]",
-                    params: { id: route.id_drogi },
-                })
+            onPress={() =>{
+				if (Platform.OS === "web" && onRoutePress) {
+					onRoutePress(route.id_drogi);
+				} else {
+					router.push({
+               	    	pathname: "/(dashboard)/route/[id]",
+               	    	params: { id: route.id_drogi },
+                	})
+				}
+			}
+
             }
         >
-            <ThemedCard style={styles.card}>
+            <ThemedCard style={styles.card} selected={isSelected}>
                 <View style={styles.row}>
                     <View style={{ flex: 1 }}>
                         <ThemedText style={styles.bold}>
