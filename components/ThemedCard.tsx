@@ -5,20 +5,21 @@ import { useTheme } from "../contexts/ThemeContext";
 interface ThemedCardProps {
     style?: StyleProp<ViewStyle>;
     children: React.ReactNode;
+	selected?: boolean;
 }
 
-const ThemedCard = ({ style, children }: ThemedCardProps) => {
+const ThemedCard = ({ style, children, selected = false }: ThemedCardProps) => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
     const isLightMode = colorScheme === "light";
-
+	const selectedColor = theme.uiBackgroundSelected;
     return (
         <View
             style={[
                 {
                     shadowColor: theme.text,
-                    backgroundColor: theme.uiBackground,
+                    backgroundColor: selected ? selectedColor : theme.uiBackground,
                 },
                 isLightMode && styles.lightModeShadow,
                 styles.card,

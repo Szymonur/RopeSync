@@ -7,9 +7,10 @@ import { Region } from "../../types/location";
 interface Props {
     region: Region;
 	onRegionPress?: (regionId: number) => void;
+	isSelected?: boolean;
 }
 
-const RegionCard = ({ region, onRegionPress }: Props) => {
+const RegionCard = ({ region, onRegionPress, isSelected }: Props) => {
     const router = useRouter();
 
 	const handlePress = () => {
@@ -27,7 +28,7 @@ const RegionCard = ({ region, onRegionPress }: Props) => {
         <TouchableOpacity
             onPress={handlePress}
         >
-            <ThemedCard style={styles.card}>
+            <ThemedCard style={[styles.card]} selected={isSelected}>
                 <ThemedText style={styles.bold}>
                     {region.nazwa_rejonu}
                 </ThemedText>

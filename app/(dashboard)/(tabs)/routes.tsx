@@ -37,18 +37,14 @@ const Routes = () => {
 	const [selectedRegion, setSelectedRegion] = useState<number | null >(null)	
 	const [selectedSector, setSelectedSector] = useState<number | null >(null)	
 
-    const { data: region, isLoading: isRegionLoading } = useRegionById(selectedRegion);
-	const { data: sectors, isLoading: isSectorsLoading } = useSectorsByRegion(selectedRegion);
-	const { data: routes, isLoading: isRoutesLoading } = useRoutesBySector(selectedSector);
+    const { data: region } = useRegionById(selectedRegion);
+	const { data: sectors } = useSectorsByRegion(selectedRegion);
+	const { data: routes } = useRoutesBySector(selectedSector);
 
     const { regions, sections } = useExploreSearch(searchQuery);
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-
-    const handleSearchChange = (text: string) => {
-        setSearchQuery(text);
-    };
 
     useEffect(() => {
         if (searchQuery.length === 0 || searchQuery.length >= 2) {
@@ -85,7 +81,6 @@ const Routes = () => {
 
     return (
         <ThemedView style={styles.container}>
-			
             <Tabs.Screen
                 options={{
                     headerTitle: "Rejony",
@@ -112,7 +107,7 @@ const Routes = () => {
 			<>
 			<Spacer/>
 			<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-				<ThemedText style={{ fontSize: 24, fontWeight: 'bold' }}>Rejony</ThemedText>
+				<ThemedText style={{ fontSize: 24, fontWeight: 'bold' }}>Drogi</ThemedText>
                 
                 <TouchableOpacity
                     onPress={() => {
@@ -135,7 +130,7 @@ const Routes = () => {
                     label="Quick Search"
                     placeholder="Regions, sectors or routes"
                     value={searchQuery}
-                    onChangeText={handleSearchChange}
+                    onChangeText={(text) => setSearchQuery(text)}
                     error={error}
                     autoFocus
                 />
@@ -170,14 +165,13 @@ const Routes = () => {
 						style={{flex: 1}}
 						data={regions}
 						keyExtractor={(item) => item.id_rejonu.toString()}
-						renderItem={({ item }) => <RegionCard region={item} onRegionPress={(regionId) => setSelectedRegion(regionId)}/>}
+						renderItem={({ item }) => 
+							<RegionCard region={item} onRegionPress={(regionId) => setSelectedRegion(regionId)} isSelected={selectedRegion === item.id_rejonu}/>}
 						showsVerticalScrollIndicator={false}
 						ListEmptyComponent={
 							<DelayedActivityIndicator 
 								isLoading={true} 
-								size="large" 
-								color={theme.iconColourFocused} 
-								style={{ marginTop: 20 }} 
+								size="large"  
 							/>
 						}
 					/>
@@ -186,16 +180,13 @@ const Routes = () => {
 						style={{flex: 1}}
 						data={sectors}
 						keyExtractor={(item) => item.id_sektoru.toString()}
-						renderItem={({ item }) => <SectorCard sector={item} 
-						onSectorPress={(sectorId) => setSelectedSector(sectorId)}
-						/>}
+						renderItem={({ item }) => 
+						<SectorCard sector={item} onSectorPress={(sectorId) => setSelectedSector(sectorId)} isSelected={selectedSector === item.id_sektoru}/>}
 						showsVerticalScrollIndicator={false}
 						ListEmptyComponent={
 							<DelayedActivityIndicator 
 								isLoading={true} 
-								size="large" 
-								color={theme.iconColourFocused} 
-								style={{ marginTop: 20 }} 
+								size="large"  
 							/>
 						}
 					/> }
@@ -211,9 +202,7 @@ const Routes = () => {
 						ListEmptyComponent={
 							<DelayedActivityIndicator 
 								isLoading={true} 
-								size="large" 
-								color={theme.iconColourFocused} 
-								style={{ marginTop: 20 }} 
+								size="large"  
 							/>
 						}
 					/> }

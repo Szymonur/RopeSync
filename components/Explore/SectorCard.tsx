@@ -3,13 +3,17 @@ import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
 import { Sector } from "../../types/location";
+import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../contexts/ThemeContext";
+
 
 interface Props {
     sector: Sector & { nazwa_rejonu?: string };
 	onSectorPress?: (sectorId: number) => void;
+	isSelected?: boolean;
 }
 
-const SectorCard = ({ sector, onSectorPress}: Props) => {
+const SectorCard = ({ sector, onSectorPress, isSelected}: Props) => {
     const router = useRouter();
 
     return (
@@ -27,7 +31,7 @@ const SectorCard = ({ sector, onSectorPress}: Props) => {
 			}
             }
         >
-            <ThemedCard style={styles.card}>
+            <ThemedCard style={[styles.card]} selected={isSelected}>
                 <ThemedText style={styles.bold}>
                     {sector.nazwa_sektoru}
                 </ThemedText>
