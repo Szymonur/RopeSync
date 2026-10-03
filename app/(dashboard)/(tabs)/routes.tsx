@@ -6,7 +6,7 @@ import {
     View,
     Platform 
 } from "react-native";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Tabs, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -26,6 +26,8 @@ import RegionCard from "../../../components/Explore/RegionCard";
 import SectorCard from "../../../components/Explore/SectorCard";
 import RouteCard from "../../../components/Explore/RouteCard";
 import RouteDetail from "../../../app/(dashboard)/route/[id]";
+
+import { RouteListItem } from "../../../types/route"
 
 const Routes = () => {
     // Odczytujemy stan z parametrów URL, by przeżył nawigację/odświeżenie
@@ -50,7 +52,8 @@ const Routes = () => {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    // --- LOGIKA WYBORU (Aktualizacja URL) ---
+	const flatListRef = useRef<FlatList<RouteListItem>>(null);
+
     const handleRegionSelect = useCallback((regionId: number) => {
         router.setParams({ 
             region: regionId.toString(), 
@@ -106,6 +109,25 @@ const Routes = () => {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
+	useEffect(() => {
+		if (routes && selectedRoute && flatListRef.current && !showSearchBar) {
+			const timer = setTimeout(() => {
+				const index = routes.findIndex(route => route.id_drogi === selectedRoute);
+				
+				if (index !== -1) {
+					flatListRef.current?.scrollToIndex({
+						index: index,
+						animated: true,
+						viewPosition: 0.5
+					});
+				}
+			}, 500);
+
+			return () => clearTimeout(timer);
+		}
+	}, [routes, selectedRoute, showSearchBar]);
+
+
     const renderSearchItem = ({
         item,
         section,
@@ -137,7 +159,6 @@ const Routes = () => {
             case "route":
                 return <RouteCard route={item} 
 					onRoutePress={ () => {
-					console.log(item);
 					router.setParams({ 
                         region: item.id_rejonu, 
                         sector: item.id_sektoru, 
@@ -213,9 +234,12 @@ const Routes = () => {
             {searchQuery.length >= 2 ? (
                 <SectionList
                     sections={sections}
-                    keyExtractor={(item, index) =>
-                        (item.id_sektoru || item.id_rejonu || item.id_drogi) + index
-                    }
+					keyExtractor={(item, index) => {
+						if (item.id_drogi) return `route-${item.id_drogi}`;
+						if (item.id_sektoru) return `sector-${item.id_sektoru}`;
+						if (item.id_rejonu) return `region-${item.id_rejonu}`;
+						return `fallback-${index}`; 
+					}}
                     renderItem={renderSearchItem}
                     renderSectionHeader={({ section: { title } }) => (
                         <ThemedText style={styles.sectionHeader}>
@@ -232,7 +256,6 @@ const Routes = () => {
                 />
             ) : (
                 <ThemedView style={{ display: "flex", flexDirection: "row", flex: 1 }}>
-                    {/* Lista Rejonów */}
                     <FlatList
                         style={{ flex: 1 }}
                         data={regions}
@@ -245,7 +268,6 @@ const Routes = () => {
                         ListEmptyComponent={<DelayedActivityIndicator isLoading={true} size="large" />}
                     />
                     
-                    {/* Lista Sektorów (widoczna tylko gdy wybrano rejon) */}
                     {selectedRegion && region && (
                         <FlatList
                             style={{ flex: 1 }}
@@ -260,9 +282,9 @@ const Routes = () => {
                         /> 
                     )}
 
-                    {/* Lista Dróg (widoczna tylko gdy wybrano sektor) */}
                     {selectedRegion && region && selectedSector && routes && (
                         <FlatList
+							ref={flatListRef}
                             style={{ flex: 2 }}
                             data={routes}
                             keyExtractor={(item) => item.id_drogi.toString()}
@@ -272,6 +294,16 @@ const Routes = () => {
                             windowSize={5}
                             removeClippedSubviews={Platform.OS !== 'web'}
                             ListEmptyComponent={<DelayedActivityIndicator isLoading={true} size="large" />}
+							onScrollToIndexFailed={(info) => {
+							const wait = new Promise(resolve => setTimeout(resolve, 500));
+							wait.then(() => {
+									flatListRef.current?.scrollToIndex({ 
+										index: info.index, 
+										animated: true,
+										viewPosition: 0.5 
+									});
+								});
+							}}
                         /> 
                     )}
 

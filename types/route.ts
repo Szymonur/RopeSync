@@ -8,6 +8,8 @@ export interface Route {
 export interface RouteListItem extends Route{
 	nazwa_rejonu: string;
 	wycena: string;
+	id_rejonu?: number;
+	id_sektoru?: number;
 }
 
 export interface RouteDetails extends Route {
