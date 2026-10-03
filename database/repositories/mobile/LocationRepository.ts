@@ -36,7 +36,8 @@ export class MobileLocationRepository extends ApiLocationRepository {
         );
     }
 
-    async getSectorsByRegion(regionId: number, signal?: AbortSignal): Promise<Sector[]> {
+
+    async getSectorsByRegion(regionId: number | null, signal?: AbortSignal): Promise<Sector[]> {
         return await this.db.getAllAsync<Sector>(
             "SELECT * FROM Sektory WHERE id_rejonu = ? ORDER BY nazwa_sektoru ASC",
             [regionId]

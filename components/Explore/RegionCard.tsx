@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, Platform  } from "react-native";
 import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
@@ -6,19 +6,26 @@ import { Region } from "../../types/location";
 
 interface Props {
     region: Region;
+	onRegionPress?: (regionId: number) => void;
 }
 
-const RegionCard = ({ region }: Props) => {
+const RegionCard = ({ region, onRegionPress }: Props) => {
     const router = useRouter();
+
+	const handlePress = () => {
+        if (Platform.OS === "web" && onRegionPress) {
+            onRegionPress(region.id_rejonu);
+        } else {
+            router.push({
+                pathname: "/(dashboard)/region/[id]",
+                params: { id: region.id_rejonu.toString() },
+            });
+        }
+    };
 
     return (
         <TouchableOpacity
-            onPress={() =>
-                router.push({
-                    pathname: "/(dashboard)/region/[id]",
-                    params: { id: region.id_rejonu.toString() },
-                })
-            }
+            onPress={handlePress}
         >
             <ThemedCard style={styles.card}>
                 <ThemedText style={styles.bold}>

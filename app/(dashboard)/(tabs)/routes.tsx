@@ -19,19 +19,32 @@ import DelayedActivityIndicator from "../../../components/DelayedActivityIndicat
 import { useTheme } from "../../../contexts/ThemeContext";
 import { Colors } from "../../../constants/Colors";
 import { useExploreSearch } from "../../../lib/hooks/useExploreSearch";
+import { useRegionById, useSectorsByRegion} from "../../../lib/hooks/useLocations";
+import { useRoutesBySector } from "../../../lib/hooks/useRoutes";
+
 
 import RegionCard from "../../../components/Explore/RegionCard";
 import SectorCard from "../../../components/Explore/SectorCard";
 import RouteCard from "../../../components/Explore/RouteCard";
+
+
 
 const Routes = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearchBar, setShowSearchBar] = useState(false);
     const [error, setError] = useState<string | undefined>();
 
+	const [selectedRegion, setSelectedRegion] = useState<number | null >(null)	
+	const [selectedSector, setSelectedSector] = useState<number | null >(null)	
+
+    const { data: region, isLoading: isRegionLoading } = useRegionById(selectedRegion);
+	const { data: sectors, isLoading: isSectorsLoading } = useSectorsByRegion(selectedRegion);
+	const { data: routes, isLoading: isRoutesLoading } = useRoutesBySector(selectedSector);
+
     const { regions, sections } = useExploreSearch(searchQuery);
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+
 
     const handleSearchChange = (text: string) => {
         setSearchQuery(text);
@@ -42,7 +55,6 @@ const Routes = () => {
             setError(undefined);
             return;
         }
-
         const timer = setTimeout(() => {
             if (searchQuery.length === 1) {
                 setError("Min. 2 characters required");
@@ -153,20 +165,59 @@ const Routes = () => {
                     }
                 />
             ) : (
-                <FlatList
-                    data={regions}
-                    keyExtractor={(item) => item.id_rejonu.toString()}
-                    renderItem={({ item }) => <RegionCard region={item} />}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-						<DelayedActivityIndicator 
-							isLoading={true} 
-							size="large" 
-							color={theme.iconColourFocused} 
-							style={{ marginTop: 20 }} 
-						/>
-                    }
-                />
+				<ThemedView style={{display: "flex", flexDirection: "row"}}>
+					<FlatList
+						style={{flex: 1}}
+						data={regions}
+						keyExtractor={(item) => item.id_rejonu.toString()}
+						renderItem={({ item }) => <RegionCard region={item} onRegionPress={(regionId) => setSelectedRegion(regionId)}/>}
+						showsVerticalScrollIndicator={false}
+						ListEmptyComponent={
+							<DelayedActivityIndicator 
+								isLoading={true} 
+								size="large" 
+								color={theme.iconColourFocused} 
+								style={{ marginTop: 20 }} 
+							/>
+						}
+					/>
+					{selectedRegion && region && 
+					<FlatList
+						style={{flex: 1}}
+						data={sectors}
+						keyExtractor={(item) => item.id_sektoru.toString()}
+						renderItem={({ item }) => <SectorCard sector={item} 
+						onSectorPress={(sectorId) => setSelectedSector(sectorId)}
+						/>}
+						showsVerticalScrollIndicator={false}
+						ListEmptyComponent={
+							<DelayedActivityIndicator 
+								isLoading={true} 
+								size="large" 
+								color={theme.iconColourFocused} 
+								style={{ marginTop: 20 }} 
+							/>
+						}
+					/> }
+
+					{selectedRegion && region &&  selectedSector && routes &&
+					<FlatList
+						style={{flex: 2}}
+						data={routes}
+						keyExtractor={(item) => item.id_drogi.toString()}
+						renderItem={({ item }) => <RouteCard route={item} 
+						/>}
+						showsVerticalScrollIndicator={false}
+						ListEmptyComponent={
+							<DelayedActivityIndicator 
+								isLoading={true} 
+								size="large" 
+								color={theme.iconColourFocused} 
+								style={{ marginTop: 20 }} 
+							/>
+						}
+					/> }
+				</ThemedView>
             )}
         </ThemedView>
     );

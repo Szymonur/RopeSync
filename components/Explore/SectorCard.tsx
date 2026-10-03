@@ -1,23 +1,30 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import ThemedCard from "../ThemedCard";
 import ThemedText from "../ThemedText";
 import { Sector } from "../../types/location";
 
 interface Props {
-    sector: Sector & { nazwa_rejonu: string };
+    sector: Sector & { nazwa_rejonu?: string };
+	onSectorPress?: (sectorId: number) => void;
 }
 
-const SectorCard = ({ sector }: Props) => {
+const SectorCard = ({ sector, onSectorPress}: Props) => {
     const router = useRouter();
 
     return (
         <TouchableOpacity
             onPress={() =>
+			{
+			if (Platform.OS === "web" && onSectorPress) {
+				onSectorPress(sector.id_sektoru);
+			} else {				
                 router.push({
                     pathname: "/(dashboard)/sector/[id]",
                     params: { id: sector.id_sektoru.toString() },
                 })
+			}
+			}
             }
         >
             <ThemedCard style={styles.card}>

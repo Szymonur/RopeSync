@@ -39,7 +39,7 @@ export class ApiRouteRepository implements IRouteRepository {
         }
     }
 
-    async getRoutesBySector(sectorId: number, signal?: AbortSignal): Promise<RouteListItem[]> {
+    async getRoutesBySector(sectorId: number | null, signal?: AbortSignal): Promise<RouteListItem[]> {
         try {
             const response = await api.get<RouteListItem[]>(`/routes`, {
                 params: {id_sektoru: sectorId},

@@ -12,7 +12,8 @@ export const useRegions = (options?: { enabled?: boolean }) => {
     });
 };
 
-export const useRegionById = (id: number, options?: { enabled?: boolean }) => {
+
+export const useRegionById = (id: number | null, options?: { enabled?: boolean }) => {
     const { locationRepository } = useRepositories();
 
     return useQuery({
@@ -23,13 +24,15 @@ export const useRegionById = (id: number, options?: { enabled?: boolean }) => {
     });
 };
 
-export const useSearchRegions = (query: string, options?: { enabled?: boolean }) => {
+
+export const useSearchRegions = (query: string | null, options?: { enabled?: boolean }) => {
     const { locationRepository } = useRepositories();
 
     return useQuery({
         queryKey: ['regions', 'search', query],
         queryFn: ({ signal }) => locationRepository.searchRegions(query, signal),
-        enabled: query.length > 0 && (options?.enabled !== false),
+
+        enabled: !!query && query.length > 0 && (options?.enabled !== false),
         ...options,
     });
 };
@@ -45,7 +48,8 @@ export const useSectors = (options?: { enabled?: boolean }) => {
     });
 };
 
-export const useSectorsByRegion = (regionId: number, options?: { enabled?: boolean }) => {
+
+export const useSectorsByRegion = (regionId: number | null, options?: { enabled?: boolean }) => {
     const { locationRepository } = useRepositories();
 
     return useQuery({

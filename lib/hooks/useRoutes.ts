@@ -14,7 +14,7 @@ export const useRoutes = (filters?: RouteFilters, options?: { enabled?: boolean 
     });
 };
 
-export const useRoutesBySector = (sectorId: number, options?: { enabled?: boolean }) => {
+export const useRoutesBySector = (sectorId: number | null, options?: { enabled?: boolean }) => {
     const { routeRepository } = useRepositories();
 
     return useQuery({

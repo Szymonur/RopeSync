@@ -21,7 +21,8 @@ export class ApiLocationRepository implements ILocationRepository {
         }
     }
 
-    async searchRegions(query: string, signal?: AbortSignal): Promise<Region[]> {
+
+async searchRegions(query: string | null, signal?: AbortSignal): Promise<Region[]> {
         try {
             const response = await api.get<{ regions: Region[] }>('/regions/search', {
                 params: { query },
@@ -42,7 +43,8 @@ export class ApiLocationRepository implements ILocationRepository {
         }
     }
 
-    async getSectorsByRegion(regionId: number, signal?: AbortSignal): Promise<Sector[]> {
+
+async getSectorsByRegion(regionId: number | null, signal?: AbortSignal): Promise<Sector[]> {
         try {
             const response = await api.get<{ sectors: Sector[] }>(`/regions/${regionId}/sectors`, { signal });
             return response.data.sectors;
