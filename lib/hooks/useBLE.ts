@@ -19,8 +19,20 @@ export interface SensorData {
     altitude: number;
 }
 
+// Jeden BleManager na całą aplikację - kolejne instancje hooka nie tworzą nowych managerów
+let sharedManager: BleManager | null = null;
+const getBleManager = (): BleManager => {
+    if (!sharedManager) {
+        sharedManager = new BleManager();
+    }
+    return sharedManager;
+};
+
+// Jak często dane "na żywo" trafiają do stanu Reacta (czujnik nadaje znacznie częściej)
+const UI_REFRESH_INTERVAL_MS = 100;
+
 export const useBLE = () => {
-    const [manager] = useState(() => new BleManager());
+    const manager = getBleManager();
     const [isScanning, setIsScanning] = useState(false);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
     const [sensorData, setSensorData] = useState<SensorData>({
@@ -37,6 +49,28 @@ export const useBLE = () => {
     const syncTotalRef = useRef(0);
     const syncCountRef = useRef(0);
     const syncedDataRef = useRef<SensorData[]>([]);
+    const [syncedData, setSyncedData] = useState<SensorData[]>([]);
+
+    // Ostatni odczyt trzymamy w refie, a do stanu przepisujemy go z ograniczoną częstotliwością
+    const latestSensorRef = useRef<SensorData | null>(null);
+    const connectedDeviceRef = useRef<Device | null>(null);
+    const monitorSubscriptionRef = useRef<{ remove: () => void } | null>(null);
+    const scanTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        connectedDeviceRef.current = connectedDevice;
+    }, [connectedDevice]);
+
+    useEffect(() => {
+        if (!connectedDevice) return;
+        const interval = setInterval(() => {
+            if (latestSensorRef.current) {
+                setSensorData(latestSensorRef.current);
+                latestSensorRef.current = null;
+            }
+        }, UI_REFRESH_INTERVAL_MS);
+        return () => clearInterval(interval);
+    }, [connectedDevice]);
 
     useEffect(() => {
         let interval: any;
@@ -54,6 +88,9 @@ export const useBLE = () => {
     useEffect(() => {
         return () => {
             manager.stopDeviceScan();
+            if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
+            monitorSubscriptionRef.current?.remove();
+            monitorSubscriptionRef.current = null;
         };
     }, [manager]);
 
@@ -61,7 +98,8 @@ export const useBLE = () => {
         if (!device) return;
 
         console.log("Zakładam podsłuch na powiadomienia z ESP...");
-        device.monitorCharacteristicForService(
+        monitorSubscriptionRef.current?.remove();
+        monitorSubscriptionRef.current = device.monitorCharacteristicForService(
             BLE_SERVICE_UUID,
             BLE_CHARACTERISTIC_UUID,
             (error, characteristic) => {
@@ -91,6 +129,7 @@ export const useBLE = () => {
 
                         if (textValue.startsWith("END")) {
                             setIsSyncing(false);
+                            setSyncedData([...syncedDataRef.current]);
                             Alert.alert("Zakończono", `Pomyślnie zsynchronizowano ${syncedDataRef.current.length} rekordów!`);
                             // Pobrane dane historyczne masz teraz w: syncedDataRef.current
                             return;
@@ -131,7 +170,7 @@ export const useBLE = () => {
                             } else {
                                 // Tryb na żywo -> aktualizuj stan UI
                                 packetCountRef.current += 1;
-                                setSensorData(currentRecord);
+                                latestSensorRef.current = currentRecord;
                             }
                         }
 
@@ -158,6 +197,7 @@ export const useBLE = () => {
             await manager.requestMTUForDevice(device.id, 512);
 
             const discovered = await connected.discoverAllServicesAndCharacteristics();
+            connectedDeviceRef.current = discovered;
             setConnectedDevice(discovered);
 
             packetCountRef.current = 0;
@@ -204,7 +244,9 @@ export const useBLE = () => {
             }
         });
 
-        setTimeout(() => {
+        if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
+
+        scanTimeoutRef.current = setTimeout(() => {
             manager.stopDeviceScan();
             setIsScanning(false);
         }, 10000);
@@ -236,22 +278,28 @@ export const useBLE = () => {
     };
 
     const disconnectFromDevice = async () => {
-        if (connectedDevice) {
-            try {
-                const isConnected = await manager.isDeviceConnected(connectedDevice.id);
-                if (isConnected) {
-                    await manager.cancelDeviceConnection(connectedDevice.id);
-                } else {
-                    Alert.alert("Informacja", "Urządzenie było już rozłączone.");
-                }
-                setConnectedDevice(null);
-                setUpdateRate(0);
-                Alert.alert("Rozłączono", "Pomyślnie rozłączono z RopeSync.");
-            } catch (error) {
-                console.error("Błąd podczas rozłączania:", error);
-                setConnectedDevice(null);
-                setUpdateRate(0);
+        // Ref zamiast stanu: funkcja bywa wołana z callbacku monitora, który pamięta stare wartości
+        const device = connectedDeviceRef.current;
+        if (!device) return;
+
+        monitorSubscriptionRef.current?.remove();
+        monitorSubscriptionRef.current = null;
+        latestSensorRef.current = null;
+
+        try {
+            const isConnected = await manager.isDeviceConnected(device.id);
+            if (isConnected) {
+                await manager.cancelDeviceConnection(device.id);
+            } else {
+                Alert.alert("Informacja", "Urządzenie było już rozłączone.");
             }
+            setConnectedDevice(null);
+            setUpdateRate(0);
+            Alert.alert("Rozłączono", "Pomyślnie rozłączono z RopeSync.");
+        } catch (error) {
+            console.error("Błąd podczas rozłączania:", error);
+            setConnectedDevice(null);
+            setUpdateRate(0);
         }
     };
 
@@ -267,6 +315,6 @@ export const useBLE = () => {
         triggerSync,
         isSyncing,
         syncProgress,
-        syncedData: syncedDataRef.current
+        syncedData
     };
 };

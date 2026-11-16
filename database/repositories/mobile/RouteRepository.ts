@@ -25,7 +25,7 @@ export class MobileRouteRepository extends ApiRouteRepository {
 					d.typ_drogi,
 					d.nazwa_drogi,
 					s.nazwa_skaly,
-					COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) AS wycena,
+					COALESCE((SELECT sl_w.kurtyki FROM Skale_linowe sl_w WHERE sl_w.francuska = COALESCE(ds.skala_linowa, dt.skala_linowa)), db.skala_boulderowa) AS wycena,
 					r.nazwa_rejonu
 				FROM Drogi d
 				JOIN Skaly s ON d.id_skaly = s.id_skaly
@@ -36,7 +36,7 @@ export class MobileRouteRepository extends ApiRouteRepository {
 				LEFT JOIN Bouldery_szczegoly db ON d.id_drogi = db.id_drogi
 				WHERE 
 					(?1 IS NULL OR d.nazwa_drogi LIKE '%' || ?1 || '%')
-					AND (?2 IS NULL OR COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) = ?2)
+					AND (?2 IS NULL OR COALESCE((SELECT sl_w.kurtyki FROM Skale_linowe sl_w WHERE sl_w.francuska = COALESCE(ds.skala_linowa, dt.skala_linowa)), db.skala_boulderowa) = ?2)
 					AND (?3 IS NULL OR d.typ_drogi = ?3)
           AND (?4 IS NULL OR sek.id_sektoru = ?4)`,
                 values,
@@ -65,7 +65,7 @@ export class MobileRouteRepository extends ApiRouteRepository {
                     bs.wysokosc,
                     bs.liczba_potrzebnych_crashpadow,
                     bs.skala_boulderowa as boulder_skala,
-                    COALESCE(ds.skala_linowa, ts.skala_linowa, bs.skala_boulderowa) as skala
+                    COALESCE((SELECT sl_w.kurtyki FROM Skale_linowe sl_w WHERE sl_w.francuska = COALESCE(ds.skala_linowa, ts.skala_linowa)), bs.skala_boulderowa) as skala
                 FROM Drogi d
                 JOIN Skaly s ON d.id_skaly = s.id_skaly
                 JOIN Sektory sek ON s.id_sektoru = sek.id_sektoru
@@ -98,7 +98,7 @@ export class MobileRouteRepository extends ApiRouteRepository {
                     s.nazwa_skaly,
                     s.id_sektoru,
                     sek.id_rejonu,
-                    COALESCE(ds.skala_linowa, ts.skala_linowa, bs.skala_boulderowa) as wycena,
+                    COALESCE((SELECT sl_w.kurtyki FROM Skale_linowe sl_w WHERE sl_w.francuska = COALESCE(ds.skala_linowa, ts.skala_linowa)), bs.skala_boulderowa) as wycena,
                     r.nazwa_rejonu
                 FROM Drogi d
                 JOIN Skaly s ON d.id_skaly = s.id_skaly
@@ -125,7 +125,7 @@ export class MobileRouteRepository extends ApiRouteRepository {
                     d.nazwa_drogi, 
                     d.typ_drogi, 
                     s.nazwa_skaly,
-                    COALESCE(ds.skala_linowa, ts.skala_linowa, bs.skala_boulderowa) as wycena
+                    COALESCE((SELECT sl_w.kurtyki FROM Skale_linowe sl_w WHERE sl_w.francuska = COALESCE(ds.skala_linowa, ts.skala_linowa)), bs.skala_boulderowa) as wycena
                 FROM Drogi d
                 JOIN Skaly s ON d.id_skaly = s.id_skaly
                 LEFT JOIN Drogi_sportowe_szczegoly ds ON d.id_drogi = ds.id_drogi

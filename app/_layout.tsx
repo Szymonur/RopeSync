@@ -27,7 +27,16 @@ import { RepositoryProvider } from "../contexts/RepositoryContext";
 import { useSyncManager } from "../lib/hooks/useSyncManager";
 import { Colors } from "../constants/Colors";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            // Jedno ponowienie zamiast trzech - przy braku zasięgu ekran szybciej pokazuje stan błędu
+            retry: 1,
+            // Dane zostają w pamięci na 30 minut - powrót do ekranu nie zaczyna od pustej listy
+            gcTime: 1000 * 60 * 30,
+        },
+    },
+});
 
 const NativeSyncManager: React.FC = () => {
     useSyncManager();

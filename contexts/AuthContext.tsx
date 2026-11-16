@@ -10,6 +10,7 @@ import React, {
 import { useQueryClient } from "@tanstack/react-query";
 import * as authStorage from "../lib/utils/authStorage";
 import { setAuthFailureHandler } from "../lib/api/client";
+import { API_URL } from "../lib/api/baseUrl";
 
 
 // 1. Definiujemy kształt danych w naszym kontekście
@@ -99,6 +100,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, [queryClient]);
 
     const logout = useCallback(async () => {
+        // Unieważnij refresh token na serwerze (best-effort, nie blokuje wylogowania offline)
+        authStorage
+            .getRefreshToken()
+            .then((token) => {
+                if (!token) return;
+                return fetch(`${API_URL}/auth/logout`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ refreshToken: token }),
+                });
+            })
+            .catch(() => undefined);
+
         setAccessToken(null);
         setRefreshToken(null);
         setCurrentUserId(null);

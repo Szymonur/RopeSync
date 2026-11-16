@@ -4,6 +4,7 @@ import { Ascent, AscentStyle, UserStats } from '../../../types/ascent';
 import { getCurrentUserId } from "../../../lib/utils/authStorage"
 import { SQLiteDatabase } from "expo-sqlite";
 import { LOCAL_USER_PLACEHOLDER } from "./UserRepository";
+import { pickHardest } from "../../../lib/utils/gradeRank";
 
 const BULK_CHUNK_SIZE = 100;
 
@@ -35,8 +36,6 @@ const chunk = <T,>(items: T[], size: number): T[][] => {
 };
 
 
-const LINEAR_GRADE_ORDER = ["3","4","4+","5a","5a+","5b","5b+","5c","5c+","6a","6a+","6b","6b+","6c","6c+","7a","7a+","7b","7b+","7c","7c+","8a","8a+","8b","8b+","8c","8c+","9a","9a+"];
-const BOULDER_GRADE_ORDER = ["4","4+","5","5+","6a","6a+","6b","6b+","6c","6c+","7a","7a+","7b","7b+","7c","7c+","8a","8a+"];
 
 export class MobileAscentRepository extends ApiAscentRepository  {
     private db: SQLiteDatabase;
@@ -67,10 +66,10 @@ export class MobileAscentRepository extends ApiAscentRepository  {
                 [userId]
             );
 
-            const bestSport = await this.getBestAscentLocal(userId, 'Sport', LINEAR_GRADE_ORDER);
-            const bestTrad = await this.getBestAscentLocal(userId, 'Trad', LINEAR_GRADE_ORDER);
-            const bestMixedTrad = await this.getBestAscentLocal(userId, 'Mixed trad', LINEAR_GRADE_ORDER);
-            const bestBoulder = await this.getBestAscentLocal(userId, 'Boulder', BOULDER_GRADE_ORDER);
+            const bestSport = await this.getBestAscentLocal(userId, 'Sport');
+            const bestTrad = await this.getBestAscentLocal(userId, 'Trad');
+            const bestMixedTrad = await this.getBestAscentLocal(userId, 'Mixed trad');
+            const bestBoulder = await this.getBestAscentLocal(userId, 'Boulder');
 
             // Pobieranie wycen przez złączenie ze słownikiem Skale_linowe, aby zawsze mieć 'kurtyki' (Uppercase)
             const gradeChart = await this.db.getAllAsync<{label: string, count: number}>(
@@ -120,7 +119,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         }
     }
 
-    private async getBestAscentLocal(userId: number, type: string, order: string[]): Promise<Ascent | null> {
+    private async getBestAscentLocal(userId: number, type: string): Promise<Ascent | null> {
         const candidates = await this.db.getAllAsync<Ascent>(
             `SELECT p.*, d.nazwa_drogi, d.typ_drogi,
                 COALESCE(sl.kurtyki, db.skala_boulderowa) as wycena
@@ -134,16 +133,8 @@ export class MobileAscentRepository extends ApiAscentRepository  {
             [userId, type]
         );
 
-        if (candidates.length === 0) return null;
-
-        return candidates.reduce((best, current) => {
-            const bestIdx = order.indexOf(best.wycena || "");
-            const currentIdx = order.indexOf(current.wycena || "");
-            
-            if (currentIdx > bestIdx) return current;
-            if (currentIdx === bestIdx && current.data > best.data) return current;
-            return best;
-        }, candidates[0]);
+        // Ta sama reguła porządku wycen co na backendzie (lib/utils/gradeRank.ts)
+        return pickHardest(candidates);
     }
 
     private processWeeklyChart(dates: string[]) {
