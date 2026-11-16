@@ -88,15 +88,53 @@ export const useSyncManager = () => {
                 }
             }
 
-            // 3. Pobranie zmian z serwera (przejścia dodane / usunięte np. przez web)
+            // 3. Pobranie zmian z serwera (przejścia dodane / zmienione / usunięte np. przez web)
             try {
-                // Wysyłamy tylko ID już zsynchronizowane - dzięki temu "missingIds"
-                // nigdy nie obejmie przejść, które dopiero czekają na wysyłkę.
-                const syncedIds = await repository.getSyncedAscentIds(userId);
-                const { ascents, missingIds } = await repositoryWeb.getSyncDiff(syncedIds);
+                // ID zsynchronizowane PRZED zapytaniem - tylko one mogą zostać uznane za usunięte na serwerze.
+                // Przejścia wysyłane w tle w trakcie tej synchronizacji są dzięki temu bezpieczne.
+                const syncedIdsBefore = await repository.getSyncedAscentIds(userId);
+                const cursor = await repository.getSyncCursor(userId);
 
-                const added = await repository.addAscentsLocal(ascents);
-                const removed = await repository.removeSyncedAscentsLocal(missingIds);
+                let changes: Awaited<ReturnType<typeof repositoryWeb.getChanges>> | null = null;
+                try {
+                    changes = await repositoryWeb.getChanges(cursor ?? undefined);
+                } catch (error) {
+                    // Serwer odpowiedział błędem (np. starsza wersja bez /ascents/changes) -> stary mechanizm.
+                    // Brak sieci przerywa ten krok.
+                    if (!(error instanceof ApiRequestError)) throw error;
+                }
+
+                let added = 0;
+                let removed = 0;
+
+                if (changes) {
+                    // 3a. Synchronizacja różnicowa
+                    const { changed, skipped } = await repository.applyServerAscents(changes.ascents);
+                    added = changed;
+
+                    if (cursor) {
+                        removed = await repository.removeSyncedAscentsLocal(changes.deletedIds);
+                    } else {
+                        // Pierwsza synchronizacja: serwer zwrócił komplet, więc zsynchronizowane
+                        // lokalnie przejście, którego w nim nie ma, zostało usunięte na serwerze.
+                        const serverIds = new Set(changes.ascents.map((a) => a.id_przejscia));
+                        removed = await repository.removeSyncedAscentsLocal(
+                            syncedIdsBefore.filter((id) => !serverIds.has(id)),
+                        );
+                    }
+
+                    // Kursor przesuwamy tylko, gdy wszystko udało się zapisać - pominięte przejścia
+                    // (droga nieznana lokalnie) zostaną pobrane ponownie przy następnej synchronizacji.
+                    if (skipped === 0) {
+                        await repository.setSyncCursor(userId, changes.cursor);
+                    }
+                } else {
+                    // 3b. Starszy backend: porównanie list ID
+                    const { ascents, missingIds } = await repositoryWeb.getSyncDiff(syncedIdsBefore);
+                    added = await repository.addAscentsLocal(ascents);
+                    removed = await repository.removeSyncedAscentsLocal(missingIds);
+                }
+
                 if (added > 0 || removed > 0) {
                     localDataChanged = true;
                 }

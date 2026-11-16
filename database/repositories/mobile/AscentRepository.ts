@@ -313,57 +313,104 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         }
     }
 
-    // Wstawia przejścia pobrane z serwera. Zwraca liczbę faktycznie dodanych wierszy.
+    // Odsiewa przejścia, których nie da się zapisać (klucze obce są włączone): droga lub styl
+    // nieznane lokalnie. Dzięki temu jeden taki rekord nie blokuje całej paczki.
+    private async prepareServerAscents(ascents: Ascent[]): Promise<Ascent[]> {
+        const [routeRows, styleRows] = await Promise.all([
+            this.db.getAllAsync<{ id_drogi: string }>("SELECT id_drogi FROM Drogi"),
+            this.db.getAllAsync<{ nazwa_stylu: string }>("SELECT nazwa_stylu FROM Style_przejscia"),
+        ]);
+        const knownRoutes = new Set(routeRows.map((r) => r.id_drogi));
+        const knownStyles = new Set(styleRows.map((s) => s.nazwa_stylu));
+        const valid = ascents.filter(
+            (a) => knownRoutes.has(a.id_drogi) && knownStyles.has(a.nazwa_stylu),
+        );
+        if (valid.length < ascents.length) {
+            console.warn(
+                `Sync: pominięto ${ascents.length - valid.length} przejść do dróg/stylów nieznanych lokalnie.`,
+            );
+        }
+
+        const userIds = new Set(valid.map((a) => a.id_uzytkownika));
+        for (const userId of userIds) {
+            await this.ensureUserRow(userId);
+        }
+        return valid;
+    }
+
+    private async writeServerAscents(ascents: Ascent[], onConflict: string): Promise<number> {
+        let changes = 0;
+        for (const part of chunk(ascents, BULK_CHUNK_SIZE)) {
+            const placeholders = part.map(() => "(?, ?, ?, ?, ?, ?, ?, 1, 0)").join(", ");
+            const values: (string | number | null)[] = [];
+            for (const ascent of part) {
+                values.push(
+                    ascent.id_przejscia,
+                    ascent.data,
+                    ascent.notatka ?? null,
+                    serializeTimeline(ascent.timeline_data),
+                    ascent.id_uzytkownika,
+                    ascent.nazwa_stylu,
+                    ascent.id_drogi,
+                );
+            }
+            const result = await this.db.runAsync(
+                `INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders} ${onConflict}`,
+                values,
+            );
+            changes += result.changes;
+        }
+        return changes;
+    }
+
+    // Wstawia przejścia pobrane z serwera (istniejące lokalnie zostają bez zmian).
+    // Zwraca liczbę faktycznie dodanych wierszy.
     async addAscentsLocal(ascents: Ascent[]): Promise<number> {
         if (ascents.length === 0) return 0;
         try {
-            // Klucze obce są włączone: pomijamy przejścia do dróg / stylów nieznanych lokalnie,
-            // żeby jeden taki rekord nie blokował całej paczki.
-            const [routeRows, styleRows] = await Promise.all([
-                this.db.getAllAsync<{ id_drogi: string }>("SELECT id_drogi FROM Drogi"),
-                this.db.getAllAsync<{ nazwa_stylu: string }>("SELECT nazwa_stylu FROM Style_przejscia"),
-            ]);
-            const knownRoutes = new Set(routeRows.map((r) => r.id_drogi));
-            const knownStyles = new Set(styleRows.map((s) => s.nazwa_stylu));
-            const valid = ascents.filter(
-                (a) => knownRoutes.has(a.id_drogi) && knownStyles.has(a.nazwa_stylu),
-            );
-            if (valid.length < ascents.length) {
-                console.warn(
-                    `Sync: pominięto ${ascents.length - valid.length} przejść do dróg/stylów nieznanych lokalnie.`,
-                );
-            }
-
-            const userIds = new Set(valid.map((a) => a.id_uzytkownika));
-            for (const userId of userIds) {
-                await this.ensureUserRow(userId);
-            }
-
-            let added = 0;
-            for (const part of chunk(valid, BULK_CHUNK_SIZE)) {
-                const placeholders = part.map(() => "(?, ?, ?, ?, ?, ?, ?, 1, 0)").join(", ");
-                const values: (string | number | null)[] = [];
-                for (const ascent of part) {
-                    values.push(
-                        ascent.id_przejscia,
-                        ascent.data,
-                        ascent.notatka ?? null,
-                        serializeTimeline(ascent.timeline_data),
-                        ascent.id_uzytkownika,
-                        ascent.nazwa_stylu,
-                        ascent.id_drogi,
-                    );
-                }
-                const result = await this.db.runAsync(
-                    `INSERT OR IGNORE INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders}`,
-                    values,
-                );
-                added += result.changes;
-            }
-            return added;
+            const valid = await this.prepareServerAscents(ascents);
+            return await this.writeServerAscents(valid, "ON CONFLICT (id_przejscia) DO NOTHING");
         } catch (sqliteError) {
             throw new Error(`Krytyczny błąd: nie udało się dodać przejść lokalnie. ${sqliteError}`);
         }
+    }
+
+    // Synchronizacja różnicowa: wstawia nowe i nadpisuje istniejące przejścia stanem z serwera.
+    // Lokalnych zmian czekających na wysyłkę (synced = 0 lub deleted = 1) NIE nadpisuje.
+    async applyServerAscents(ascents: Ascent[]): Promise<{ changed: number; skipped: number }> {
+        if (ascents.length === 0) return { changed: 0, skipped: 0 };
+        try {
+            const valid = await this.prepareServerAscents(ascents);
+            const changed = await this.writeServerAscents(
+                valid,
+                `ON CONFLICT (id_przejscia) DO UPDATE SET
+                    data = excluded.data,
+                    notatka = excluded.notatka,
+                    timeline_data = excluded.timeline_data,
+                    nazwa_stylu = excluded.nazwa_stylu,
+                    id_drogi = excluded.id_drogi
+                 WHERE Przejscia.synced = 1 AND Przejscia.deleted = 0`,
+            );
+            return { changed, skipped: ascents.length - valid.length };
+        } catch (sqliteError) {
+            throw new Error(`Krytyczny błąd: nie udało się zapisać zmian z serwera. ${sqliteError}`);
+        }
+    }
+
+    // Kursor ostatnio pobranych zmian z serwera (osobny dla każdego użytkownika)
+    async getSyncCursor(userId: number): Promise<string | null> {
+        const row = await this.db.getFirstAsync<{ value: string | null }>(
+            "SELECT value FROM sync_state WHERE key = ?",
+            [`ascents_cursor_${userId}`],
+        );
+        return row?.value ?? null;
+    }
+
+    async setSyncCursor(userId: number, cursor: string): Promise<void> {
+        await this.db.runAsync(
+            "INSERT INTO sync_state (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value",
+            [`ascents_cursor_${userId}`, cursor],
+        );
     }
 
     // Usuwa lokalnie przejścia, których serwer już nie ma (np. skasowane z weba).

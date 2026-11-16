@@ -37,6 +37,31 @@ export class ApiAscentRepository implements IAscentRepository {
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}
+	// Synchronizacja różnicowa: zmiany od kursora (bez kursora - wszystkie przejścia użytkownika)
+	async getChanges(since?: string, signal?: AbortSignal): Promise<{ ascents: Ascent[]; deletedIds: string[]; cursor: string }> {
+		try {
+			const response = await api.get<{ ascents: Ascent[]; deletedIds: string[]; cursor: string }>(
+				`/ascents/changes`,
+				{ params: since ? { since } : undefined, signal }
+			);
+			if (!response.data || typeof response.data.cursor !== "string") {
+				// Starszy backend: trasa /ascents/:id przechwytuje "changes" i odpowiada czymś innym
+				throw new ApiRequestError("Serwer nie obsługuje synchronizacji różnicowej.", 404);
+			}
+			return {
+				ascents: response.data.ascents ?? [],
+				deletedIds: response.data.deletedIds ?? [],
+				cursor: response.data.cursor,
+			};
+		} catch (error: any) {
+			if (error instanceof ApiRequestError) throw error;
+			if (error.response) {
+				throw new ApiRequestError("Wystąpił błąd podczas pobierania zmian przejść.", error.response.status);
+			}
+			throw new Error("Problem z połączeniem sieciowym.");
+		}
+	}
+
 	// Różnica względem serwera: przejścia nieznane klientowi + ID, których serwer już nie ma
 	async getSyncDiff(ascentsUUID: string[], signal?: AbortSignal): Promise<{ ascents: Ascent[]; missingIds: string[] }> {
 		try {

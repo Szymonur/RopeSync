@@ -17,6 +17,18 @@ const MIGRATIONS: { version: number; up: (db: SQLiteDatabase) => Promise<void> }
             `);
         },
     },
+    {
+        // Stan synchronizacji (np. kursor ostatnio pobranych zmian per użytkownik)
+        version: 8,
+        up: async (db) => {
+            await db.execAsync(`
+                CREATE TABLE IF NOT EXISTS sync_state (
+                    key TEXT PRIMARY KEY,
+                    value TEXT
+                );
+            `);
+        },
+    },
 ];
 
 async function runMigrations(db: SQLiteDatabase, fromVersion: number) {
