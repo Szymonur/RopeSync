@@ -7,6 +7,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { MobileAscentRepository } from "../../database/repositories/mobile/AscentRepository";
 import { WebAscentRepository } from "../../database/repositories/web/AscentRepository";
 import { ApiRequestError } from "../../database/repositories/api/APIAscentRepository";
+import { syncCatalog } from "../../database/catalog/syncCatalog";
+
+// Zapytania React Query oparte o lokalny katalog - do odświeżenia po jego podmianie
+const CATALOG_QUERY_KEYS = ["regions", "region", "sectors", "sector", "rocks", "rock", "routes", "route", "ascent-styles"];
 
 // 4xx (poza autoryzacją, timeoutem i limitem zapytań) oznacza, że ponawianie nic nie zmieni
 const isPermanentError = (error: unknown): error is ApiRequestError => {
@@ -30,6 +34,7 @@ export const useSyncManager = () => {
         const repository = new MobileAscentRepository(db);
         const repositoryWeb = new WebAscentRepository();
         let localDataChanged = false;
+        let catalogChanged = false;
 
         try {
             isSyncing.current = true;
@@ -38,6 +43,14 @@ export const useSyncManager = () => {
             if (errorsResetForUser.current !== userId) {
                 await repository.resetSyncErrors(userId);
                 errorsResetForUser.current = userId;
+            }
+
+            // 0. Katalog (rejony, sektory, skały, drogi) - przed przejściami, żeby przejścia
+            //    pobierane z serwera trafiały już na aktualne drogi
+            try {
+                catalogChanged = await syncCatalog(db);
+            } catch (error) {
+                console.error("Błąd podczas synchronizacji katalogu:", error);
             }
 
             // 1. Synchronizacja USUWANIA
@@ -145,6 +158,13 @@ export const useSyncManager = () => {
             console.error("Błąd podczas procesu synchronizacji:", error);
         } finally {
             isSyncing.current = false;
+        }
+
+        if (catalogChanged) {
+            for (const key of CATALOG_QUERY_KEYS) {
+                queryClient.invalidateQueries({ queryKey: [key] });
+            }
+            localDataChanged = true;
         }
 
         if (localDataChanged) {
