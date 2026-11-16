@@ -8,6 +8,8 @@ export interface Ascent {
     id_drogi: string;
     synced?: number; 
     deleted?: number;
+    sync_attempts?: number;
+    sync_error?: string | null;
     nazwa_drogi?: string;
     typ_drogi?: string;
     wycena?: string;

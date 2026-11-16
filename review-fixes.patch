@@ -1,0 +1,965 @@
+diff -ruN a/database/db.ts b/database/db.ts
+--- a/database/db.ts	2026-11-16 13:47:27.937724282 +0100
++++ b/database/db.ts	2026-11-16 13:47:27.939577518 +0100
+@@ -1,11 +1,14 @@
+ import { SQLiteDatabase } from "expo-sqlite";
+-import { DATABASE_SCHEMA} from "./schema";
++import { DATABASE_SCHEMA, DATABASE_INDEXES } from "./schema";
+ import { seedMobileDatabase } from '../lib/utils/seedMobile';
+ 
+ export async function initializeDatabase(db: SQLiteDatabase) {
+-    // Optymalizacje silnika SQLite
++    // Ustawienia silnika SQLite - obowiązują per połączenie, więc muszą być
++    // wykonywane przy KAŻDYM starcie (foreign_keys domyślnie jest wyłączone).
+     await db.execAsync(`
+         PRAGMA journal_mode = WAL;
++        PRAGMA synchronous = NORMAL;
++        PRAGMA foreign_keys = ON;
+     `);
+ 
+     // System migracji
+@@ -50,4 +53,11 @@
+             console.error("Błąd podczas inicjalizacji bazy danych:", error);
+         }
+     }
++
++    // Indeksy są idempotentne (IF NOT EXISTS) - nie wymagają podbijania wersji schematu
++    try {
++        await db.execAsync(DATABASE_INDEXES);
++    } catch (error) {
++        console.error("Błąd podczas tworzenia indeksów:", error);
++    }
+ }
+diff -ruN a/database/repositories/api/APIAscentRepository.ts b/database/repositories/api/APIAscentRepository.ts
+--- a/database/repositories/api/APIAscentRepository.ts	2026-11-16 13:47:27.937812610 +0100
++++ b/database/repositories/api/APIAscentRepository.ts	2026-11-16 13:47:27.939699909 +0100
+@@ -25,6 +25,25 @@
+         	throw new Error("Problem z połączeniem sieciowym.");
+         }
+ 	}
++	// Różnica względem serwera: przejścia nieznane klientowi + ID, których serwer już nie ma
++	async getSyncDiff(ascentsUUID: string[], signal?: AbortSignal): Promise<{ ascents: Ascent[]; missingIds: string[] }> {
++		try {
++			const response = await api.post<{ message: string; ascents: Ascent[]; missingIds?: string[] }>(
++				`/ascents/sync-diff`,
++				{ ascentsUUID }, { signal }
++			);
++			return {
++				ascents: response.data.ascents ?? [],
++				missingIds: response.data.missingIds ?? [],
++			};
++		} catch (error: any) {
++			if (error.response) {
++				throw new Error("Wystąpił błąd podczas wyznaczania różnic synchronizacji.");
++			}
++			throw new Error("Problem z połączeniem sieciowym.");
++		}
++	}
++
+ 	async getUnsynchronisedAscents(ascentsUUID: string[], signal?: AbortSignal): Promise<Ascent[]>{
+ 	     try {
+             const response = await api.post<{ message: string; ascents: Ascent[] }>(
+@@ -67,6 +86,8 @@
+ 		try {
+ 			await api.delete<{message: string}>(`/ascents/${ascentId}`);
+ 		} catch (error: any) {
++            // Przejścia już nie ma na serwerze - cel osiągnięty (idempotentne usuwanie)
++            if (error.response?.status === 404) return;
+             if (error.response) {
+                 throw new Error("Wystąpił błąd podczas usuwania przejscia.");
+             }
+diff -ruN a/database/repositories/api/ApiReactionRepository.ts b/database/repositories/api/ApiReactionRepository.ts
+--- a/database/repositories/api/ApiReactionRepository.ts	2026-11-16 13:47:27.937824819 +0100
++++ b/database/repositories/api/ApiReactionRepository.ts	2026-11-16 13:47:27.939712086 +0100
+@@ -5,7 +5,7 @@
+ export class ApiReactionRepository implements IReactionRepository {
+ 	async addReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
+ 		try {
+-			await api.post<{message: string}>(`/ascents/${ascentId}/reactions`, { signal });
++			await api.post<{message: string}>(`/ascents/${ascentId}/reactions`, undefined, { signal });
+ 		} catch (error: any) {
+             if (error.response) {
+                 throw new Error("Wystąpił błąd podczas dodawnia reakcji.");
+@@ -27,9 +27,9 @@
+ 		try {
+ 			const { data } = await api.get<{ 
+ 				message: string; 
+-				reactions: ReactionNotification[];}>
++				notifications: ReactionNotification[];}>
+ 				("/notifications", { params: { unread: true } });
+-			return data.reactions;
++			return data.notifications;
+ 		} catch (error: any) {
+ 			if (error.response) {
+ 				throw new Error("Wystąpił błąd podczas pobierania nieprzeczytanych reakcji.");
+diff -ruN a/database/repositories/mobile/AscentRepository.ts b/database/repositories/mobile/AscentRepository.ts
+--- a/database/repositories/mobile/AscentRepository.ts	2026-11-16 13:47:27.937880492 +0100
++++ b/database/repositories/mobile/AscentRepository.ts	2026-11-16 13:47:27.939732815 +0100
+@@ -3,6 +3,36 @@
+ import { Ascent, AscentStyle, UserStats } from '../../../types/ascent';
+ import { getCurrentUserId } from "../../../lib/utils/authStorage"
+ import { SQLiteDatabase } from "expo-sqlite";
++import { LOCAL_USER_PLACEHOLDER } from "./UserRepository";
++
++const BULK_CHUNK_SIZE = 100;
++
++// W SQLite timeline_data jest tekstem (JSON), a z API przychodzi obiekt.
++// Repozytorium zawsze zwraca obiekt albo undefined (pusty obiekt traktujemy jak brak danych).
++const normalizeAscent = <T extends Ascent>(row: T): T => {
++    const raw = row.timeline_data as unknown;
++    if (typeof raw !== "string") return row;
++    try {
++        const parsed = JSON.parse(raw);
++        const hasData = parsed && typeof parsed === "object" && Object.keys(parsed).length > 0;
++        return { ...row, timeline_data: hasData ? parsed : undefined };
++    } catch {
++        return { ...row, timeline_data: undefined };
++    }
++};
++
++const serializeTimeline = (timeline: unknown): string | null => {
++    if (timeline == null) return null;
++    return typeof timeline === "string" ? timeline : JSON.stringify(timeline);
++};
++
++const chunk = <T,>(items: T[], size: number): T[][] => {
++    const chunks: T[][] = [];
++    for (let i = 0; i < items.length; i += size) {
++        chunks.push(items.slice(i, i + size));
++    }
++    return chunks;
++};
+ 
+ 
+ const LINEAR_GRADE_ORDER = ["3","4","4+","5a","5a+","5b","5b+","5c","5c+","6a","6a+","6b","6b+","6c","6c+","7a","7a+","7b","7b+","7c","7c+","8a","8a+","8b","8b+","8c","8c+","9a","9a+"];
+@@ -162,7 +192,7 @@
+     async getAscents(): Promise<Ascent[]> {
+         try {    
+             const currentUserId = await getCurrentUserId();
+-            return await this.db.getAllAsync<Ascent>(
++            const rows = await this.db.getAllAsync<Ascent>(
+                 `SELECT
+                     p.id_przejscia,
+                     p.data,
+@@ -189,6 +219,7 @@
+                  ORDER BY p.data DESC, p.id_przejscia DESC`,
+                 [currentUserId],
+             );
++            return rows.map(normalizeAscent);
+         } catch (error: any) {
+             throw new Error(`Wystąpił błąd podczas pobierania przejść z bazy danych. ${error}`);
+         }
+@@ -228,7 +259,7 @@
+             [ascentId]);
+ 
+             if (localResult) {
+-                return localResult; 
++                return normalizeAscent(localResult); 
+             }
+         } catch (error: any) {
+             throw new Error("Wystąpił błąd podczas pobierania szczegułów przejscia.");
+@@ -244,42 +275,122 @@
+         }
+     }
+ 
++    // Offline-first: zmiana trafia najpierw do lokalnej bazy i UI dostaje odpowiedź od razu.
++    // Wysyłka na serwer idzie w tle; jeśli się nie uda, dokończy ją useSyncManager.
+     async deleteAscent(ascentId: string): Promise<void> {
+         try {
+             await this.markAsDeletedLocal(ascentId);
+-            try {
+-                await super.deleteAscent(ascentId); 
+-                await this.deleteAscentPermanently(ascentId);
+-            } catch (networkError) {
+-                console.log(`Usunięto tylko lokalnie. Czeka na sync. ID: ${ascentId}`);
+-            }
+         } catch (sqliteError) {
+             throw new Error("Krytyczny błąd: nie udało się usunąć przejścia lokalnie.");
+         }
++        void this.pushDeletion(ascentId);
+     }
+ 
+-    async addAscent(ascent: Ascent): Promise<void>{
+-        try{
+-            await this.addAscentLocal(ascent);
+-            try {
+-                await super.addAscent(ascent);
+-                await this.markAsSynced(ascent.id_przejscia)
+-            } catch (networkError) {
+-                console.log(`Dodano tylko lokalnie. Czeka na sync. ID: ${ascent.id_przejscia}`);
+-            }
++    async addAscent(ascent: Ascent): Promise<void> {
++        try {
++            await this.addAscentLocal({ ...ascent, synced: 0, deleted: 0 });
+         } catch (sqliteError) {
+             throw new Error(`Krytyczny błąd: nie udało się dodać przejścia lokalnie. ${sqliteError}`);
+         }
++        void this.pushAscent(ascent);
+     }
+ 
+-    async addAscentsLocal(ascents: Ascent[]): Promise<void>{
+-        try{
+-            await this.addAscentsLocalBulkQuery(ascents);
++    private async pushAscent(ascent: Ascent): Promise<void> {
++        try {
++            await super.addAscent(ascent);
++            await this.markAsSynced(ascent.id_przejscia);
++        } catch (error) {
++            console.log(`Dodano tylko lokalnie. Czeka na sync. ID: ${ascent.id_przejscia}`);
++        }
++    }
++
++    private async pushDeletion(ascentId: string): Promise<void> {
++        try {
++            await super.deleteAscent(ascentId);
++            await this.deleteAscentPermanently(ascentId);
++        } catch (error) {
++            console.log(`Usunięto tylko lokalnie. Czeka na sync. ID: ${ascentId}`);
++        }
++    }
++
++    // Wstawia przejścia pobrane z serwera. Zwraca liczbę faktycznie dodanych wierszy.
++    async addAscentsLocal(ascents: Ascent[]): Promise<number> {
++        if (ascents.length === 0) return 0;
++        try {
++            // Klucze obce są włączone: pomijamy przejścia do dróg / stylów nieznanych lokalnie,
++            // żeby jeden taki rekord nie blokował całej paczki.
++            const [routeRows, styleRows] = await Promise.all([
++                this.db.getAllAsync<{ id_drogi: string }>("SELECT id_drogi FROM Drogi"),
++                this.db.getAllAsync<{ nazwa_stylu: string }>("SELECT nazwa_stylu FROM Style_przejscia"),
++            ]);
++            const knownRoutes = new Set(routeRows.map((r) => r.id_drogi));
++            const knownStyles = new Set(styleRows.map((s) => s.nazwa_stylu));
++            const valid = ascents.filter(
++                (a) => knownRoutes.has(a.id_drogi) && knownStyles.has(a.nazwa_stylu),
++            );
++            if (valid.length < ascents.length) {
++                console.warn(
++                    `Sync: pominięto ${ascents.length - valid.length} przejść do dróg/stylów nieznanych lokalnie.`,
++                );
++            }
++
++            const userIds = new Set(valid.map((a) => a.id_uzytkownika));
++            for (const userId of userIds) {
++                await this.ensureUserRow(userId);
++            }
++
++            let added = 0;
++            for (const part of chunk(valid, BULK_CHUNK_SIZE)) {
++                const placeholders = part.map(() => "(?, ?, ?, ?, ?, ?, ?, 1, 0)").join(", ");
++                const values: (string | number | null)[] = [];
++                for (const ascent of part) {
++                    values.push(
++                        ascent.id_przejscia,
++                        ascent.data,
++                        ascent.notatka ?? null,
++                        serializeTimeline(ascent.timeline_data),
++                        ascent.id_uzytkownika,
++                        ascent.nazwa_stylu,
++                        ascent.id_drogi,
++                    );
++                }
++                const result = await this.db.runAsync(
++                    `INSERT OR IGNORE INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders}`,
++                    values,
++                );
++                added += result.changes;
++            }
++            return added;
+         } catch (sqliteError) {
+             throw new Error(`Krytyczny błąd: nie udało się dodać przejść lokalnie. ${sqliteError}`);
+         }
+     }
+ 
++    // Usuwa lokalnie przejścia, których serwer już nie ma (np. skasowane z weba).
++    // Dotyczy wyłącznie wierszy wcześniej zsynchronizowanych i nieoznaczonych do usunięcia.
++    async removeSyncedAscentsLocal(ascentIds: string[]): Promise<number> {
++        let removed = 0;
++        for (const part of chunk(ascentIds, BULK_CHUNK_SIZE)) {
++            const placeholders = part.map(() => "?").join(", ");
++            const result = await this.db.runAsync(
++                `DELETE FROM Przejscia WHERE synced = 1 AND deleted = 0 AND id_przejscia IN (${placeholders})`,
++                part,
++            );
++            removed += result.changes;
++        }
++        return removed;
++    }
++
++    // Przejście wymaga wiersza użytkownika (klucz obcy). Jeśli profilu nie ma lokalnie,
++    // tworzymy zaślepkę - pełne dane uzupełni MobileUserRepository.getCurrentUser().
++    private async ensureUserRow(userId: number) {
++        await this.db.runAsync(
++            `INSERT OR IGNORE INTO Uzytkownicy (id_uzytkownika, login, email, haslo, sol, imie, nazwisko)
++             VALUES (?, ?, ?, ?, ?, '', '')`,
++            [userId, `user_${userId}`, `user_${userId}@local.invalid`, LOCAL_USER_PLACEHOLDER, LOCAL_USER_PLACEHOLDER],
++        );
++    }
++
+     private async markAsDeletedLocal(ascentId: string) {
+         await this.db.runAsync(
+             "UPDATE Przejscia SET deleted = 1, synced = 0 WHERE id_przejscia = ?",
+@@ -288,13 +399,14 @@
+     }
+ 
+     private async addAscentLocal(ascent: Ascent) {
++        await this.ensureUserRow(ascent.id_uzytkownika);
+         await this.db.runAsync(
+             "INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             [
+                 ascent.id_przejscia,
+                 ascent.data,
+-                ascent.notatka,
+-                ascent.timeline_data ? JSON.stringify(ascent.timeline_data) : null,
++                ascent.notatka ?? null,
++                serializeTimeline(ascent.timeline_data),
+                 ascent.id_uzytkownika,
+                 ascent.nazwa_stylu,
+                 ascent.id_drogi,
+@@ -304,33 +416,10 @@
+         );
+     }
+ 
+-    private async addAscentsLocalBulkQuery(ascents: Ascent[]) {
+-        if (ascents.length === 0) return;
+-
+-        const placeholders = ascents.map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");
+-        const query = `INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders}`;
+-
+-        const values: any[] = [];
+-        for (const ascent of ascents) {
+-            values.push(
+-                ascent.id_przejscia,
+-                ascent.data,
+-                ascent.notatka,
+-                ascent.timeline_data ? JSON.stringify(ascent.timeline_data) : null,
+-                ascent.id_uzytkownika,
+-                ascent.nazwa_stylu,
+-                ascent.id_drogi,
+-                ascent.synced ?? 1,
+-                ascent.deleted ?? 0
+-            );
+-        }
+-        await this.db.runAsync(query, values);
+-    }
+-
+     async getAscentsCountLocal(): Promise<number>{
+         const userId = await getCurrentUserId();
+         const result =  await this.db.getFirstAsync<{count: number}>(
+-            "SELECT COUNT(*) as count FROM Przejscia WHERE id_uzytkownika = ?", 
++            "SELECT COUNT(*) as count FROM Przejscia WHERE id_uzytkownika = ? AND deleted = 0",
+             [userId]
+         );
+         return result?.count ?? 0;
+@@ -339,7 +428,16 @@
+     async getAscentsUUID(): Promise<string[]>{
+         const userId = await getCurrentUserId();
+         const rows = await this.db.getAllAsync<{ id_przejscia: string }>(
+-            "SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ?", 
++            "SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ?",
++            [userId]
++        );
++        return rows.map(row => row.id_przejscia);
++    }
++
++    // ID przejść, które serwer już potwierdził (podstawa do wyznaczania różnic)
++    async getSyncedAscentIds(userId: number): Promise<string[]> {
++        const rows = await this.db.getAllAsync<{ id_przejscia: string }>(
++            "SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ? AND synced = 1",
+             [userId]
+         );
+         return rows.map(row => row.id_przejscia);
+@@ -347,7 +445,7 @@
+ 
+     async markAsSynced(ascentId: string) {
+         await this.db.runAsync(
+-            "UPDATE Przejscia SET synced = 1 WHERE id_przejscia = ?",
++            "UPDATE Przejscia SET synced = 1 WHERE id_przejscia = ? AND deleted = 0",
+             [ascentId],
+         );
+     }
+@@ -359,10 +457,11 @@
+     }
+ 
+     async getUnsyncedAscents(userId: number): Promise<Ascent[]> {
+-        return await this.db.getAllAsync<Ascent>(
++        const rows = await this.db.getAllAsync<Ascent>(
+             "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0 AND deleted = 0",
+             [userId],
+         );
++        return rows.map(normalizeAscent);
+     }
+ 
+     async getUnsyncedDeletions(userId: number): Promise<Ascent[]> {
+@@ -371,4 +470,4 @@
+             [userId],
+         );
+     }
+-}
+\ No newline at end of file
++}
+diff -ruN a/database/repositories/mobile/RouteRepository.ts b/database/repositories/mobile/RouteRepository.ts
+--- a/database/repositories/mobile/RouteRepository.ts	2026-11-16 13:47:27.937913836 +0100
++++ b/database/repositories/mobile/RouteRepository.ts	2026-11-16 13:47:27.939761308 +0100
+@@ -16,7 +16,8 @@
+             const values = [
+                 filters?.nazwa_drogi || null,
+                 filters?.skala || null,
+-                filters?.typ_drogi || null
++                filters?.typ_drogi || null,
++                filters?.id_sektoru ?? null
+             ];
+             return await this.db.getAllAsync<RouteListItem>(
+                 `SELECT 
+@@ -36,7 +37,8 @@
+ 				WHERE 
+ 					(?1 IS NULL OR d.nazwa_drogi LIKE '%' || ?1 || '%')
+ 					AND (?2 IS NULL OR COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) = ?2)
+-					AND (?3 IS NULL OR d.typ_drogi = ?3)`,
++					AND (?3 IS NULL OR d.typ_drogi = ?3)
++          AND (?4 IS NULL OR sek.id_sektoru = ?4)`,
+                 values,
+             );
+         } catch (error: any) {
+@@ -90,10 +92,12 @@
+         try {
+             const sql = `
+                 SELECT 
+-                    d.id_drogi, Rock & { nazwa_sektoru: string }
++                    d.id_drogi, 
+                     d.nazwa_drogi, 
+                     d.typ_drogi, 
+                     s.nazwa_skaly,
++                    s.id_sektoru,
++                    sek.id_rejonu,
+                     COALESCE(ds.skala_linowa, ts.skala_linowa, bs.skala_boulderowa) as wycena,
+                     r.nazwa_rejonu
+                 FROM Drogi d
+@@ -101,10 +105,11 @@
+                 JOIN Sektory sek ON s.id_sektoru = sek.id_sektoru
+                 JOIN Rejony r ON sek.id_rejonu = r.id_rejonu
+                 LEFT JOIN Drogi_sportowe_szczegoly ds ON d.id_drogi = ds.id_drogi
+-                LEFT JOIN Trady_szczegoly dt ON d.id_drogi = dt.id_drogi
+-                LEFT JOIN Bouldery_szczegoly db ON d.id_drogi = db.id_drogi
++                LEFT JOIN Trady_szczegoly ts ON d.id_drogi = ts.id_drogi
++                LEFT JOIN Bouldery_szczegoly bs ON d.id_drogi = bs.id_drogi
+                 WHERE d.nazwa_drogi LIKE ?
+                 ORDER BY d.nazwa_drogi ASC
++                LIMIT 50
+             `;
+             return await this.db.getAllAsync<RouteListItem>(sql, [`%${query}%`]);
+         } catch (error: any) {
+diff -ruN a/database/repositories/mobile/UserRepository.ts b/database/repositories/mobile/UserRepository.ts
+--- a/database/repositories/mobile/UserRepository.ts	2026-11-16 13:47:27.937902049 +0100
++++ b/database/repositories/mobile/UserRepository.ts	2026-11-16 13:47:27.939750504 +0100
+@@ -3,67 +3,83 @@
+ import { ApiUserRepository } from "../api/ApiUserRepository";
+ import { getCurrentUserId } from "../../../lib/utils/authStorage"
+ 
+-export class MobileUserRepository extends ApiUserRepository{
+-	private db: SQLiteDatabase;
++// Znacznik wiersza-zaślepki tworzonego przez MobileAscentRepository.ensureUserRow
++export const LOCAL_USER_PLACEHOLDER = "local_placeholder";
+ 
+-	constructor(db: SQLiteDatabase) {
+-		super();
+-		this.db = db;
+-	}
++export class MobileUserRepository extends ApiUserRepository {
++    private db: SQLiteDatabase;
+ 
+-    async login(username: string, password: string): Promise<LoginResponse> {
+-		const responseData = await super.login(username, password);
+-        try {
+-            const query = `
+-                INSERT INTO Uzytkownicy
+-                    (id_uzytkownika, email, login, haslo, sol, imie, nazwisko)
+-                VALUES (?, ?, ?, ?, ?, ?, ?)
+-                ON CONFLICT (id_uzytkownika) DO UPDATE SET
+-                    email = excluded.email,
+-                    login = excluded.login,
+-                    imie = excluded.imie,
+-                    nazwisko = excluded.nazwisko;
+-            `;
+-    		const res = await this.db.runAsync(query, [
+-    			responseData.userId,
+-    			responseData.email,
+-    			responseData.username,
++    constructor(db: SQLiteDatabase) {
++        super();
++        this.db = db;
++    }
++
++    private async saveUserLocal(user: User): Promise<void> {
++        await this.db.runAsync(
++            `INSERT INTO Uzytkownicy
++                (id_uzytkownika, email, login, haslo, sol, imie, nazwisko)
++            VALUES (?, ?, ?, ?, ?, ?, ?)
++            ON CONFLICT (id_uzytkownika) DO UPDATE SET
++                email = excluded.email,
++                login = excluded.login,
++                haslo = excluded.haslo,
++                sol = excluded.sol,
++                imie = excluded.imie,
++                nazwisko = excluded.nazwisko;`,
++            [
++                user.userId,
++                user.email,
++                user.username,
+                 "mobile_profile",
+                 "mobile_profile",
+-    			responseData.firstName,
+-    			responseData.lastName,
+-    		]);
+-    		console.log("Użytkownik zapisany w lokalnym SQLite:", res);
+-            return responseData;
++                user.firstName,
++                user.lastName,
++            ],
++        );
++    }
++
++    async login(username: string, password: string): Promise<LoginResponse> {
++        const responseData = await super.login(username, password);
++        try {
++            await this.saveUserLocal(responseData);
+         } catch (error) {
+-    		console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
+-            throw error;
++            // Logowanie na serwerze się powiodło - profil lokalny uzupełni getCurrentUser()
++            console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
+         }
++        return responseData;
+     }
+-    async getCurrentUser(): Promise<User> {
+-    	const userId= await getCurrentUserId();
+ 
++    async getCurrentUser(): Promise<User> {
++        const userId = await getCurrentUserId();
+         if (!userId) {
+             throw new Error("Brak identyfikatora zalogowanego użytkownika.");
+         }
+-		
+-		try {           
+-            const query = `SELECT 
+-								id_uzytkownika AS userId,
+-								login AS username,
+-								email,
+-								imie AS firstName,
+-								nazwisko AS lastName
+-							FROM uzytkownicy
+-							WHERE id_uzytkownika = ?;`;
+-			const result = await this.db.getFirstAsync<User>(query, [userId]);
+-			if (!result) {
+-				throw new Error("Brak danych zalogowanego użytkownika w bazie danych.");
+-			}
+-            return result;
+-        } catch (error: any) {
+-			console.error(`Nie udało się odczytać użytkownika z lokalnego SQLite:`, error);
+-			throw error;
++
++        const row = await this.db.getFirstAsync<User & { haslo: string }>(
++            `SELECT
++                id_uzytkownika AS userId,
++                login AS username,
++                email,
++                imie AS firstName,
++                nazwisko AS lastName,
++                haslo
++            FROM Uzytkownicy
++            WHERE id_uzytkownika = ?;`,
++            [userId],
++        );
++
++        if (row && row.haslo !== LOCAL_USER_PLACEHOLDER) {
++            const { haslo, ...user } = row;
++            return user;
++        }
++
++        // Brak pełnego profilu lokalnie (np. po wyczyszczeniu bazy) - pobierz z API i zapisz
++        const remoteUser = await super.getCurrentUser();
++        try {
++            await this.saveUserLocal(remoteUser);
++        } catch (error) {
++            console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
+         }
+-	}
++        return remoteUser;
++    }
+ }
+diff -ruN a/database/schema.ts b/database/schema.ts
+--- a/database/schema.ts	2026-11-16 13:47:27.937740076 +0100
++++ b/database/schema.ts	2026-11-16 13:47:27.939632801 +0100
+@@ -159,4 +159,14 @@
+ );
+ `;
+ 
++export const DATABASE_INDEXES = `
++CREATE INDEX IF NOT EXISTS idx_przejscia_uzytkownik_data ON Przejscia(id_uzytkownika, deleted, data);
++CREATE INDEX IF NOT EXISTS idx_przejscia_niezsynchronizowane ON Przejscia(id_uzytkownika) WHERE synced = 0;
++CREATE INDEX IF NOT EXISTS idx_przejscia_droga ON Przejscia(id_drogi);
++CREATE INDEX IF NOT EXISTS idx_drogi_skala ON Drogi(id_skaly);
++CREATE INDEX IF NOT EXISTS idx_drogi_nazwa ON Drogi(nazwa_drogi COLLATE NOCASE);
++CREATE INDEX IF NOT EXISTS idx_skaly_sektor ON Skaly(id_sektoru);
++CREATE INDEX IF NOT EXISTS idx_sektory_rejon ON Sektory(id_rejonu);
++`;
++
+ export const SEED_DATA = ``;
+\ No newline at end of file
+diff -ruN a/lib/api/client.ts b/lib/api/client.ts
+--- a/lib/api/client.ts	2026-11-16 13:47:27.938051074 +0100
++++ b/lib/api/client.ts	2026-11-16 13:47:27.939850155 +0100
+@@ -2,8 +2,11 @@
+ import * as authStorage from "../utils/authStorage";
+ import { API_URL } from "./baseUrl";
+ 
++const REQUEST_TIMEOUT_MS = 15000;
++
+ const api = axios.create({
+     baseURL: API_URL,
++    timeout: REQUEST_TIMEOUT_MS,
+     headers: {
+         "Content-Type": "application/json",
+     },
+@@ -23,42 +26,65 @@
+     },
+ );
+ 
++// Jedno wspólne odświeżanie tokenu dla wszystkich równoległych zapytań (single-flight)
++let refreshPromise: Promise<string | null> | null = null;
++
++const refreshAccessToken = async (): Promise<string | null> => {
++    const refreshToken = await authStorage.getRefreshToken();
++    if (!refreshToken) {
++        return null;
++    }
++
++    const response = await fetch(`${API_URL}/auth/refresh`, {
++        method: "POST",
++        headers: {
++            Accept: "application/json",
++            "Content-Type": "application/json",
++        },
++        body: JSON.stringify({
++            refreshToken: refreshToken,
++        }),
++    });
++
++    if (response.status !== 200) {
++        return null;
++    }
++
++    const json = await response.json();
++    if (!json?.accessToken) {
++        return null;
++    }
++    await authStorage.saveAccessToken(json.accessToken);
++    return json.accessToken as string;
++};
++
+ // Interceptor reagujący na błędy (np. wygasły token)
+ api.interceptors.response.use(
+     (response) => response,
+     async (error) => {
+         const originalRequest = error.config;
+-		const isAuthEndpoint = originalRequest.url?.includes('/login') || originalRequest.url?.includes('/register');
++        if (!originalRequest) {
++            return Promise.reject(error);
++        }
++        const isAuthEndpoint = originalRequest.url?.includes('/login') || originalRequest.url?.includes('/register');
+ 
+         if (
+             error.response &&
+             (error.response.status === 401 || error.response.status === 403) &&
+-            !originalRequest._retry && 
+-			!isAuthEndpoint
++            !originalRequest._retry &&
++            !isAuthEndpoint
+         ) {
+             originalRequest._retry = true;
+             try {
+-                const refreshToken = await authStorage.getRefreshToken();
+-                if (!refreshToken) {
+-                    return Promise.reject(error);
++                if (!refreshPromise) {
++                    refreshPromise = refreshAccessToken().finally(() => {
++                        refreshPromise = null;
++                    });
+                 }
++                const newAccessToken = await refreshPromise;
+ 
+-                const response = await fetch(`${API_URL}/auth/refresh`, {
+-                    method: "POST",
+-                    headers: {
+-                        Accept: "application/json",
+-                        "Content-Type": "application/json",
+-                    },
+-                    body: JSON.stringify({
+-                        refreshToken: refreshToken,
+-                    }),
+-                });
+-
+-                if (response.status === 200) {
+-                    const json = await response.json();
+-                    await authStorage.saveAccessToken(json.accessToken);
+-
+-                    originalRequest.headers.Authorization = `Bearer ${json.accessToken}`;
++                if (newAccessToken) {
++                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                     return api(originalRequest);
+                 }
+             } catch (refreshError) {
+@@ -66,7 +92,7 @@
+                     "Error during refresh access token",
+                     refreshError,
+                 );
+-				return Promise.reject(refreshError);
++                return Promise.reject(refreshError);
+             }
+         }
+         return Promise.reject(error);
+diff -ruN a/lib/hooks/useReactions.ts b/lib/hooks/useReactions.ts
+--- a/lib/hooks/useReactions.ts	2026-11-16 13:47:27.937976171 +0100
++++ b/lib/hooks/useReactions.ts	2026-11-16 13:47:27.939794835 +0100
+@@ -37,7 +37,7 @@
+             shouldLike ? reactionRepository.addReaction(ascentId) : reactionRepository.deleteReaction(ascentId),
+         onError: (err, { ascentId }) => {
+             queryClient.setQueryData<AscenFeedItem[]>(['following-feed'], (oldFeed) => {
+-                if (!oldFeed) return [];
++                if (!oldFeed) return oldFeed;
+                 return oldFeed.map((item) =>
+                     item.id_przejscia === ascentId
+                         ? { ...item, isLiked: !item.isLiked }
+@@ -51,7 +51,7 @@
+             let finalLikeState = false;
+ 
+             queryClient.setQueryData<AscenFeedItem[]>(['following-feed'], (oldFeed) => {
+-                if (!oldFeed) return [];
++                if (!oldFeed) return oldFeed;
+                 return oldFeed.map((item) => {
+                     if (item.id_przejscia === ascentId) {
+                         finalLikeState = !item.isLiked;
+diff -ruN a/lib/hooks/useSyncManager.ts b/lib/hooks/useSyncManager.ts
+--- a/lib/hooks/useSyncManager.ts	2026-11-16 13:47:27.937987946 +0100
++++ b/lib/hooks/useSyncManager.ts	2026-11-16 13:47:27.939803708 +0100
+@@ -1,131 +1,112 @@
+ import { useEffect, useCallback, useRef } from "react";
++import { AppState } from "react-native";
+ import { useSQLiteContext } from "expo-sqlite";
++import { useQueryClient } from "@tanstack/react-query";
+ import { useNetwork } from "../../contexts/NetworkContext";
+ import { useAuth } from "../../contexts/AuthContext";
+ import { MobileAscentRepository } from "../../database/repositories/mobile/AscentRepository";
+ import { WebAscentRepository } from "../../database/repositories/web/AscentRepository";
+-import { MobileReactionRepository } from "../../database/repositories/mobile/ReactionRepository";
+ 
+ export const useSyncManager = () => {
+     const db = useSQLiteContext();
+-    const { isConnected } = useNetwork();
++    const { isConnected, isInternetReachable } = useNetwork();
+     const { currentUserId } = useAuth();
++    const queryClient = useQueryClient();
+     const isSyncing = useRef(false);
+ 
+     const syncAscents = useCallback(async () => {
+         if (!currentUserId || !isConnected || isSyncing.current) return;
+ 
++        const userId = Number(currentUserId);
+         const repository = new MobileAscentRepository(db);
+         const repositoryWeb = new WebAscentRepository();
+-        const reactionRepo = new MobileReactionRepository();
++        let localDataChanged = false;
+ 
+         try {
+             isSyncing.current = true;
+ 
+             // 1. Synchronizacja USUWANIA
+-            const deletions = await repository.getUnsyncedDeletions(
+-                Number(currentUserId),
+-            );
+-            if (deletions.length > 0) {
+-                console.log(
+-                    `Synchronizacja: Znaleziono ${deletions.length} przejść do usunięcia.`,
+-                );
+-                for (const ascent of deletions) {
+-                    try {
+-                        await repositoryWeb.deleteAscent(ascent.id_przejscia);
+-                        await repository.deleteAscentPermanently(
+-                            ascent.id_przejscia,
+-                        );
+-                    } catch (error) {
+-                        console.error(
+-                            `Błąd podczas usuwania przejścia ${ascent.id_przejscia} z serwera:`,
+-                            error,
+-                        );
+-                    }
++            const deletions = await repository.getUnsyncedDeletions(userId);
++            for (const ascent of deletions) {
++                try {
++                    // 404 (już usunięte na serwerze) jest traktowane jako sukces w ApiAscentRepository
++                    await repositoryWeb.deleteAscent(ascent.id_przejscia);
++                    await repository.deleteAscentPermanently(ascent.id_przejscia);
++                } catch (error) {
++                    console.error(
++                        `Błąd podczas usuwania przejścia ${ascent.id_przejscia} z serwera:`,
++                        error,
++                    );
+                 }
+             }
+ 
+             // 2. Synchronizacja DODAWANIA
+-            const unsynced = await repository.getUnsyncedAscents(
+-                Number(currentUserId),
+-            );
+-
+-            if (unsynced.length > 0) {
+-                console.log(
+-                    `Synchronizacja: Znaleziono ${unsynced.length} przejść do wysłania.`,
+-                );
+-
+-                for (const ascent of unsynced) {
+-                    try {
+-                        await repositoryWeb.addAscent({
+-                            id_przejscia: ascent.id_przejscia,
+-							id_uzytkownika: Number(currentUserId),
+-                            data: ascent.data,
+-                            id_drogi: ascent.id_drogi!,
+-                            timeline_data: {},
+-                            notatka: ascent.notatka,
+-                            nazwa_stylu: ascent.nazwa_stylu,
+-                        });
+-
+-                        await repository.markAsSynced(ascent.id_przejscia);
+-                        console.log(
+-                            `Zsynchronizowano przejście: ${ascent.id_przejscia}`,
+-                        );
+-                    } catch (error) {
+-                        console.error(
+-                            `Błąd synchronizacji przejścia ${ascent.id_przejscia}:`,
+-                            error,
+-                        );
+-                    }
++            const unsynced = await repository.getUnsyncedAscents(userId);
++            for (const ascent of unsynced) {
++                try {
++                    await repositoryWeb.addAscent({
++                        id_przejscia: ascent.id_przejscia,
++                        id_uzytkownika: userId,
++                        data: ascent.data,
++                        id_drogi: ascent.id_drogi,
++                        // Wysyłamy faktyczny timeline zapisany lokalnie (wcześniej szło tu {})
++                        timeline_data: ascent.timeline_data ?? {},
++                        notatka: ascent.notatka,
++                        nazwa_stylu: ascent.nazwa_stylu,
++                    });
++
++                    await repository.markAsSynced(ascent.id_przejscia);
++                } catch (error) {
++                    console.error(
++                        `Błąd synchronizacji przejścia ${ascent.id_przejscia}:`,
++                        error,
++                    );
+                 }
+             }
+ 
+-			// SYNCHRONIZACJA Z PRZEJŚCIAMU DODANYMI TYLKO PRZEZ WEB
+-			try {
+-				const [ascentsCountLocal, ascentsCountRemote] = await Promise.all([
+-					repository.getAscentsCountLocal(),
+-					repository.getAscentsCount()
+-				]);
+-				if (ascentsCountLocal < ascentsCountRemote) {
+-					const ascentsUUID = await repository.getAscentsUUID();
+-					const unsyncedAscents = await repository.getUnsynchronisedAscents(ascentsUUID);
+-					await repository.addAscentsLocal(unsyncedAscents);	
+-				}
+-			} catch (error) {
+-				console.error(`Błąd podczas podbieraia brakującyh przejść ze zdalnej bazy danych, ${error}`)
+-			}
+-
+-
+-            // 3. Synchronizacja REAKCJI (Powiadomień) TODO
++            // 3. Pobranie zmian z serwera (przejścia dodane / usunięte np. przez web)
+             try {
+-                // const reactions = await UserService.getUnreadReactions();
+-                // for (const reaction of reactions) {
+-                //     await reactionRepo.addReaction({
+-                //         id_uzytkownika: reaction.reactorId,
+-                //         id_przejscia: reaction.ascentId,
+-                //         imie: reaction.reactorFirstName,
+-                //         nazwisko: reaction.reactorLastName,
+-                //         username: reaction.reactorUsername,
+-                //         data_reakcji: reaction.createdAt,
+-                //         wyswietlono: 0,
+-                //     });
+-                // }
++                // Wysyłamy tylko ID już zsynchronizowane - dzięki temu "missingIds"
++                // nigdy nie obejmie przejść, które dopiero czekają na wysyłkę.
++                const syncedIds = await repository.getSyncedAscentIds(userId);
++                const { ascents, missingIds } = await repositoryWeb.getSyncDiff(syncedIds);
++
++                const added = await repository.addAscentsLocal(ascents);
++                const removed = await repository.removeSyncedAscentsLocal(missingIds);
++                if (added > 0 || removed > 0) {
++                    localDataChanged = true;
++                }
+             } catch (error) {
+-                console.error("Błąd podczas pobierania reakcji:", error);
++                console.error("Błąd podczas pobierania zmian ze zdalnej bazy danych:", error);
+             }
+         } catch (error) {
+             console.error("Błąd podczas procesu synchronizacji:", error);
+         } finally {
+             isSyncing.current = false;
+         }
+-    }, [db, isConnected, currentUserId]);
+ 
+-    // Uruchom synchronizację przy zmianie statusu sieci na connected
++        if (localDataChanged) {
++            queryClient.invalidateQueries({ queryKey: ["ascents"] });
++            queryClient.invalidateQueries({ queryKey: ["user-stats"] });
++        }
++    }, [db, isConnected, currentUserId, queryClient]);
++
++    // Synchronizacja po odzyskaniu sieci / potwierdzeniu dostępu do internetu / zalogowaniu
+     useEffect(() => {
+-        if (isConnected) {
++        if (isConnected && isInternetReachable !== false) {
+             syncAscents();
+         }
+-    }, [isConnected, syncAscents]);
++    }, [isConnected, isInternetReachable, syncAscents]);
++
++    // Synchronizacja po powrocie aplikacji na pierwszy plan
++    useEffect(() => {
++        const subscription = AppState.addEventListener("change", (state) => {
++            if (state === "active") {
++                syncAscents();
++            }
++        });
++        return () => subscription.remove();
++    }, [syncAscents]);
+ 
+     return { syncAscents };
+ };
+diff -ruN a/lib/utils/seedMobile.ts b/lib/utils/seedMobile.ts
+--- a/lib/utils/seedMobile.ts	2026-11-16 13:47:27.938006499 +0100
++++ b/lib/utils/seedMobile.ts	2026-11-16 13:47:27.939827484 +0100
+@@ -182,6 +182,8 @@
+         }
+         console.log("Drogi z JSON zaimportowane pomyślnie.");
+ 
++        // Konta i przejścia testowe - wyłącznie w buildach deweloperskich
++        if (__DEV__) {
+         const dummyHash = "dummy_mobile_hash_for_testing"; // W mobilnej bazie nie szyfrujemy haseł
+         const dummySalt = "salt_string_12345";
+ 
+@@ -223,6 +225,8 @@
+             console.log("Przejścia z osiami czasu podpięte!");
+         }
+ 
++        } // koniec danych testowych (__DEV__)
++
+         await db.execAsync("COMMIT;");
+         console.log("SUKCES! Baza lokalna zasilona JSON-em i statystykami.");
+ 

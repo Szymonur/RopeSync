@@ -1,131 +1,136 @@
 import { useEffect, useCallback, useRef } from "react";
+import { AppState } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNetwork } from "../../contexts/NetworkContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { MobileAscentRepository } from "../../database/repositories/mobile/AscentRepository";
 import { WebAscentRepository } from "../../database/repositories/web/AscentRepository";
-import { MobileReactionRepository } from "../../database/repositories/mobile/ReactionRepository";
+import { ApiRequestError } from "../../database/repositories/api/APIAscentRepository";
+
+// 4xx (poza autoryzacją, timeoutem i limitem zapytań) oznacza, że ponawianie nic nie zmieni
+const isPermanentError = (error: unknown): error is ApiRequestError => {
+    if (!(error instanceof ApiRequestError) || error.status === undefined) return false;
+    const { status } = error;
+    return status >= 400 && status < 500 && ![401, 403, 408, 429].includes(status);
+};
 
 export const useSyncManager = () => {
     const db = useSQLiteContext();
-    const { isConnected } = useNetwork();
+    const { isConnected, isInternetReachable } = useNetwork();
     const { currentUserId } = useAuth();
+    const queryClient = useQueryClient();
     const isSyncing = useRef(false);
+    const errorsResetForUser = useRef<number | null>(null);
 
     const syncAscents = useCallback(async () => {
         if (!currentUserId || !isConnected || isSyncing.current) return;
 
+        const userId = Number(currentUserId);
         const repository = new MobileAscentRepository(db);
         const repositoryWeb = new WebAscentRepository();
-        const reactionRepo = new MobileReactionRepository();
+        let localDataChanged = false;
 
         try {
             isSyncing.current = true;
 
+            // Raz na uruchomienie aplikacji (i na użytkownika) ponów przejścia odrzucone wcześniej przez serwer
+            if (errorsResetForUser.current !== userId) {
+                await repository.resetSyncErrors(userId);
+                errorsResetForUser.current = userId;
+            }
+
             // 1. Synchronizacja USUWANIA
-            const deletions = await repository.getUnsyncedDeletions(
-                Number(currentUserId),
-            );
-            if (deletions.length > 0) {
-                console.log(
-                    `Synchronizacja: Znaleziono ${deletions.length} przejść do usunięcia.`,
-                );
-                for (const ascent of deletions) {
-                    try {
-                        await repositoryWeb.deleteAscent(ascent.id_przejscia);
-                        await repository.deleteAscentPermanently(
-                            ascent.id_przejscia,
-                        );
-                    } catch (error) {
-                        console.error(
-                            `Błąd podczas usuwania przejścia ${ascent.id_przejscia} z serwera:`,
-                            error,
-                        );
-                    }
+            const deletions = await repository.getUnsyncedDeletions(userId);
+            for (const ascent of deletions) {
+                try {
+                    // 404 (już usunięte na serwerze) jest traktowane jako sukces w ApiAscentRepository
+                    await repositoryWeb.deleteAscent(ascent.id_przejscia);
+                    await repository.deleteAscentPermanently(ascent.id_przejscia);
+                } catch (error) {
+                    console.error(
+                        `Błąd podczas usuwania przejścia ${ascent.id_przejscia} z serwera:`,
+                        error,
+                    );
                 }
             }
 
             // 2. Synchronizacja DODAWANIA
-            const unsynced = await repository.getUnsyncedAscents(
-                Number(currentUserId),
-            );
+            const unsynced = await repository.getUnsyncedAscents(userId);
+            for (const ascent of unsynced) {
+                try {
+                    await repositoryWeb.addAscent({
+                        id_przejscia: ascent.id_przejscia,
+                        id_uzytkownika: userId,
+                        data: ascent.data,
+                        id_drogi: ascent.id_drogi,
+                        // Wysyłamy faktyczny timeline zapisany lokalnie (wcześniej szło tu {})
+                        timeline_data: ascent.timeline_data ?? {},
+                        notatka: ascent.notatka,
+                        nazwa_stylu: ascent.nazwa_stylu,
+                    });
 
-            if (unsynced.length > 0) {
-                console.log(
-                    `Synchronizacja: Znaleziono ${unsynced.length} przejść do wysłania.`,
-                );
-
-                for (const ascent of unsynced) {
+                    await repository.markAsSynced(ascent.id_przejscia);
+                } catch (error) {
                     try {
-                        await repositoryWeb.addAscent({
-                            id_przejscia: ascent.id_przejscia,
-							id_uzytkownika: Number(currentUserId),
-                            data: ascent.data,
-                            id_drogi: ascent.id_drogi!,
-                            timeline_data: {},
-                            notatka: ascent.notatka,
-                            nazwa_stylu: ascent.nazwa_stylu,
-                        });
-
-                        await repository.markAsSynced(ascent.id_przejscia);
-                        console.log(
-                            `Zsynchronizowano przejście: ${ascent.id_przejscia}`,
-                        );
-                    } catch (error) {
-                        console.error(
-                            `Błąd synchronizacji przejścia ${ascent.id_przejscia}:`,
-                            error,
-                        );
+                        if (isPermanentError(error)) {
+                            await repository.markSyncFailed(ascent.id_przejscia, `HTTP ${error.status}`);
+                        } else {
+                            await repository.recordSyncAttempt(ascent.id_przejscia);
+                        }
+                    } catch (dbError) {
+                        console.error("Nie udało się zapisać statusu synchronizacji:", dbError);
                     }
+                    console.error(
+                        `Błąd synchronizacji przejścia ${ascent.id_przejscia}:`,
+                        error,
+                    );
                 }
             }
 
-			// SYNCHRONIZACJA Z PRZEJŚCIAMU DODANYMI TYLKO PRZEZ WEB
-			try {
-				const [ascentsCountLocal, ascentsCountRemote] = await Promise.all([
-					repository.getAscentsCountLocal(),
-					repository.getAscentsCount()
-				]);
-				if (ascentsCountLocal < ascentsCountRemote) {
-					const ascentsUUID = await repository.getAscentsUUID();
-					const unsyncedAscents = await repository.getUnsynchronisedAscents(ascentsUUID);
-					await repository.addAscentsLocal(unsyncedAscents);	
-				}
-			} catch (error) {
-				console.error(`Błąd podczas podbieraia brakującyh przejść ze zdalnej bazy danych, ${error}`)
-			}
-
-
-            // 3. Synchronizacja REAKCJI (Powiadomień) TODO
+            // 3. Pobranie zmian z serwera (przejścia dodane / usunięte np. przez web)
             try {
-                // const reactions = await UserService.getUnreadReactions();
-                // for (const reaction of reactions) {
-                //     await reactionRepo.addReaction({
-                //         id_uzytkownika: reaction.reactorId,
-                //         id_przejscia: reaction.ascentId,
-                //         imie: reaction.reactorFirstName,
-                //         nazwisko: reaction.reactorLastName,
-                //         username: reaction.reactorUsername,
-                //         data_reakcji: reaction.createdAt,
-                //         wyswietlono: 0,
-                //     });
-                // }
+                // Wysyłamy tylko ID już zsynchronizowane - dzięki temu "missingIds"
+                // nigdy nie obejmie przejść, które dopiero czekają na wysyłkę.
+                const syncedIds = await repository.getSyncedAscentIds(userId);
+                const { ascents, missingIds } = await repositoryWeb.getSyncDiff(syncedIds);
+
+                const added = await repository.addAscentsLocal(ascents);
+                const removed = await repository.removeSyncedAscentsLocal(missingIds);
+                if (added > 0 || removed > 0) {
+                    localDataChanged = true;
+                }
             } catch (error) {
-                console.error("Błąd podczas pobierania reakcji:", error);
+                console.error("Błąd podczas pobierania zmian ze zdalnej bazy danych:", error);
             }
         } catch (error) {
             console.error("Błąd podczas procesu synchronizacji:", error);
         } finally {
             isSyncing.current = false;
         }
-    }, [db, isConnected, currentUserId]);
 
-    // Uruchom synchronizację przy zmianie statusu sieci na connected
+        if (localDataChanged) {
+            queryClient.invalidateQueries({ queryKey: ["ascents"] });
+            queryClient.invalidateQueries({ queryKey: ["user-stats"] });
+        }
+    }, [db, isConnected, currentUserId, queryClient]);
+
+    // Synchronizacja po odzyskaniu sieci / potwierdzeniu dostępu do internetu / zalogowaniu
     useEffect(() => {
-        if (isConnected) {
+        if (isConnected && isInternetReachable !== false) {
             syncAscents();
         }
-    }, [isConnected, syncAscents]);
+    }, [isConnected, isInternetReachable, syncAscents]);
+
+    // Synchronizacja po powrocie aplikacji na pierwszy plan
+    useEffect(() => {
+        const subscription = AppState.addEventListener("change", (state) => {
+            if (state === "active") {
+                syncAscents();
+            }
+        });
+        return () => subscription.remove();
+    }, [syncAscents]);
 
     return { syncAscents };
 };

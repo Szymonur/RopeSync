@@ -182,6 +182,8 @@ export const seedMobileDatabase = async (db: SQLite.SQLiteDatabase): Promise<voi
         }
         console.log("Drogi z JSON zaimportowane pomyślnie.");
 
+        // Konta i przejścia testowe - wyłącznie w buildach deweloperskich
+        if (__DEV__) {
         const dummyHash = "dummy_mobile_hash_for_testing"; // W mobilnej bazie nie szyfrujemy haseł
         const dummySalt = "salt_string_12345";
 
@@ -222,6 +224,8 @@ export const seedMobileDatabase = async (db: SQLite.SQLiteDatabase): Promise<voi
             `, [wczytaneDrogi[0].id_drogi, wczytaneDrogi[1].id_drogi, wczytaneDrogi[2].id_drogi]);
             console.log("Przejścia z osiami czasu podpięte!");
         }
+
+        } // koniec danych testowych (__DEV__)
 
         await db.execAsync("COMMIT;");
         console.log("SUKCES! Baza lokalna zasilona JSON-em i statystykami.");

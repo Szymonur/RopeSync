@@ -16,7 +16,8 @@ export class MobileRouteRepository extends ApiRouteRepository {
             const values = [
                 filters?.nazwa_drogi || null,
                 filters?.skala || null,
-                filters?.typ_drogi || null
+                filters?.typ_drogi || null,
+                filters?.id_sektoru ?? null
             ];
             return await this.db.getAllAsync<RouteListItem>(
                 `SELECT 
@@ -36,7 +37,8 @@ export class MobileRouteRepository extends ApiRouteRepository {
 				WHERE 
 					(?1 IS NULL OR d.nazwa_drogi LIKE '%' || ?1 || '%')
 					AND (?2 IS NULL OR COALESCE(ds.skala_linowa, dt.skala_linowa, db.skala_boulderowa) = ?2)
-					AND (?3 IS NULL OR d.typ_drogi = ?3)`,
+					AND (?3 IS NULL OR d.typ_drogi = ?3)
+          AND (?4 IS NULL OR sek.id_sektoru = ?4)`,
                 values,
             );
         } catch (error: any) {
@@ -90,10 +92,12 @@ export class MobileRouteRepository extends ApiRouteRepository {
         try {
             const sql = `
                 SELECT 
-                    d.id_drogi, Rock & { nazwa_sektoru: string }
+                    d.id_drogi, 
                     d.nazwa_drogi, 
                     d.typ_drogi, 
                     s.nazwa_skaly,
+                    s.id_sektoru,
+                    sek.id_rejonu,
                     COALESCE(ds.skala_linowa, ts.skala_linowa, bs.skala_boulderowa) as wycena,
                     r.nazwa_rejonu
                 FROM Drogi d
@@ -101,10 +105,11 @@ export class MobileRouteRepository extends ApiRouteRepository {
                 JOIN Sektory sek ON s.id_sektoru = sek.id_sektoru
                 JOIN Rejony r ON sek.id_rejonu = r.id_rejonu
                 LEFT JOIN Drogi_sportowe_szczegoly ds ON d.id_drogi = ds.id_drogi
-                LEFT JOIN Trady_szczegoly dt ON d.id_drogi = dt.id_drogi
-                LEFT JOIN Bouldery_szczegoly db ON d.id_drogi = db.id_drogi
+                LEFT JOIN Trady_szczegoly ts ON d.id_drogi = ts.id_drogi
+                LEFT JOIN Bouldery_szczegoly bs ON d.id_drogi = bs.id_drogi
                 WHERE d.nazwa_drogi LIKE ?
                 ORDER BY d.nazwa_drogi ASC
+                LIMIT 50
             `;
             return await this.db.getAllAsync<RouteListItem>(sql, [`%${query}%`]);
         } catch (error: any) {

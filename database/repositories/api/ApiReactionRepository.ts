@@ -5,7 +5,7 @@ import { Reaction, ReactionNotification } from "../../../types/reaction";
 export class ApiReactionRepository implements IReactionRepository {
 	async addReaction(ascentId: string, signal?: AbortSignal): Promise<void> {
 		try {
-			await api.post<{message: string}>(`/ascents/${ascentId}/reactions`, { signal });
+			await api.post<{message: string}>(`/ascents/${ascentId}/reactions`, undefined, { signal });
 		} catch (error: any) {
             if (error.response) {
                 throw new Error("Wystąpił błąd podczas dodawnia reakcji.");
@@ -27,9 +27,9 @@ export class ApiReactionRepository implements IReactionRepository {
 		try {
 			const { data } = await api.get<{ 
 				message: string; 
-				reactions: ReactionNotification[];}>
+				notifications: ReactionNotification[];}>
 				("/notifications", { params: { unread: true } });
-			return data.reactions;
+			return data.notifications;
 		} catch (error: any) {
 			if (error.response) {
 				throw new Error("Wystąpił błąd podczas pobierania nieprzeczytanych reakcji.");

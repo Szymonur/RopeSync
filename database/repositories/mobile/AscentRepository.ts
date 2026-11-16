@@ -3,6 +3,36 @@ import { ApiAscentRepository  } from "../api/APIAscentRepository";
 import { Ascent, AscentStyle, UserStats } from '../../../types/ascent';
 import { getCurrentUserId } from "../../../lib/utils/authStorage"
 import { SQLiteDatabase } from "expo-sqlite";
+import { LOCAL_USER_PLACEHOLDER } from "./UserRepository";
+
+const BULK_CHUNK_SIZE = 100;
+
+// W SQLite timeline_data jest tekstem (JSON), a z API przychodzi obiekt.
+// Repozytorium zawsze zwraca obiekt albo undefined (pusty obiekt traktujemy jak brak danych).
+const normalizeAscent = <T extends Ascent>(row: T): T => {
+    const raw = row.timeline_data as unknown;
+    if (typeof raw !== "string") return row;
+    try {
+        const parsed = JSON.parse(raw);
+        const hasData = parsed && typeof parsed === "object" && Object.keys(parsed).length > 0;
+        return { ...row, timeline_data: hasData ? parsed : undefined };
+    } catch {
+        return { ...row, timeline_data: undefined };
+    }
+};
+
+const serializeTimeline = (timeline: unknown): string | null => {
+    if (timeline == null) return null;
+    return typeof timeline === "string" ? timeline : JSON.stringify(timeline);
+};
+
+const chunk = <T,>(items: T[], size: number): T[][] => {
+    const chunks: T[][] = [];
+    for (let i = 0; i < items.length; i += size) {
+        chunks.push(items.slice(i, i + size));
+    }
+    return chunks;
+};
 
 
 const LINEAR_GRADE_ORDER = ["3","4","4+","5a","5a+","5b","5b+","5c","5c+","6a","6a+","6b","6b+","6c","6c+","7a","7a+","7b","7b+","7c","7c+","8a","8a+","8b","8b+","8c","8c+","9a","9a+"];
@@ -162,7 +192,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
     async getAscents(): Promise<Ascent[]> {
         try {    
             const currentUserId = await getCurrentUserId();
-            return await this.db.getAllAsync<Ascent>(
+            const rows = await this.db.getAllAsync<Ascent>(
                 `SELECT
                     p.id_przejscia,
                     p.data,
@@ -189,6 +219,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
                  ORDER BY p.data DESC, p.id_przejscia DESC`,
                 [currentUserId],
             );
+            return rows.map(normalizeAscent);
         } catch (error: any) {
             throw new Error(`Wystąpił błąd podczas pobierania przejść z bazy danych. ${error}`);
         }
@@ -228,7 +259,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
             [ascentId]);
 
             if (localResult) {
-                return localResult; 
+                return normalizeAscent(localResult); 
             }
         } catch (error: any) {
             throw new Error("Wystąpił błąd podczas pobierania szczegułów przejscia.");
@@ -244,40 +275,120 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         }
     }
 
+    // Offline-first: zmiana trafia najpierw do lokalnej bazy i UI dostaje odpowiedź od razu.
+    // Wysyłka na serwer idzie w tle; jeśli się nie uda, dokończy ją useSyncManager.
     async deleteAscent(ascentId: string): Promise<void> {
         try {
             await this.markAsDeletedLocal(ascentId);
-            try {
-                await super.deleteAscent(ascentId); 
-                await this.deleteAscentPermanently(ascentId);
-            } catch (networkError) {
-                console.log(`Usunięto tylko lokalnie. Czeka na sync. ID: ${ascentId}`);
-            }
         } catch (sqliteError) {
             throw new Error("Krytyczny błąd: nie udało się usunąć przejścia lokalnie.");
         }
+        void this.pushDeletion(ascentId);
     }
 
-    async addAscent(ascent: Ascent): Promise<void>{
-        try{
-            await this.addAscentLocal(ascent);
-            try {
-                await super.addAscent(ascent);
-                await this.markAsSynced(ascent.id_przejscia)
-            } catch (networkError) {
-                console.log(`Dodano tylko lokalnie. Czeka na sync. ID: ${ascent.id_przejscia}`);
-            }
+    async addAscent(ascent: Ascent): Promise<void> {
+        try {
+            await this.addAscentLocal({ ...ascent, synced: 0, deleted: 0 });
         } catch (sqliteError) {
             throw new Error(`Krytyczny błąd: nie udało się dodać przejścia lokalnie. ${sqliteError}`);
         }
+        void this.pushAscent(ascent);
     }
 
-    async addAscentsLocal(ascents: Ascent[]): Promise<void>{
-        try{
-            await this.addAscentsLocalBulkQuery(ascents);
+    private async pushAscent(ascent: Ascent): Promise<void> {
+        try {
+            await super.addAscent(ascent);
+            await this.markAsSynced(ascent.id_przejscia);
+        } catch (error) {
+            console.log(`Dodano tylko lokalnie. Czeka na sync. ID: ${ascent.id_przejscia}`);
+        }
+    }
+
+    private async pushDeletion(ascentId: string): Promise<void> {
+        try {
+            await super.deleteAscent(ascentId);
+            await this.deleteAscentPermanently(ascentId);
+        } catch (error) {
+            console.log(`Usunięto tylko lokalnie. Czeka na sync. ID: ${ascentId}`);
+        }
+    }
+
+    // Wstawia przejścia pobrane z serwera. Zwraca liczbę faktycznie dodanych wierszy.
+    async addAscentsLocal(ascents: Ascent[]): Promise<number> {
+        if (ascents.length === 0) return 0;
+        try {
+            // Klucze obce są włączone: pomijamy przejścia do dróg / stylów nieznanych lokalnie,
+            // żeby jeden taki rekord nie blokował całej paczki.
+            const [routeRows, styleRows] = await Promise.all([
+                this.db.getAllAsync<{ id_drogi: string }>("SELECT id_drogi FROM Drogi"),
+                this.db.getAllAsync<{ nazwa_stylu: string }>("SELECT nazwa_stylu FROM Style_przejscia"),
+            ]);
+            const knownRoutes = new Set(routeRows.map((r) => r.id_drogi));
+            const knownStyles = new Set(styleRows.map((s) => s.nazwa_stylu));
+            const valid = ascents.filter(
+                (a) => knownRoutes.has(a.id_drogi) && knownStyles.has(a.nazwa_stylu),
+            );
+            if (valid.length < ascents.length) {
+                console.warn(
+                    `Sync: pominięto ${ascents.length - valid.length} przejść do dróg/stylów nieznanych lokalnie.`,
+                );
+            }
+
+            const userIds = new Set(valid.map((a) => a.id_uzytkownika));
+            for (const userId of userIds) {
+                await this.ensureUserRow(userId);
+            }
+
+            let added = 0;
+            for (const part of chunk(valid, BULK_CHUNK_SIZE)) {
+                const placeholders = part.map(() => "(?, ?, ?, ?, ?, ?, ?, 1, 0)").join(", ");
+                const values: (string | number | null)[] = [];
+                for (const ascent of part) {
+                    values.push(
+                        ascent.id_przejscia,
+                        ascent.data,
+                        ascent.notatka ?? null,
+                        serializeTimeline(ascent.timeline_data),
+                        ascent.id_uzytkownika,
+                        ascent.nazwa_stylu,
+                        ascent.id_drogi,
+                    );
+                }
+                const result = await this.db.runAsync(
+                    `INSERT OR IGNORE INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders}`,
+                    values,
+                );
+                added += result.changes;
+            }
+            return added;
         } catch (sqliteError) {
             throw new Error(`Krytyczny błąd: nie udało się dodać przejść lokalnie. ${sqliteError}`);
         }
+    }
+
+    // Usuwa lokalnie przejścia, których serwer już nie ma (np. skasowane z weba).
+    // Dotyczy wyłącznie wierszy wcześniej zsynchronizowanych i nieoznaczonych do usunięcia.
+    async removeSyncedAscentsLocal(ascentIds: string[]): Promise<number> {
+        let removed = 0;
+        for (const part of chunk(ascentIds, BULK_CHUNK_SIZE)) {
+            const placeholders = part.map(() => "?").join(", ");
+            const result = await this.db.runAsync(
+                `DELETE FROM Przejscia WHERE synced = 1 AND deleted = 0 AND id_przejscia IN (${placeholders})`,
+                part,
+            );
+            removed += result.changes;
+        }
+        return removed;
+    }
+
+    // Przejście wymaga wiersza użytkownika (klucz obcy). Jeśli profilu nie ma lokalnie,
+    // tworzymy zaślepkę - pełne dane uzupełni MobileUserRepository.getCurrentUser().
+    private async ensureUserRow(userId: number) {
+        await this.db.runAsync(
+            `INSERT OR IGNORE INTO Uzytkownicy (id_uzytkownika, login, email, haslo, sol, imie, nazwisko)
+             VALUES (?, ?, ?, ?, ?, '', '')`,
+            [userId, `user_${userId}`, `user_${userId}@local.invalid`, LOCAL_USER_PLACEHOLDER, LOCAL_USER_PLACEHOLDER],
+        );
     }
 
     private async markAsDeletedLocal(ascentId: string) {
@@ -288,13 +399,14 @@ export class MobileAscentRepository extends ApiAscentRepository  {
     }
 
     private async addAscentLocal(ascent: Ascent) {
+        await this.ensureUserRow(ascent.id_uzytkownika);
         await this.db.runAsync(
             "INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 ascent.id_przejscia,
                 ascent.data,
-                ascent.notatka,
-                ascent.timeline_data ? JSON.stringify(ascent.timeline_data) : null,
+                ascent.notatka ?? null,
+                serializeTimeline(ascent.timeline_data),
                 ascent.id_uzytkownika,
                 ascent.nazwa_stylu,
                 ascent.id_drogi,
@@ -304,33 +416,10 @@ export class MobileAscentRepository extends ApiAscentRepository  {
         );
     }
 
-    private async addAscentsLocalBulkQuery(ascents: Ascent[]) {
-        if (ascents.length === 0) return;
-
-        const placeholders = ascents.map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?)").join(", ");
-        const query = `INSERT INTO Przejscia (id_przejscia, data, notatka, timeline_data, id_uzytkownika, nazwa_stylu, id_drogi, synced, deleted) VALUES ${placeholders}`;
-
-        const values: any[] = [];
-        for (const ascent of ascents) {
-            values.push(
-                ascent.id_przejscia,
-                ascent.data,
-                ascent.notatka,
-                ascent.timeline_data ? JSON.stringify(ascent.timeline_data) : null,
-                ascent.id_uzytkownika,
-                ascent.nazwa_stylu,
-                ascent.id_drogi,
-                ascent.synced ?? 1,
-                ascent.deleted ?? 0
-            );
-        }
-        await this.db.runAsync(query, values);
-    }
-
     async getAscentsCountLocal(): Promise<number>{
         const userId = await getCurrentUserId();
         const result =  await this.db.getFirstAsync<{count: number}>(
-            "SELECT COUNT(*) as count FROM Przejscia WHERE id_uzytkownika = ?", 
+            "SELECT COUNT(*) as count FROM Przejscia WHERE id_uzytkownika = ? AND deleted = 0",
             [userId]
         );
         return result?.count ?? 0;
@@ -339,7 +428,16 @@ export class MobileAscentRepository extends ApiAscentRepository  {
     async getAscentsUUID(): Promise<string[]>{
         const userId = await getCurrentUserId();
         const rows = await this.db.getAllAsync<{ id_przejscia: string }>(
-            "SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ?", 
+            "SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ?",
+            [userId]
+        );
+        return rows.map(row => row.id_przejscia);
+    }
+
+    // ID przejść, które serwer już potwierdził (podstawa do wyznaczania różnic)
+    async getSyncedAscentIds(userId: number): Promise<string[]> {
+        const rows = await this.db.getAllAsync<{ id_przejscia: string }>(
+            "SELECT id_przejscia FROM Przejscia WHERE id_uzytkownika = ? AND synced = 1",
             [userId]
         );
         return rows.map(row => row.id_przejscia);
@@ -347,7 +445,7 @@ export class MobileAscentRepository extends ApiAscentRepository  {
 
     async markAsSynced(ascentId: string) {
         await this.db.runAsync(
-            "UPDATE Przejscia SET synced = 1 WHERE id_przejscia = ?",
+            "UPDATE Przejscia SET synced = 1 WHERE id_przejscia = ? AND deleted = 0",
             [ascentId],
         );
     }
@@ -359,8 +457,33 @@ export class MobileAscentRepository extends ApiAscentRepository  {
     }
 
     async getUnsyncedAscents(userId: number): Promise<Ascent[]> {
-        return await this.db.getAllAsync<Ascent>(
-            "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0 AND deleted = 0",
+        const rows = await this.db.getAllAsync<Ascent>(
+            "SELECT * FROM Przejscia WHERE id_uzytkownika = ? AND synced = 0 AND deleted = 0 AND sync_error IS NULL",
+            [userId],
+        );
+        return rows.map(normalizeAscent);
+    }
+
+    // Błąd chwilowy (sieć, 5xx): tylko licznik prób - przejście zostaje w kolejce
+    async recordSyncAttempt(ascentId: string) {
+        await this.db.runAsync(
+            "UPDATE Przejscia SET sync_attempts = sync_attempts + 1 WHERE id_przejscia = ?",
+            [ascentId],
+        );
+    }
+
+    // Błąd trwały (4xx): przejście wypada z kolejki do czasu resetSyncErrors()
+    async markSyncFailed(ascentId: string, reason: string) {
+        await this.db.runAsync(
+            "UPDATE Przejscia SET sync_attempts = sync_attempts + 1, sync_error = ? WHERE id_przejscia = ?",
+            [reason, ascentId],
+        );
+    }
+
+    // Daje odrzuconym przejściom kolejną szansę (np. po aktualizacji aplikacji / katalogu dróg)
+    async resetSyncErrors(userId: number) {
+        await this.db.runAsync(
+            "UPDATE Przejscia SET sync_error = NULL WHERE id_uzytkownika = ? AND sync_error IS NOT NULL",
             [userId],
         );
     }

@@ -2,6 +2,18 @@ import api from "../../../lib/api/client";
 import { IAscentRepository } from "../interfaces/IAscentRepository";
 import { Ascent, AscentStyle, UserStats, AscenFeedItem } from '../../../types/ascent';
 
+// Błąd odpowiedzi HTTP z zachowanym kodem statusu (potrzebny m.in. synchronizacji,
+// żeby odróżnić błąd trwały 4xx od chwilowego braku sieci / 5xx)
+export class ApiRequestError extends Error {
+    status?: number;
+
+    constructor(message: string, status?: number) {
+        super(message);
+        this.name = "ApiRequestError";
+        this.status = status;
+    }
+}
+
 export class ApiAscentRepository implements IAscentRepository {
 	async getAscents(signal?: AbortSignal): Promise<Ascent[]> {
         try {
@@ -25,6 +37,25 @@ export class ApiAscentRepository implements IAscentRepository {
         	throw new Error("Problem z połączeniem sieciowym.");
         }
 	}
+	// Różnica względem serwera: przejścia nieznane klientowi + ID, których serwer już nie ma
+	async getSyncDiff(ascentsUUID: string[], signal?: AbortSignal): Promise<{ ascents: Ascent[]; missingIds: string[] }> {
+		try {
+			const response = await api.post<{ message: string; ascents: Ascent[]; missingIds?: string[] }>(
+				`/ascents/sync-diff`,
+				{ ascentsUUID }, { signal }
+			);
+			return {
+				ascents: response.data.ascents ?? [],
+				missingIds: response.data.missingIds ?? [],
+			};
+		} catch (error: any) {
+			if (error.response) {
+				throw new Error("Wystąpił błąd podczas wyznaczania różnic synchronizacji.");
+			}
+			throw new Error("Problem z połączeniem sieciowym.");
+		}
+	}
+
 	async getUnsynchronisedAscents(ascentsUUID: string[], signal?: AbortSignal): Promise<Ascent[]>{
 	     try {
             const response = await api.post<{ message: string; ascents: Ascent[] }>(
@@ -67,6 +98,8 @@ export class ApiAscentRepository implements IAscentRepository {
 		try {
 			await api.delete<{message: string}>(`/ascents/${ascentId}`);
 		} catch (error: any) {
+            // Przejścia już nie ma na serwerze - cel osiągnięty (idempotentne usuwanie)
+            if (error.response?.status === 404) return;
             if (error.response) {
                 throw new Error("Wystąpił błąd podczas usuwania przejscia.");
             }
@@ -78,7 +111,7 @@ export class ApiAscentRepository implements IAscentRepository {
 			await api.post<{message: string}>(`/ascents/`, ascent);
 		} catch (error: any) {
             if (error.response) {
-                throw new Error("Wystąpił błąd podczas dodawania przejscia.", error.response);
+                throw new ApiRequestError("Wystąpił błąd podczas dodawania przejscia.", error.response.status);
             }
         	throw new Error("Problem z połączeniem sieciowym.");
         }

@@ -37,7 +37,7 @@ export const useToggleReaction = () => {
             shouldLike ? reactionRepository.addReaction(ascentId) : reactionRepository.deleteReaction(ascentId),
         onError: (err, { ascentId }) => {
             queryClient.setQueryData<AscenFeedItem[]>(['following-feed'], (oldFeed) => {
-                if (!oldFeed) return [];
+                if (!oldFeed) return oldFeed;
                 return oldFeed.map((item) =>
                     item.id_przejscia === ascentId
                         ? { ...item, isLiked: !item.isLiked }
@@ -51,7 +51,7 @@ export const useToggleReaction = () => {
             let finalLikeState = false;
 
             queryClient.setQueryData<AscenFeedItem[]>(['following-feed'], (oldFeed) => {
-                if (!oldFeed) return [];
+                if (!oldFeed) return oldFeed;
                 return oldFeed.map((item) => {
                     if (item.id_przejscia === ascentId) {
                         finalLikeState = !item.isLiked;

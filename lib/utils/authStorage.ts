@@ -7,7 +7,12 @@ const CURRENT_USER_ID = "current_user_id";
 
 // --- FUNKCJE POMOCNICZE ---
 
+// Pamięć podręczna: tokeny są czytane przy każdym zapytaniu HTTP,
+// więc nie odpytujemy SecureStore (most natywny) za każdym razem.
+const memoryCache = new Map<string, string | null>();
+
 const saveItem = async (key: string, value: string, errorMessage: string): Promise<void> => {
+    memoryCache.set(key, value);
     try {
         if (Platform.OS === "web") {
             localStorage.setItem(key, value);
@@ -20,12 +25,18 @@ const saveItem = async (key: string, value: string, errorMessage: string): Promi
 };
 
 const getItem = async (key: string, errorMessage: string): Promise<string | null> => {
+    if (memoryCache.has(key)) {
+        return memoryCache.get(key) ?? null;
+    }
     try {
+        let value: string | null;
         if (Platform.OS === "web") {
-            return localStorage.getItem(key);
+            value = localStorage.getItem(key);
         } else {
-            return await SecureStore.getItemAsync(key);
+            value = await SecureStore.getItemAsync(key);
         }
+        memoryCache.set(key, value);
+        return value;
     } catch (error) {
         console.error(errorMessage, error);
         return null;
@@ -33,6 +44,7 @@ const getItem = async (key: string, errorMessage: string): Promise<string | null
 };
 
 const removeItem = async (key: string, errorMessage: string): Promise<void> => {
+    memoryCache.set(key, null);
     try {
         if (Platform.OS === "web") {
             localStorage.removeItem(key);

@@ -3,67 +3,83 @@ import { LoginResponse, User } from '../../../types/user';
 import { ApiUserRepository } from "../api/ApiUserRepository";
 import { getCurrentUserId } from "../../../lib/utils/authStorage"
 
-export class MobileUserRepository extends ApiUserRepository{
-	private db: SQLiteDatabase;
+// Znacznik wiersza-zaślepki tworzonego przez MobileAscentRepository.ensureUserRow
+export const LOCAL_USER_PLACEHOLDER = "local_placeholder";
 
-	constructor(db: SQLiteDatabase) {
-		super();
-		this.db = db;
-	}
+export class MobileUserRepository extends ApiUserRepository {
+    private db: SQLiteDatabase;
+
+    constructor(db: SQLiteDatabase) {
+        super();
+        this.db = db;
+    }
+
+    private async saveUserLocal(user: User): Promise<void> {
+        await this.db.runAsync(
+            `INSERT INTO Uzytkownicy
+                (id_uzytkownika, email, login, haslo, sol, imie, nazwisko)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (id_uzytkownika) DO UPDATE SET
+                email = excluded.email,
+                login = excluded.login,
+                haslo = excluded.haslo,
+                sol = excluded.sol,
+                imie = excluded.imie,
+                nazwisko = excluded.nazwisko;`,
+            [
+                user.userId,
+                user.email,
+                user.username,
+                "mobile_profile",
+                "mobile_profile",
+                user.firstName,
+                user.lastName,
+            ],
+        );
+    }
 
     async login(username: string, password: string): Promise<LoginResponse> {
-		const responseData = await super.login(username, password);
+        const responseData = await super.login(username, password);
         try {
-            const query = `
-                INSERT INTO Uzytkownicy
-                    (id_uzytkownika, email, login, haslo, sol, imie, nazwisko)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT (id_uzytkownika) DO UPDATE SET
-                    email = excluded.email,
-                    login = excluded.login,
-                    imie = excluded.imie,
-                    nazwisko = excluded.nazwisko;
-            `;
-    		const res = await this.db.runAsync(query, [
-    			responseData.userId,
-    			responseData.email,
-    			responseData.username,
-                "mobile_profile",
-                "mobile_profile",
-    			responseData.firstName,
-    			responseData.lastName,
-    		]);
-    		console.log("Użytkownik zapisany w lokalnym SQLite:", res);
-            return responseData;
+            await this.saveUserLocal(responseData);
         } catch (error) {
-    		console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
-            throw error;
+            // Logowanie na serwerze się powiodło - profil lokalny uzupełni getCurrentUser()
+            console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
         }
+        return responseData;
     }
-    async getCurrentUser(): Promise<User> {
-    	const userId= await getCurrentUserId();
 
+    async getCurrentUser(): Promise<User> {
+        const userId = await getCurrentUserId();
         if (!userId) {
             throw new Error("Brak identyfikatora zalogowanego użytkownika.");
         }
-		
-		try {           
-            const query = `SELECT 
-								id_uzytkownika AS userId,
-								login AS username,
-								email,
-								imie AS firstName,
-								nazwisko AS lastName
-							FROM uzytkownicy
-							WHERE id_uzytkownika = ?;`;
-			const result = await this.db.getFirstAsync<User>(query, [userId]);
-			if (!result) {
-				throw new Error("Brak danych zalogowanego użytkownika w bazie danych.");
-			}
-            return result;
-        } catch (error: any) {
-			console.error(`Nie udało się odczytać użytkownika z lokalnego SQLite:`, error);
-			throw error;
+
+        const row = await this.db.getFirstAsync<User & { haslo: string }>(
+            `SELECT
+                id_uzytkownika AS userId,
+                login AS username,
+                email,
+                imie AS firstName,
+                nazwisko AS lastName,
+                haslo
+            FROM Uzytkownicy
+            WHERE id_uzytkownika = ?;`,
+            [userId],
+        );
+
+        if (row && row.haslo !== LOCAL_USER_PLACEHOLDER) {
+            const { haslo, ...user } = row;
+            return user;
         }
-	}
+
+        // Brak pełnego profilu lokalnie (np. po wyczyszczeniu bazy) - pobierz z API i zapisz
+        const remoteUser = await super.getCurrentUser();
+        try {
+            await this.saveUserLocal(remoteUser);
+        } catch (error) {
+            console.error("Nie udało się zapisać użytkownika w lokalnym SQLite:", error);
+        }
+        return remoteUser;
+    }
 }

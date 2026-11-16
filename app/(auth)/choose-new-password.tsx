@@ -86,14 +86,6 @@ const ChooseNewPassword = () => {
 					message: "Twoje hasło zostało pomyślnie zresetowane.",
 					type: "success",
 				});
-				if (Platform.OS === "web" && typeof window !== "undefined") {
-					window.history.replaceState(
-						null,
-						document.title,
-						window.location.pathname,
-					);
-				}
-				window.location.replace("ropesync://login");
 				router.replace({
 					pathname: "/(auth)/login",
 					params: {},

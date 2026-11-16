@@ -44,18 +44,33 @@ const DeviceScreen = () => {
                 routeLenght: 15.5,
                 timeline: [
                     {
-                        timestamp: 10,
+                        timestamp: 25,
                         height: 2.5,
                         events: [{ type: "clip", clipingTime: 1.5, force: 0.1, belayRate: 8 }],
                     },
+		            {
+                    timestamp: 10,
+                        height: 5.1,
+                        events: [{ type: "clip", clipingTime: 0.6, force: 0.3, belayRate: 6 }],
+                    },
                     {
-                        timestamp: 45,
+                        timestamp: 25,
                         height: 8.2,
                         events: [{ type: "fall", force: 2.1, duration: 1.2, fallenDisnace: 3.5 }],
                     },
+					{
+                        timestamp: 45,
+                        height: 12.0,
+                        events: [{ type: "clip", clipingTime: 0.9, force: 0.4, belayRate: 9 }],
+                    },
+					{
+                        timestamp: 70,
+                        height: 12.0,
+                        events: [{ type: "block", blockTime: 20}],
+                    },
                     {
-                        timestamp: 90,
-                        height: 17.5,
+                        timestamp: 100,
+                        height: 14.5,
                         events: [{ type: "anchor" }],
                     },
                 ],
@@ -70,7 +85,7 @@ const DeviceScreen = () => {
                 synced: 0,
                 deleted: 0,
                 nazwa_stylu: "RP",
-                id_drogi: "d_s1",
+                id_drogi: "898831ac-8829-4271-8fa3-e839de942a2d",
             });
 
             Alert.alert("Sukces", "Utworzono mockowe przejście i zapisano dane w bazie.");

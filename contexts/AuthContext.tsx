@@ -2,11 +2,14 @@ import React, {
     createContext,
     useState,
     useEffect,
+    useCallback,
+    useMemo,
     ReactNode,
     useContext,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as authStorage from "../lib/utils/authStorage";
+import { setAuthFailureHandler } from "../lib/api/client";
 
 
 // 1. Definiujemy kształt danych w naszym kontekście
@@ -75,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         bootstrapAsync();
     }, []);
 
-    const login = async (
+    const login = useCallback(async (
         accesToken: string,
         refreshToken: string,
         userId: string,
@@ -93,9 +96,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAccessToken(accesToken);
         setRefreshToken(refreshToken);
         setCurrentUserId(userId);
-    };
+    }, [queryClient]);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         setAccessToken(null);
         setRefreshToken(null);
         setCurrentUserId(null);
@@ -109,19 +112,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch (e) {
             console.error("Błąd podczas usuwania danych autoryzacji:", e);
         }
-    };
+    }, [queryClient]);
+
+    // Serwer odrzucił refresh token -> wyloguj (RouteRedirects przeniesie na ekran logowania)
+    useEffect(() => {
+        setAuthFailureHandler(() => {
+            logout();
+        });
+        return () => setAuthFailureHandler(null);
+    }, [logout]);
+
+    const value = useMemo(
+        () => ({
+            accessToken,
+            refreshToken,
+            currentUserId,
+            isLoading,
+            login,
+            logout,
+        }),
+        [accessToken, refreshToken, currentUserId, isLoading, login, logout],
+    );
 
     return (
-        <AuthContext.Provider
-            value={{
-                accessToken,
-                refreshToken,
-                currentUserId,
-                isLoading,
-                login,
-                logout,
-            }}
-        >
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );

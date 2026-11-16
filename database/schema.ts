@@ -159,4 +159,14 @@ CREATE TABLE IF NOT EXISTS Pomiary_wyciagow (
 );
 `;
 
+export const DATABASE_INDEXES = `
+CREATE INDEX IF NOT EXISTS idx_przejscia_uzytkownik_data ON Przejscia(id_uzytkownika, deleted, data);
+CREATE INDEX IF NOT EXISTS idx_przejscia_niezsynchronizowane ON Przejscia(id_uzytkownika) WHERE synced = 0;
+CREATE INDEX IF NOT EXISTS idx_przejscia_droga ON Przejscia(id_drogi);
+CREATE INDEX IF NOT EXISTS idx_drogi_skala ON Drogi(id_skaly);
+CREATE INDEX IF NOT EXISTS idx_drogi_nazwa ON Drogi(nazwa_drogi COLLATE NOCASE);
+CREATE INDEX IF NOT EXISTS idx_skaly_sektor ON Skaly(id_sektoru);
+CREATE INDEX IF NOT EXISTS idx_sektory_rejon ON Sektory(id_rejonu);
+`;
+
 export const SEED_DATA = ``;

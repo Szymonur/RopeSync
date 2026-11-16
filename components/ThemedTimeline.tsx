@@ -154,6 +154,8 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
                 return Colors.error;
             case "clip":
                 return "#44AAFF";
+			case "block":
+                return "#bb00b1";
             case "anchor":
                 return "#44FF44";
             default:
@@ -512,6 +514,16 @@ const ThemedTimeline = ({ timelineData: propTimelineData }: ThemedTimelineProps)
                                                     | Asek.:{" "}
                                                     <ThemedText bold>
                                                         {event.belayRate}/10
+                                                    </ThemedText>
+                                                </ThemedText>
+                                            )}
+											{event.type === "block" && (
+                                                <ThemedText
+                                                    style={styles.detailText}
+                                                >
+                                                    Czas wiszenia:{" "}
+                                                    <ThemedText bold>
+                                                        {event.blockTime}s
                                                     </ThemedText>
                                                 </ThemedText>
                                             )}
