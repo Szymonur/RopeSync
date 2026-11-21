@@ -14,33 +14,34 @@ export const encodeToBase64 = (text: string): string => {
     return output;
 };
 
+// Tablica odwrotna liczona raz - dekodowanie jest wołane dla każdej ramki BLE
+const BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const BASE64_LOOKUP = (() => {
+    const table = new Uint8Array(128);
+    for (let i = 0; i < BASE64_CHARS.length; i++) table[BASE64_CHARS.charCodeAt(i)] = i;
+    return table;
+})();
+
 export const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
-    const chars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    let bufferLength = base64.length * 0.75,
-        len = base64.length,
-        i,
-        p = 0,
-        encoded1,
-        encoded2,
-        encoded3,
-        encoded4;
-    if (base64[base64.length - 1] === "=") {
+    const len = base64.length;
+    let bufferLength = Math.floor(len * 0.75);
+    if (base64[len - 1] === "=") {
         bufferLength--;
-        if (base64[base64.length - 2] === "=") {
+        if (base64[len - 2] === "=") {
             bufferLength--;
         }
     }
-    const arraybuffer = new ArrayBuffer(bufferLength),
-        bytes = new Uint8Array(arraybuffer);
-    for (i = 0; i < len; i += 4) {
-        encoded1 = chars.indexOf(base64[i]);
-        encoded2 = chars.indexOf(base64[i + 1]);
-        encoded3 = chars.indexOf(base64[i + 2]);
-        encoded4 = chars.indexOf(base64[i + 3]);
-        bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-        bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-        bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    const arraybuffer = new ArrayBuffer(bufferLength);
+    const bytes = new Uint8Array(arraybuffer);
+    let p = 0;
+    for (let i = 0; i < len; i += 4) {
+        const encoded1 = BASE64_LOOKUP[base64.charCodeAt(i)];
+        const encoded2 = BASE64_LOOKUP[base64.charCodeAt(i + 1)];
+        const encoded3 = BASE64_LOOKUP[base64.charCodeAt(i + 2) & 127];
+        const encoded4 = BASE64_LOOKUP[base64.charCodeAt(i + 3) & 127];
+        if (p < bufferLength) bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+        if (p < bufferLength) bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+        if (p < bufferLength) bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
     }
     return arraybuffer;
 };

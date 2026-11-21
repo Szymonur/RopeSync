@@ -97,22 +97,31 @@ const RouteDetail = ({ routeId, isEmbedded = false }: RouteDetailProps) => {
 
                 <Spacer height={28} />
 
-                {/* --- Reszta UI (ThemedCard i description) bez najmniejszych zmian --- */}
                 <ThemedCard style={styles.detailsCard}>
                     {route.dlugosc_drogi && (
                         <View style={styles.detailRow}>
-                            <ThemedText style={styles.label}>Length:</ThemedText>
+                            <ThemedText style={styles.label}>Długość:</ThemedText>
                             <ThemedText style={styles.value}>{route.dlugosc_drogi}m</ThemedText>
                         </View>
                     )}
-                    {/* ... (zostaw resztę detali) ... */}
+					{route.liczba_ringow && (
+                        <View style={styles.detailRow}>
+                            <ThemedText style={styles.label}>Liczba ringow:</ThemedText>
+                            <ThemedText style={styles.value}>{route.liczba_ringow }</ThemedText>
+                        </View>
+                    )}
                 </ThemedCard>
 
                 <Spacer height={20} />
-                <ThemedText style={styles.noteLabel}>Description:</ThemedText>
-                <ThemedText style={styles.note}>
-                    {route.opis || "No description available."}
-                </ThemedText>
+				{route.opis && (
+					<>
+						<ThemedText style={styles.noteLabel}>Opis:</ThemedText>
+						<ThemedText style={styles.note}>
+							{route.opis || "Brak opisu."}
+						</ThemedText>
+					</>
+				)}
+
 
                 <Spacer height={40} />
             </ScrollView>

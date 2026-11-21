@@ -7,7 +7,9 @@ import ThemedText from "../../../components/ThemedText";
 import ThemedView from "../../../components/ThemedView";
 import ThemedButton from "../../../components/ThemedButton";
 import DelayedActivityIndicator from "../../../components/DelayedActivityIndicator";
-import EventLogger from"../../../components/EventLogger";
+import EventLogger from "../../../components/EventLogger";
+import RecordingPanel from "../../../components/RecordingPanel";
+import RecordingSessionsList from "../../../components/RecordingSessionsList";
 
 import { useBLE } from "../../../lib/hooks/useBLE";
 import { useAddAscent } from "../../../lib/hooks/useAscents";
@@ -24,14 +26,26 @@ const DeviceScreen = () => {
         sensorData,
         updateRate,
         resetAltitude,
-        // Nowe z hooka useBLE
         triggerSync,
         isSyncing,
         syncProgress,
-		syncedData,
+        deviceRateHz,
+        mtu,
+        invalidPackets,
+        isRecording,
+        isRecordingBusy,
+        recorderStats,
+        startRecording,
+        stopRecording,
+        setSampleRate,
+        recordPointEvent,
+        openIntervalEvent,
+        closeIntervalEvent,
     } = useBLE();
 
-    const [eventLoggerVisible, setEventLoggerVisible] = useState(false);
+    // Przytrzymywany przycisk zdarzenia - przewinięcie ekranu przerwałoby zdarzenie
+    const [isHoldingEvent, setIsHoldingEvent] = useState(false);
+
 
     const createMockTimeline = async () => {
         try {
@@ -96,7 +110,7 @@ const DeviceScreen = () => {
     };
 
     return (
-        <ThemedView style={styles.container} scroll>
+        <ThemedView style={styles.container} scroll scrollEnabled={!isHoldingEvent}>
             <View style={styles.header}>
                 <ThemedText title={true} style={styles.heading}>
                     {connectedDevice ? `Połączono z RopeSync 🟢` : "Brak połączenia 🔴"}
@@ -111,18 +125,8 @@ const DeviceScreen = () => {
                 <ThemedButton onPress={createMockTimeline} style={{ backgroundColor: "#6200ee" }}>
                     <ThemedText style={{ color: "white" }}>Generuj Mock Timeline</ThemedText>
                 </ThemedButton>
-                <ThemedButton
-                    onPress={() => setEventLoggerVisible((prev) => !prev)}
-                    style={{ backgroundColor: "#009688" }}
-                >
-                    <ThemedText style={{ color: "white" }}>
-                        {eventLoggerVisible ? "Ukryj generowanie flag" : "Generuj flagi zdarzeń"}
-                    </ThemedText>
-                </ThemedButton>
             </View>
 
-            {/* Użycie wydzielonego EventLoggera */}
-            {eventLoggerVisible && <EventLogger />}
             <Spacer />
 
             {/* SKANOWANIE BLE */}
@@ -145,32 +149,42 @@ const DeviceScreen = () => {
             {/* DANE Z URZĄDZENIA ORAZ SYNCHRONIZACJA */}
             {connectedDevice && (
                 <View style={styles.dataContainer}>
-                    {/* Panel Synchronizacji */}
+                    <RecordingPanel
+                        isRecording={isRecording}
+                        isBusy={isRecordingBusy}
+                        isSyncing={isSyncing}
+                        stats={recorderStats}
+                        deviceRateHz={deviceRateHz}
+                        receivedPerSecond={updateRate}
+                        mtu={mtu}
+                        invalidPackets={invalidPackets}
+                        onStart={startRecording}
+                        onStop={stopRecording}
+                        onSetRate={setSampleRate}
+                    >
+                        <EventLogger
+                            isRecording={isRecording}
+                            sessionId={recorderStats.mode === "live" ? recorderStats.sessionId : null}
+                            sessionStartedAtMs={recorderStats.startedAtMs}
+                            onPointEvent={recordPointEvent}
+                            onIntervalStart={openIntervalEvent}
+                            onIntervalEnd={closeIntervalEvent}
+                            onHoldChange={setIsHoldingEvent}
+                        />
+                    </RecordingPanel>
+
+                    {/* Panel Synchronizacji - dane z pamięci ESP trafiają do osobnej sesji na liście poniżej */}
                     <View style={styles.syncBox}>
                         {!isSyncing ? (
-							<View>
-                                <ThemedButton onPress={triggerSync} style={{ backgroundColor: "#ff9800", marginBottom: 10 }}>
-                                    <ThemedText style={{ color: "white", textAlign: "center" }}>
-                                        Rozpocznij synchronizację (Pobierz dane)
-                                    </ThemedText>
-                                </ThemedButton>
-                                
-                                <ThemedButton 
-                                    onPress={() => {
-                                        console.log("Pobrane rekordy:", JSON.stringify(syncedData, null, 2));
-                                        Alert.alert(
-                                            "Zsynchronizowane dane", 
-                                            `Obecnie w pamięci jest: ${syncedData.length} rekordów.\n\nPierwszy rekord siła: ${syncedData[0]?.force || 'brak'}`
-                                        );
-                                    }} 
-                                    style={{ backgroundColor: "#2196F3" }}
-                                >
-                                    <ThemedText style={{ color: "white", textAlign: "center" }}>
-                                        Pokaż zawartość pobranych danych
-                                    </ThemedText>
-                                </ThemedButton>
-                            </View>
-							
+                            <ThemedButton
+                                onPress={triggerSync}
+                                disabled={isRecording}
+                                style={{ backgroundColor: "#ff9800", opacity: isRecording ? 0.5 : 1 }}
+                            >
+                                <ThemedText style={{ color: "white", textAlign: "center" }}>
+                                    Rozpocznij synchronizację (Pobierz dane)
+                                </ThemedText>
+                            </ThemedButton>
                         ) : (
                             <View style={{ width: "100%", alignItems: "center" }}>
                                 <ThemedText style={{ marginBottom: 8, fontWeight: "bold" }}>
@@ -208,11 +222,18 @@ const DeviceScreen = () => {
                     </View>
 
                     <View style={styles.dataBox}>
+                        <ThemedText style={styles.dataLabel}>Przyspieszenie [m/s²]:</ThemedText>
+                        <ThemedText style={styles.dataSubText}>X: {sensorData.ax.toFixed(3)}</ThemedText>
+                        <ThemedText style={styles.dataSubText}>Y: {sensorData.ay.toFixed(3)}</ThemedText>
+                        <ThemedText style={styles.dataSubText}>Z: {sensorData.az.toFixed(3)}</ThemedText>
+                    </View>
+
+                    <View style={styles.dataBox}>
                         <ThemedText style={styles.dataLabel}>Kwaterniony:</ThemedText>
+                        <ThemedText style={styles.dataSubText}>W: {sensorData.qW.toFixed(3)}</ThemedText>
                         <ThemedText style={styles.dataSubText}>X: {sensorData.qX.toFixed(3)}</ThemedText>
                         <ThemedText style={styles.dataSubText}>Y: {sensorData.qY.toFixed(3)}</ThemedText>
                         <ThemedText style={styles.dataSubText}>Z: {sensorData.qZ.toFixed(3)}</ThemedText>
-                        <ThemedText style={styles.dataSubText}>W: {sensorData.qW.toFixed(3)}</ThemedText>
                     </View>
                     
                     <ThemedButton onPress={() => disconnectFromDevice()} style={{ backgroundColor: "#d32f2f" }}>
@@ -220,6 +241,9 @@ const DeviceScreen = () => {
                     </ThemedButton>
                 </View>
             )}
+
+            <Spacer />
+            <RecordingSessionsList />
         </ThemedView>
     );
 };

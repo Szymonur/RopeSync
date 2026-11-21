@@ -7,6 +7,8 @@ interface ThemedViewProps {
     style?: StyleProp<ViewStyle>;
     safe?: boolean;
     scroll?: boolean;
+    // Tylko z scroll: chwilowa blokada przewijania (np. przytrzymywany przycisk)
+    scrollEnabled?: boolean;
     children: React.ReactNode;
 }
 
@@ -14,6 +16,7 @@ const ThemedView = ({
     style,
     safe = false,
     scroll = false,
+    scrollEnabled = true,
     children,
 }: ThemedViewProps) => {
     const { colorScheme } = useTheme();
@@ -23,6 +26,7 @@ const ThemedView = ({
         <ScrollView
             contentContainerStyle={style}
             showsVerticalScrollIndicator={false}
+            scrollEnabled={scrollEnabled}
             style={
                 safe
                     ? undefined
